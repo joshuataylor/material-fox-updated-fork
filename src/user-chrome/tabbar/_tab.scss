@@ -183,6 +183,15 @@ body {
   }
 }
 
+// white selected tab for material light theme (contrast against darker toolbar)
+@include moz-pref-media("userChrome.theme-material") {
+  @media (prefers-color-scheme: light) {
+    .tabbrowser-tab:is([visuallyselected], [selected]) {
+      --tab-background-color: white !important;
+    }
+  }
+}
+
 // hover bg opacity for not selected tab
 .tabbrowser-tab:not([selected="true"]):hover,
 .tabbrowser-tab[multiselected]:not([selected="true"]) {

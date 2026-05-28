@@ -53,7 +53,7 @@
     #titlebar {
       background-color: cm(get-var("background-color-50"),
           get-var("accent-color"),
-          0.2) !important;
+          0.4) !important;
     }
 
     #urlbar-background,
@@ -61,7 +61,7 @@
     #searchbar {
       background-color: cm(get-var("background-color-50"),
           get-var("accent-color"),
-          0.0333) !important;
+          0.08) !important;
     }
   }
 }

@@ -191,7 +191,7 @@ $theme-material-light: (
   "menu-border-color": get-var("background-color-0"),
   // tab bar
   "tab-background-color-hover": get-var("accent-color-transparent-active"),
-  "tab-separator-color": cm(transparent, get-var("black"), 0.2),
+  "tab-separator-color": cm(transparent, get-var("black"), 0.3),
   "tab-outline-color": cm(transparent, get-var("black"), 0.2),
   "tab-icon-color": get-var(text-primary),
   "tab-label-color": get-var(text-primary),
@@ -201,7 +201,8 @@ $theme-material-light: (
   "content-separator-color": #dbdcdd,
   // selection colors
   "selection-text-color": get-var(sys-color-on-primary),
-  "selection-background-color": get-var(sys-color-primary)
+  "selection-background-color": get-var(sys-color-primary),
+  "urlbar-background-color-open": get-var("background-color-50")
 );
 
 $theme-material-dark: (
