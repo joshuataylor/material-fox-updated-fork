@@ -128,9 +128,10 @@
 
 @include moz-pref-media("not userChrome.theme-default") {
   #urlbar-searchmode-switcher,
+  #urlbar-searchmode-switcher:hover,
   #urlbar-searchmode-switcher[open],
   #urlbar-searchmode-switcher[open]:hover {
-    background-color: get-var(background-color-100) !important;
+    background-color: transparent !important;
   }
 
 }
