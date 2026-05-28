@@ -5,6 +5,5 @@
   "bracketSpacing": true,
   "quoteProps": "as-needed",
   "printWidth": 80,
-  "plugins": ["stylefmt"],
-  "pluginSearchDirs": false
+  "plugins": ["stylefmt"]
 }
