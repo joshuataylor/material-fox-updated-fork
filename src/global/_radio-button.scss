@@ -23,7 +23,7 @@ input[type="radio"]:not(.wallpaper-input),
 
   background-position: center !important;
 
-  transition-property: background-size !important;
+  transition-property: background-color !important;
   transition-duration: get-var("medium-short-duration") !important;
   transition-timing-function: get-var("fast-invoke") !important;
 }

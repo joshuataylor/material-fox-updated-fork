@@ -64,12 +64,10 @@
 @keyframes set-scale {
   0% {
     transform: scale(0.5);
-    border-radius: 100px !important;
   }
 
   100% {
     transform: scale(1);
-    border-radius: 0 !important;
   }
 }
 

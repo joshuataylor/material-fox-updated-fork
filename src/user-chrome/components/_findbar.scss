@@ -383,7 +383,7 @@ $-checkbox-selectors: (
 // Find bar input hover effect when findbar not focused
 .findbar-textbox {
   border-radius: 0px !important;
-  transition-property: background-color, border-radius, border-color !important;
+  transition-property: background-color, border-color !important;
   transition-timing-function: get-var("fade-in-out") !important;
   transition-duration: get-var("short-duration") !important;
 }
