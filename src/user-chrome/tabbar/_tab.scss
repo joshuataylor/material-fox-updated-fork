@@ -136,9 +136,7 @@ body {
     max-height: 8px !important;
     bottom: 0 !important;
     pointer-events: none !important;
-    clip-path: inset(0px) !important;
-
-    transition-property: box-shadow !important;
+    transition-property: opacity !important;
     transition-duration: get-var("shortest-duration") !important;
     transition-timing-function: get-var("fade-in-out") !important;
 
