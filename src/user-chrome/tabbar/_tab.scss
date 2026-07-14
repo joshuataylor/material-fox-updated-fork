@@ -193,8 +193,8 @@ body {
 }
 
 // hover bg opacity for not selected tab
-.tabbrowser-tab:not([selected="true"]):hover,
-.tabbrowser-tab[multiselected]:not([selected="true"]) {
+.tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
+.tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {
   --tab-opacity: #{get-var("tab-opacity-hover")} !important;
 }
 

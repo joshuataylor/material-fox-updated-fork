@@ -66,8 +66,8 @@ body {
 }
 
 // hover bg opacity for not selected tab
-.tabbrowser-tab:not([selected="true"]):hover,
-.tabbrowser-tab[multiselected]:not([selected="true"]) {
+.tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
+.tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {
   .tab-background {
     margin-top: var(--tab-vertical-padding) !important;
     margin-bottom: var(--tab-vertical-padding) !important;
@@ -85,8 +85,8 @@ body {
 }
 
 // hover bg opacity for not selected tab
-.tabbrowser-tab:not([selected="true"]):hover,
-.tabbrowser-tab[multiselected]:not([selected="true"]) {
+.tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
+.tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {
   --tab-opacity: 1 !important;
 }
 
@@ -131,8 +131,8 @@ body {
 @include moz-pref-media("not userChrome.theme-default") {
 
   // hover bg opacity for not selected tab
-  .tabbrowser-tab:not([selected="true"]):hover,
-  .tabbrowser-tab[multiselected]:not([selected="true"]) {
+  .tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
+  .tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {
     --tab-background-color: #{get-var("tab-background-color-hover")} !important;
   }
 
