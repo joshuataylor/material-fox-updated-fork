@@ -1,9 +1,13 @@
 @use "sass:meta";
 
 // selection color
+// NOTE: no !important -- otherwise this overrides the find-in-page /
+// about:preferences search highlight colours (SELECTION_FIND, set via
+// setColors() in findInPage.js), painting matched text with the full accent
+// selection style instead of the intended find highlight.
 ::selection {
-  background-color: get-var("selection-background-color") !important;
-  color: get-var("selection-text-color") !important;
+  background-color: get-var("selection-background-color");
+  color: get-var("selection-text-color");
 }
 
 // inherit fonts for inputs and buttons
