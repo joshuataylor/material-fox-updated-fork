@@ -1,10 +1,13 @@
 <h1 align="center">
-  🦊 MaterialFox UPDATED
+  🦊 MaterialFox UPDATED (Fork maintained by @joshuataylor)
 </h1>
 
 <h2 align="center">
   A Firefox user CSS theme that looks similar to Chrome.
 </h2>
+
+> [!NOTE]
+> This is a fork of the fantastic [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden). Full credit for the original theme goes to them -- this fork exists to continue maintenance and updates.
 
 ![preview](docs/assets/preview.png)
 
@@ -21,7 +24,7 @@ To start using MaterialFox UPDATED, follow these steps:
 
 4. **Type** `about:support` in the address bar and press <kbd>Enter</kbd>.
 5. **Scroll down** to the `Profile Folder` section and **click** `Open Folder`.
-6. **Download** the `chrome.zip` file from the [**latest release**](https://github.com/edelvarden/material-fox-updated/releases/latest).
+6. **Download** the `chrome.zip` file from the [**latest release**](https://github.com/joshuataylor/material-fox-updated-fork/releases/latest).
 7. **Extract** the contents of `chrome.zip` into your Firefox profile directory.
 8. **Restart** Firefox to apply the changes.
 
@@ -29,25 +32,32 @@ To start using MaterialFox UPDATED, follow these steps:
 
 As an alternative to manual installation, you can use a PowerShell script.
 
+> [!NOTE]
+> The install script and release download links pull from this fork's GitHub Releases. If no release has been published yet, use the manual installation steps above.
+
 For **Windows**, run the following PowerShell command:
 
 ```powershell
-$env:MATERIAL_FOX_VERSION = "latest"; PowerShell -ExecutionPolicy Unrestricted -c "iwr https://raw.githubusercontent.com/edelvarden/material-fox-updated/main/install.ps1 -useb | iex"
+$env:MATERIAL_FOX_VERSION = "latest"; PowerShell -ExecutionPolicy Unrestricted -c "iwr https://raw.githubusercontent.com/joshuataylor/material-fox-updated-fork/main/install.ps1 -useb | iex"
 ```
 
 For Firefox version **119** or below (Firefox ESR, Floorp or Waterfox)
 
 ```powershell
-$env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestricted -c "iwr https://raw.githubusercontent.com/edelvarden/material-fox-updated/main/install.ps1 -useb | iex"
+$env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestricted -c "iwr https://raw.githubusercontent.com/joshuataylor/material-fox-updated-fork/main/install.ps1 -useb | iex"
 ```
 
 ## 💖 Support & Suggestions
 
-If you enjoy this project and want to help me maintain it further, buying me a coffee would be greatly appreciated! [☕️](https://ko-fi.com/edelvarden)
+If you enjoy this project and want to help [@edelvarden](https://github.com/edelvarden) maintain it further, buying them a coffee would be greatly appreciated! [☕️](https://ko-fi.com/edelvarden)
 
 <a href='https://ko-fi.com/edelvarden' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
-Your **suggestions** and **bug reports** are also welcome on [GitHub Issues](https://github.com/edelvarden/material-fox-updated/issues).
+> [!IMPORTANT]
+> This fork, [material-fox-updated-fork](https://github.com/joshuataylor/material-fox-updated-fork), is maintained by [@joshuataylor](https://github.com/joshuataylor), and I'm fortunate to be able to maintain
+> this project in my spare time. If you do enjoy this project, please buy [@edelvarden a coffee](https://ko-fi.com/edelvarden), and not me 🙌.
+
+Your **suggestions** and **bug reports** are also welcome on [GitHub Issues](https://github.com/joshuataylor/material-fox-updated-fork/issues).
 
 ## 🎨 Manual Customization
 
@@ -319,7 +329,7 @@ Examples with previews
 2. Clone this repo with the following command:
 
 ```bash
-git clone https://github.com/edelvarden/material-fox-updated.git chrome
+git clone https://github.com/joshuataylor/material-fox-updated-fork.git chrome
 cd chrome
 npm install
 npm run dev
@@ -352,5 +362,6 @@ npm run dev
 
 ## Credits
 
+- [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden) (this project - [material-fox-updated-fork](https://github.com/joshuataylor/material-fox-updated-fork), is a continuation of their, and everyone else's, fantastic work). Thank you.
 - [MaterialFox](https://github.com/muckSponge/MaterialFox) by [muckSponge](https://github.com/muckSponge)
 - [edge-frfox](https://github.com/bmFtZQ/edge-frfox) by [bmFtZQ](https://github.com/bmFtZQ)
