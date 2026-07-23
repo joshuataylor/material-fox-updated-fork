@@ -16,7 +16,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install dependencies and build project
         run: |
@@ -35,22 +37,25 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create version tag
+        env:
+          VERSION: ${{ env.VERSION }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG_NAME="v${{ env.VERSION }}"
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          TAG_NAME="v${VERSION}"
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_ENV"
           git fetch --tags
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists. Skipping tag creation."
           else
-            git tag $TAG_NAME
-            git push origin $TAG_NAME
+            git tag "$TAG_NAME"
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$TAG_NAME"
           fi
 
       - name: Create and Publish Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.TAG_NAME }}
-          name: ${{ env.TAG_NAME }}
-          files: chrome.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ env.TAG_NAME }}
+        run: |
+          gh release create "$TAG_NAME" chrome.zip \
+            --title "$TAG_NAME" \
+            --repo "$GITHUB_REPOSITORY"
