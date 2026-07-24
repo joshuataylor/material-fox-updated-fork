@@ -1,10 +1,6 @@
 name: Publish New Release
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "package.json" # Trigger workflow on changes in package.json
   workflow_dispatch:
 
 jobs:
