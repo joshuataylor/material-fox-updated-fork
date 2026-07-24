@@ -4,6 +4,5 @@
   "singleQuote": false,
   "bracketSpacing": true,
   "quoteProps": "as-needed",
-  "printWidth": 80,
-  "plugins": ["stylefmt"]
+  "printWidth": 80
 }
