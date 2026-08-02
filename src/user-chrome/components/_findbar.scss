@@ -238,186 +238,208 @@ $-checkbox-selectors: (
   }
 }
 
-// Include Mixin
-@include refined-findbar();
+// Firefox 155's "Nova" work moved the findbar into the .browserContainer CSS grid
+// (grid-area: findbar) and hides it via visibility:collapse + negative margin-bottom.
+// That relocation is UNGATED -- it ships for every 155 build regardless of
+// browser.nova.enabled (Bug 2049244). With Nova styling ON, Firefox draws a usable
+// native findbar. With Nova styling OFF, this branch runs; the theme's original
+// overlay restyle (position:absolute + contain + a scaleY animation) fought the new
+// grid layout and left the findbar invisible.
+//
+// Fix: keep the material cosmetics from the mixin, but neutralise the overlay-only
+// properties so the findbar stays in its native grid-docked position and Firefox's
+// own show/hide keeps working. Find then works with browser.nova.enabled = false.
+@include moz-pref-media("not browser.nova.enabled") {
+  // Include Mixin (cosmetics: border, background, elevation, radius, button shapes)
+  @include refined-findbar();
 
-// Additional Styles
-#browser {
-  position: relative !important;
-}
-
-// findbar position
-.browserContainer > findbar {
-  position: absolute !important;
-  margin: 5px 17px 0 5px !important;
-  align-items: center !important;
-}
-
-.findbar-container {
-  display: flex;
-  align-items: center !important;
-  margin-inline-start: 0 !important;
-  margin-inline-end: 0 !important;
-}
-
-.findbar-label {
-  color: get-var("text-primary") !important;
-  font-weight: 400 !important;
-  margin-inline-start: 8px !important;
-}
-
-.found-matches {
-  align-items: center !important;
-}
-
-.findbar-textbox {
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  border-right: 1px solid !important;
-  border-color: get-var("menu-border-color") !important;
-  border-radius: 0 !important;
-  margin-inline-end: 6px !important;
-  box-shadow: none !important;
-
-  &:focus {
-    box-shadow: none !important;
+  // Undo the mixin's overlay layout so we do not fight the Nova grid docking.
+  findbar {
+    position: static !important;
+    contain: none !important;
+    animation: none !important;
+    inset: auto !important;
   }
-}
 
-// Findbar Buttons
-.findbar-closebutton,
-.findbar-find-previous,
-.findbar-find-next {
-  $button-size: 28px;
-  border-radius: 50% !important;
-  padding: 2px !important;
-  max-height: $button-size !important;
-  max-width: $button-size !important;
-  min-height: $button-size !important;
-  min-width: $button-size !important;
+  // Nova hides the findbar with visibility:collapse + a negative margin-bottom sized
+  // to --findbar-height, then forces display:flex to keep its slide transition. The
+  // theme's cosmetics change the findbar's real height, so that collapse left a
+  // residual grey bar in the content area after Esc/close. Hide it outright instead
+  // (this also drops the slide transition, which the theme does not use).
+  findbar[hidden] {
+    display: none !important;
+  }
 
-  & > .toolbarbutton-icon {
-    display: flex !important;
+  .browserContainer > findbar {
+    align-items: center !important;
+  }
+
+  .findbar-container {
+    display: flex;
+    align-items: center !important;
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+  }
+
+  .findbar-label {
+    color: get-var("text-primary") !important;
+    font-weight: 400 !important;
+    margin-inline-start: 8px !important;
+  }
+
+  .found-matches {
+    align-items: center !important;
+  }
+
+  .findbar-textbox {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    border-right: 1px solid !important;
+    border-color: get-var("menu-border-color") !important;
+    border-radius: 0 !important;
+    margin-inline-end: 6px !important;
+    box-shadow: none !important;
+
+    &:focus {
+      box-shadow: none !important;
+    }
+  }
+
+  // Findbar Buttons
+  .findbar-closebutton,
+  .findbar-find-previous,
+  .findbar-find-next {
+    $button-size: 28px;
+    border-radius: 50% !important;
+    padding: 2px !important;
     max-height: $button-size !important;
     max-width: $button-size !important;
     min-height: $button-size !important;
     min-width: $button-size !important;
-    padding: 4px !important;
-    align-items: center !important;
-    justify-content: center !important;
+
+    & > .toolbarbutton-icon {
+      display: flex !important;
+      max-height: $button-size !important;
+      max-width: $button-size !important;
+      min-height: $button-size !important;
+      min-width: $button-size !important;
+      padding: 4px !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
   }
-}
 
-.findbar-closebutton {
-  & > .toolbarbutton-icon {
-    padding: 6px !important;
+  .findbar-closebutton {
+    & > .toolbarbutton-icon {
+      padding: 6px !important;
+    }
   }
-}
 
-.findbar-closebutton {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  margin-inline-end: 6px !important;
-}
+  .findbar-closebutton {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-inline-end: 6px !important;
+  }
 
-.findbar-find-previous,
-.findbar-find-next {
-  display: flex !important;
-  align-items: center !important;
-
-  & > .toolbarbutton-icon {
+  .findbar-find-previous,
+  .findbar-find-next {
     display: flex !important;
     align-items: center !important;
-  }
-}
 
-// Arrow Icons
-.findbar-find-previous {
-  list-style-image: get-var(keyboard-arrow-up-icon) !important;
-}
-
-.findbar-find-next {
-  list-style-image: get-var(keyboard-arrow-down-icon) !important;
-}
-
-// RTL Support
-[dir="rtl"] {
-  findbar {
-    left: 0 !important;
-    right: unset !important;
+    & > .toolbarbutton-icon {
+      display: flex !important;
+      align-items: center !important;
+    }
   }
 
-  .findbar-textbox {
-    border-left: 1px solid !important;
-    border-right: none !important;
-    border-color: get-var("menu-border-color") !important;
-    border-radius: 0 !important;
+  // Arrow Icons
+  .findbar-find-previous {
+    list-style-image: get-var(keyboard-arrow-up-icon) !important;
   }
-}
 
-// Hide find bar additional text info
-.findbar-find-status {
-  display: none !important;
-}
-
-// Additional Styles for Containers and Labels
-.findbar-container {
-  margin-inline-start: 0 !important;
-  margin-inline-end: 0 !important;
-}
-
-.findbar-label {
-  margin-inline-start: 8px !important;
-}
-
-// Find bar height size
-.findbar-container {
-  height: 32px !important;
-}
-
-[anonid="findbar-textbox-wrapper"] {
-  height: 100% !important;
-}
-
-// Prev/Next buttons on the vertical center
-[anonid="findbar-textbox-wrapper"] > toolbarbutton {
-  margin: auto 0 !important;
-}
-
-// Find bar input hover effect when findbar not focused
-.findbar-textbox {
-  border-radius: 0px !important;
-  transition-property: background-color, border-color !important;
-  transition-timing-function: get-var("fade-in-out") !important;
-  transition-duration: get-var("short-duration") !important;
-}
-
-.findbar-textbox:not(:focus):hover,
-.findbar-textbox[status="notfound"] {
-  border-radius: 6px !important;
-  border-color: transparent !important;
-  background-color: get-var("urlbar-background-color-hover") !important;
-}
-
-// background color when not found
-.findbar-textbox {
-  &[status="notfound"] {
-    background-color: get-var("findbar-notfound-background-color") !important;
+  .findbar-find-next {
+    list-style-image: get-var(keyboard-arrow-down-icon) !important;
   }
-}
 
-.findbar-textbox:focus-visible {
-  box-shadow: none !important;
-}
+  // RTL Support
+  [dir="rtl"] {
+    findbar {
+      left: 0 !important;
+      right: unset !important;
+    }
 
-// fix find bar overflow on small screen sizes
-.findbar-container {
-  flex-wrap: wrap !important;
-}
-@media only screen and (max-width: 550px) {
-  // hide checkboxes on extra small window size
-  .findbar-container checkbox {
+    .findbar-textbox {
+      border-left: 1px solid !important;
+      border-right: none !important;
+      border-color: get-var("menu-border-color") !important;
+      border-radius: 0 !important;
+    }
+  }
+
+  // Hide find bar additional text info
+  .findbar-find-status {
     display: none !important;
   }
-}
+
+  // Additional Styles for Containers and Labels
+  .findbar-container {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+  }
+
+  .findbar-label {
+    margin-inline-start: 8px !important;
+  }
+
+  // Find bar height size
+  .findbar-container {
+    height: 32px !important;
+  }
+
+  [anonid="findbar-textbox-wrapper"] {
+    height: 100% !important;
+  }
+
+  // Prev/Next buttons on the vertical center
+  [anonid="findbar-textbox-wrapper"] > toolbarbutton {
+    margin: auto 0 !important;
+  }
+
+  // Find bar input hover effect when findbar not focused
+  .findbar-textbox {
+    border-radius: 0px !important;
+    transition-property: background-color, border-color !important;
+    transition-timing-function: get-var("fade-in-out") !important;
+    transition-duration: get-var("short-duration") !important;
+  }
+
+  .findbar-textbox:not(:focus):hover,
+  .findbar-textbox[status="notfound"] {
+    border-radius: 6px !important;
+    border-color: transparent !important;
+    background-color: get-var("urlbar-background-color-hover") !important;
+  }
+
+  // background color when not found
+  .findbar-textbox {
+    &[status="notfound"] {
+      background-color: get-var("findbar-notfound-background-color") !important;
+    }
+  }
+
+  .findbar-textbox:focus-visible {
+    box-shadow: none !important;
+  }
+
+  // fix find bar overflow on small screen sizes
+  .findbar-container {
+    flex-wrap: wrap !important;
+  }
+  @media only screen and (max-width: 550px) {
+    // hide checkboxes on extra small window size
+    .findbar-container checkbox {
+      display: none !important;
+    }
+  }
+} // end: not browser.nova.enabled
