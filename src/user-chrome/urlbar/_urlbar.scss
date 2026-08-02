@@ -111,6 +111,26 @@ body {
   border-bottom: 1px solid get-var("content-separator-color") !important;
 }
 
+// Firefox 155 "Nova" redesign (browser.nova.enabled, default on Nightly) wraps
+// .chrome-block elements -- #navigator-toolbox, #sidebar-box, #sidebar-container
+// -- in a 1px border with rounded corners, producing a border around the whole
+// window. Opt-in via `userChrome.ui-no-nova-border` to strip the full border and
+// radius; the intended bottom content separator is kept.
+@include moz-pref-media("userChrome.ui-no-nova-border") {
+  @include moz-pref-media("browser.nova.enabled") {
+    #navigator-toolbox,
+    #sidebar-box,
+    #sidebar-container {
+      border: none !important;
+      border-radius: 0 !important;
+    }
+
+    #navigator-toolbox {
+      border-bottom: 1px solid get-var("content-separator-color") !important;
+    }
+  }
+}
+
 // Url bar bg color change on hover, feat: https://github.com/edelvarden/material-fox-updated/issues/69
 #urlbar-background,
 .urlbar-background,

@@ -128,6 +128,10 @@ To **disable** a preference:
     <td><code>userChrome.ui-no-ripple</code></td>
     <td>Disable ripple effect from buttons</td>
   </tr>
+  <tr>
+    <td><code>userChrome.ui-no-nova-border</code></td>
+    <td>Remove the border Firefox 155+'s "Nova" redesign draws around the window (<code>browser.nova.enabled</code>, on by default in Nightly).</td>
+  </tr>
 </table>
 
 ## Custom CSS rules

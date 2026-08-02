@@ -230,22 +230,28 @@ $-checkbox-selectors: (
 }
 }
 
-// Include Mixin
-@include refined-findbar();
+// Firefox 155+ "Nova" redesign docks the findbar at the bottom of the browser in
+// normal flow (position: static, hidden via visibility:collapse + negative
+// margin-bottom) and ships its own styling. The theme's floating/absolute restyle
+// and custom scale animation fight that layout and leave the findbar invisible, so
+// skip the whole restyle when Nova is on and use Firefox's native findbar.
+@include moz-pref-media("not browser.nova.enabled") {
+  // Include Mixin
+  @include refined-findbar();
 
-// Additional Styles
-#browser {
-  position: relative !important;
-}
+  // Additional Styles
+  #browser {
+    position: relative !important;
+  }
 
-// findbar position
-.browserContainer>findbar {
-  position: absolute !important;
-  margin: 5px 17px 0 5px !important;
-  align-items: center !important;
-}
+  // findbar position
+  .browserContainer>findbar {
+    position: absolute !important;
+    margin: 5px 17px 0 5px !important;
+    align-items: center !important;
+  }
 
-.findbar-container {
+  .findbar-container {
   display: flex;
   align-items: center !important;
   margin-inline-start: 0 !important;
@@ -414,3 +420,4 @@ $-checkbox-selectors: (
     display: none !important;
   }
 }
+} // end: not browser.nova.enabled
