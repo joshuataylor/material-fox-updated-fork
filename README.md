@@ -9,6 +9,9 @@
 > [!NOTE]
 > This is a fork of the fantastic [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden). Full credit for the original theme goes to them -- this fork exists to continue maintenance and updates.
 
+> [!NOTE]
+> **Firefox 155+ "Nova" redesign:** Firefox 155 (on by default in Nightly) draws a border with rounded corners around the window and content area. Enable the `userChrome.ui-no-nova-border` preference to remove it -- see the [Available preferences](#available-preferences) table.
+
 ![preview](docs/assets/preview.png)
 
 ## 🚀 Getting Started
@@ -127,6 +130,10 @@ To **disable** a preference:
   <tr>
     <td><code>userChrome.ui-no-ripple</code></td>
     <td>Disable ripple effect from buttons</td>
+  </tr>
+  <tr>
+    <td><code>userChrome.ui-no-nova-border</code></td>
+    <td>Remove the border and rounded corners Firefox 155+'s "Nova" redesign draws around the window and web content area (<code>browser.nova.enabled</code>, on by default in Nightly).</td>
   </tr>
 </table>
 
