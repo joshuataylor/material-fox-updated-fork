@@ -21,6 +21,7 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * Hide menu icons
 // user_pref("userChrome.ui-no-menu-icons", true);
 
-// * Remove the border Firefox 155+'s "Nova" redesign draws around the window
+// * Remove the border, rounded corners and gap Firefox 155+'s "Nova" redesign
+// * draws around the window, so the chrome sits flush to the window edges
 // * (browser.nova.enabled, default on Nightly).
 // user_pref("userChrome.ui-no-nova-border", true);

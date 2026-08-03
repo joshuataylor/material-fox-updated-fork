@@ -141,13 +141,23 @@ body {
   border-bottom: 1px solid get-var("content-separator-color") !important;
 }
 
-// Firefox 155 "Nova" redesign (browser.nova.enabled, default on Nightly) wraps
-// .chrome-block elements -- #navigator-toolbox, #sidebar-box, #sidebar-container
-// -- in a 1px border with rounded corners, producing a border around the whole
-// window. Opt-in via `userChrome.ui-no-nova-border` to strip the full border and
-// radius; the intended bottom content separator is kept.
+// Firefox 155 "Nova" redesign (browser.nova.enabled, default on Nightly) frames
+// the chrome as a floating "island": a 1px border with rounded corners on the
+// .chrome-block elements (#navigator-toolbox, #sidebar-box, #sidebar-container),
+// plus an inset gap that pushes the toolbar and content away from the window
+// edges. Opt-in via `userChrome.ui-no-nova-border` to strip all of it and sit
+// flush; the intended bottom content separator is kept.
 @include moz-pref-media("userChrome.ui-no-nova-border") {
   @include moz-pref-media("browser.nova.enabled") {
+    // The inset frame is driven entirely by --chrome-window-gap (content-area.css
+    // feeds it into #navigator-toolbox margins and #browser padding/gap) and the
+    // corners by --chrome-block-radius. Zero both so the opt-out is fully flush,
+    // instead of only dropping the 1px line while the floating gap remains.
+    :root {
+      --chrome-window-gap: 0px !important;
+      --chrome-block-radius: 0 !important;
+    }
+
     #navigator-toolbox,
     #sidebar-box,
     #sidebar-container {
