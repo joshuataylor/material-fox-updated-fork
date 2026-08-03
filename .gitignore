@@ -25,6 +25,7 @@ dist-ssr
 
 # ignore
 node_modules
+dev/nightly/
 yarn.lock
 pnpm-lock.yaml
 *.zip
