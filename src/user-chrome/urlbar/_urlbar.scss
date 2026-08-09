@@ -19,6 +19,27 @@ body {
   --urlbar-container-padding: 2px !important; // Container Padding
 }
 
+// Keep urlbar/searchbar border geometry constant across every state
+// (resting / hover / focused / open) on BOTH Nova and pre-Nova, so the pill
+// and its centred text never reflow. Firefox otherwise steps the background
+// border width per state (1px resting -> 2px focused on Nova, and the theme's
+// own border: none on [open]), which reads as a subtle vertical bounce even
+// though .urlbar-background is inset: 0. Pin the width; only the COLOUR changes
+// between states. Literal widths make this version-independent.
+#urlbar,
+#searchbar {
+  --urlbar-background-border: 1px solid var(--toolbar-field-border-color) !important;
+  --urlbar-background-border-focused: 1px solid var(--toolbar-field-border-color-focus) !important;
+  --urlbar-background-border-breakout: 1px solid transparent !important;
+}
+
+#urlbar-background,
+.urlbar-background,
+.urlbar-input-container,
+#searchbar {
+  box-sizing: border-box !important;
+}
+
 // Fix Icons sizes after URL Bar Size Change
 .identity-box-button,
 #notification-popup-box,
@@ -50,7 +71,10 @@ body {
     .urlbar-background,
     #searchbar {
       border-radius: 16px !important;
-      border: none !important;
+      // same-width transparent border instead of `border: none` so the border
+      // box does not collapse to 0 when the dropdown opens (see anti-bounce
+      // block above)
+      border: 1px solid transparent !important;
       box-shadow: get-var("elevation-4") !important;
 
       @media (prefers-color-scheme: light) {
