@@ -56,7 +56,7 @@ Firefox 155 introduces a large visual redesign codenamed **"Nova"** (Project Nov
 
 Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and -- most visibly for this theme -- wraps the toolbar, sidebar and web content in rounded, bordered "islands". The theme adapts to it:
 
-- **Window / content border.** Nova draws a 1px border with rounded corners around the window and content area. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove it. Off by default, so it does nothing on non-Nova Firefox.
+- **Window / content border.** Nova wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the border, corners and gap so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
 - **Find bar.** Nova moved the find bar into a CSS grid at the bottom of the content area. The theme handles this automatically -- no action needed.
 
 A couple of things worth knowing:
@@ -154,7 +154,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-no-nova-border</code></td>
-    <td>Remove the border and rounded corners Firefox 155+'s "Nova" redesign draws around the window and web content area (<code>browser.nova.enabled</code>, on by default in Nightly).</td>
+    <td>Remove the border, rounded corners and surrounding gap Firefox 155+'s "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly).</td>
   </tr>
 </table>
 
