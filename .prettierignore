@@ -5,3 +5,13 @@
 # build files
 **/chrome
 **/examples
+
+# local tooling / editor & profile state (never distributed)
+**/.claude
+**/.profiles
+
+# generated lockfile
+package-lock.json
+
+# hand-authored docs, formatted by hand not Prettier
+**/*.md

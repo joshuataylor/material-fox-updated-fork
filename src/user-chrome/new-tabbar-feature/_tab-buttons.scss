@@ -1,6 +1,4 @@
-@media (-moz-platform: windows),
-(-moz-platform: linux) {
-
+@media (-moz-platform: windows), (-moz-platform: linux) {
   // move all tabs button to the left
   #TabsToolbar-customization-target {
     display: flex !important;
@@ -101,7 +99,7 @@
 
 // fix first tab left decorative corner cropping (`.tab-background::before`)
 @media (-moz-platform: windows) or (-moz-platform: linux) {
-  .scrollbox-clip[orient="horizontal"]>scrollbox:nth-child(1) {
+  .scrollbox-clip[orient="horizontal"] > scrollbox:nth-child(1) {
     padding-inline-start: 11px !important;
     margin-inline-start: -11px !important;
   }
@@ -125,7 +123,7 @@
 // make new tab button icon smaller
 #tabs-newtab-button,
 #new-tab-button {
-  &> :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  & > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
     width: 30px !important;
     height: 30px !important;
     padding: 8px !important;
@@ -134,12 +132,13 @@
 
 @include moz-pref-media("not userChrome.theme-default") {
   #alltabs-button {
-
     // default color
     .toolbarbutton-badge-stack {
-      background-color: cm(get-var("background-color-100"),
-          get-var("accent-color"),
-          0.1333) !important;
+      background-color: cm(
+        get-var("background-color-100"),
+        get-var("accent-color"),
+        0.1333
+      ) !important;
 
       @media (prefers-color-scheme: dark) {
         background-color: get-var("background-color-100") !important;
@@ -157,9 +156,11 @@
     &:active:hover,
     &[open="true"] {
       .toolbarbutton-badge-stack {
-        background-color: cm(transparent,
-            get-var("accent-color-hover"),
-            0.6) !important;
+        background-color: cm(
+          transparent,
+          get-var("accent-color-hover"),
+          0.6
+        ) !important;
 
         @media (prefers-color-scheme: dark) {
           background-color: get-var(alltabs-background-color-open) !important;
@@ -177,10 +178,10 @@
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
-
   #tabs-newtab-button,
   #new-tab-button {
-    &:not([disabled]):hover> :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+    &:not([disabled]):hover
+      > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
       background-color: get-var("tab-background-color-hover") !important;
     }
 
@@ -192,7 +193,8 @@
 .tab-content {
   padding-inline-end: 15px !important;
 
-  #tabbrowser-tabs[closebuttons="activetab"][orient="horizontal"] &:not([selected]) {
+  #tabbrowser-tabs[closebuttons="activetab"][orient="horizontal"]
+    &:not([selected]) {
     padding-inline-end: 12px !important;
   }
 }

@@ -1,5 +1,4 @@
 @-moz-document url-prefix("about:newtab"), url-prefix("about:home") {
-
   // new tab page colors
   html,
   body {
@@ -16,7 +15,6 @@
   }
 
   @media (prefers-color-scheme: light) {
-
     html,
     body {
       // main bg color
@@ -113,7 +111,6 @@
   }
 
   .top-site-outer {
-
     .tile {
       border-radius: 100px !important;
       height: 44px !important;
@@ -129,7 +126,6 @@
   }
 
   .top-site-outer {
-
     .default-icon,
     .search-topsite {
       background-size: 16px !important;
@@ -155,7 +151,11 @@
   }
 
   .card-outer .card-preview-image-outer,
-  .ds-card-grid.ds-card-grid-border .ds-card:not(.placeholder) .img-wrapper .img img {
+  .ds-card-grid.ds-card-grid-border
+    .ds-card:not(.placeholder)
+    .img-wrapper
+    .img
+    img {
     border-radius: 6px 6px 0 0 !important;
   }
 
@@ -181,7 +181,11 @@
   }
 
   .card-outer .card-preview-image-outer,
-  .ds-card-grid.ds-card-grid-border .ds-card:not(.placeholder) .img-wrapper .img img {
+  .ds-card-grid.ds-card-grid-border
+    .ds-card:not(.placeholder)
+    .img-wrapper
+    .img
+    img {
     border-radius: 18px 18px 0 0 !important;
   }
 
@@ -206,14 +210,19 @@
   }
 
   // "Resent activity" start button fill color
-  .compact-cards .card-outer .card-context .card-context-icon.icon-bookmark-added {
+  .compact-cards
+    .card-outer
+    .card-context
+    .card-context-icon.icon-bookmark-added {
     fill: get-var("accent-color") !important;
   }
 
   // open customize-menu button
   .personalize-button {
     // color: get-var("accent-color") !important;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 1px 2px;
+    box-shadow:
+      rgba(0, 0, 0, 0.16) 0px 3px 6px,
+      rgba(0, 0, 0, 0.23) 0px 1px 2px;
     // font-weight: 400 !important;
     min-width: 32px !important;
     border-radius: 100px !important;
@@ -253,7 +262,6 @@
 
   // customize-menu window
   .customize-menu {
-
     // customize-menu close button
     button.close-button {
       color: get-var("accent-color") !important;
@@ -305,10 +313,8 @@
     outline: none !important;
   }
 
-
   // bigger font size for "new tab" page
   @media (-moz-platform: macos) {
-
     html,
     body {
       font-weight: 500 !important;

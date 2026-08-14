@@ -15,7 +15,6 @@
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
-
   // urlbar suggestions item
   .urlbarView-row {
     &[selected] {
@@ -85,15 +84,14 @@
 }
 
 .urlbarView[noresults="true"] // if no results
-
-  {
+{
   .urlbarView-results {
     padding-block: 0 !important;
   }
 }
 
 // remove unnecessary border upper url bar suggestions
-#urlbar[open]>.urlbarView>.urlbarView-body-outer>.urlbarView-body-inner {
+#urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
   border-color: transparent !important;
 }
 

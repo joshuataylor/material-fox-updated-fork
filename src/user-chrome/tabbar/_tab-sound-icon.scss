@@ -137,10 +137,11 @@
   inset-inline-end: 0px !important;
 
   transition-property: margin, transform, background-color !important;
-  transition-duration: get-var("medium-duration"), get-var("medium-duration"),
+  transition-duration:
+    get-var("medium-duration"), get-var("medium-duration"),
     get-var("short-duration") !important;
-  transition-timing-function: get-var("point-to-point"),
-    get-var("point-to-point"), ease !important;
+  transition-timing-function:
+    get-var("point-to-point"), get-var("point-to-point"), ease !important;
 }
 
 .tabbrowser-tab[pinned]:is([soundplaying], [muted], [activemedia-blocked]) {

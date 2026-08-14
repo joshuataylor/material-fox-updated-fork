@@ -1,11 +1,11 @@
 input:is(
-    [type="email"],
-    [type="tel"],
-    [type="text"],
-    [type="password"],
-    [type="url"],
-    [type="number"]
-  ),
+  [type="email"],
+  [type="tel"],
+  [type="text"],
+  [type="password"],
+  [type="url"],
+  [type="number"]
+),
 textarea,
 search-textbox {
   border: 1px solid;

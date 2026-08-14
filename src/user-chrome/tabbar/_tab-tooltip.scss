@@ -1,5 +1,4 @@
 @include moz-pref-media("not browser.tabs.hoverPreview.enabled") {
-
   // hide old tooltip
   #tabbrowser-tab-tooltip {
     display: none !important;
@@ -64,5 +63,4 @@
   #PersonalToolbar {
     z-index: 1 !important;
   }
-
 }

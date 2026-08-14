@@ -1,6 +1,5 @@
 // fixes for default Firefox colors feature
 @include moz-pref-media("userChrome.theme-default") {
-
   // urlbar suggestions item
   .urlbarView-row {
     &[selected] {
@@ -53,7 +52,6 @@
 
   // make navbar the same color as selected tab
   @media (prefers-color-scheme: dark) {
-
     html,
     body {
       --toolbar-bgcolor: var(--tab-selected-bgcolor) !important;
@@ -64,13 +62,14 @@
     }
   }
 
-  #urlbar-background, .urlbar-background {
+  #urlbar-background,
+  .urlbar-background {
     background-color: var(--toolbar-field-background-color) !important;
   }
 
   #urlbar:is([open], [focused]) {
-
-    #urlbar-background, .urlbar-background,
+    #urlbar-background,
+    .urlbar-background,
     #searchbar {
       background-color: var(--toolbar-field-focus-background-color) !important;
     }

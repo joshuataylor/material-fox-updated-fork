@@ -88,7 +88,19 @@
 }
 
 // fix "Not secure" doesn’t fit into pill shape correctly (#118)
-#identity-box[pageproxystate="valid"]:is(.extensionPage, .notSecure, .notSecureText, .mixedActiveContent, .httpsOnlyErrorPage, .weakCipher, .mixedDisplayContent, .mixedDisplayContentLoadedActiveBlocked, .certUserOverridden, #identity-box[pageproxystate="valid"].certErrorPage) #identity-icon-box.identity-box-button {
+#identity-box[pageproxystate="valid"]:is(
+    .extensionPage,
+    .notSecure,
+    .notSecureText,
+    .mixedActiveContent,
+    .httpsOnlyErrorPage,
+    .weakCipher,
+    .mixedDisplayContent,
+    .mixedDisplayContentLoadedActiveBlocked,
+    .certUserOverridden,
+    #identity-box[pageproxystate="valid"].certErrorPage
+  )
+  #identity-icon-box.identity-box-button {
   padding-inline: 8px !important;
 }
 
@@ -133,5 +145,4 @@
   #urlbar-searchmode-switcher[open]:hover {
     background-color: transparent !important;
   }
-
 }

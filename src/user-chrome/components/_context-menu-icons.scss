@@ -233,7 +233,6 @@
   }
 
   [dir="rtl"] {
-
     // close tabs left
     #context_closeTabsToTheStart {
       --menuitem-image: #{get-var("arrow-forward-icon")};
@@ -304,13 +303,14 @@
   #contentAreaContextMenu,
   #toolbar-context-menu,
   :is(#placesContext, #tabContextMenu) {
-
-    :is(menuitem, menu):not([image],
+    :is(menuitem, menu):not(
+      [image],
       .menu-iconic,
       .menuitem-iconic,
       [type="radio"],
       [type="checkbox"],
-      [checked]),
+      [checked]
+    ),
     #context-back,
     #context-forward,
     #context-reload,
@@ -333,19 +333,19 @@
   }
 
   [dir="rtl"] {
-
     // Allowing set icons as background
     .textbox-contextmenu,
     #contentAreaContextMenu,
     #toolbar-context-menu,
     :is(#placesContext, #tabContextMenu) {
-
-      :is(menuitem, menu):not([image],
+      :is(menuitem, menu):not(
+        [image],
         .menu-iconic,
         .menuitem-iconic,
         [type="radio"],
         [type="checkbox"],
-        [checked]) {
+        [checked]
+      ) {
         background-position: left center !important;
         background-position-x: calc(100% - 12px) !important;
 

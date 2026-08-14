@@ -1,6 +1,6 @@
-@use 'sass:list';
-@use 'sass:math';
-@use 'sass:map';
+@use "sass:list";
+@use "sass:math";
+@use "sass:map";
 
 // Variables
 $-checkbox-selectors: (
@@ -11,20 +11,23 @@ $-checkbox-selectors: (
 );
 
 // Mixins
-@mixin refined-findbar($border-radius: 8px,
+@mixin refined-findbar(
+  $border-radius: 8px,
   $float: true,
   $float-alignment: top,
   $float-distance: 0px,
   $buttons: true,
   $buttons-grouped: true,
-  $order: (LABELS,
+  $order: (
+    LABELS,
     DESCRIPTION,
     TEXT_BOX,
     CHECKBOX_HIGHLIGHT_ALL,
     CHECKBOX_MATCH_CASE,
     CHECKBOX_MATCH_DIACRITICS,
-    CHECKBOX_WHOLE_WORDS)) {
-
+    CHECKBOX_WHOLE_WORDS,
+  )
+) {
   // Keyframes
   @keyframes findbar-scale-in {
     0% {
@@ -62,9 +65,7 @@ $-checkbox-selectors: (
       #{$float-alignment}: $float-distance;
       transform-origin: #{$float-alignment} center;
       border-radius: $border-radius !important;
-    }
-
-    @else {
+    } @else {
       top: -1px;
       right: 44px;
       transform-origin: top center;
@@ -75,7 +76,7 @@ $-checkbox-selectors: (
 
     animation: get-var("short-duration") findbar-scale-in;
 
-    &[hidden='true'] {
+    &[hidden="true"] {
       animation: 0ms findbar-scale-out;
     }
 
@@ -87,12 +88,12 @@ $-checkbox-selectors: (
     .findbar-container {
       gap: $space-unit;
 
-      &>* {
+      & > * {
         margin-inline-end: 0 !important;
       }
     }
 
-    [anonid='findbar-textbox-wrapper'] {
+    [anonid="findbar-textbox-wrapper"] {
       htmlNs|input {
         @extend %bordered-control;
 
@@ -142,7 +143,7 @@ $-checkbox-selectors: (
           background-color: var(--button-active-bgcolor);
         }
 
-        &[checked='true'] {
+        &[checked="true"] {
           color: var(--button-primary-color);
           background-color: var(--button-primary-bgcolor);
 
@@ -164,70 +165,77 @@ $-checkbox-selectors: (
           display: none;
         }
 
-        $checkbox-by-index: (
+        $checkbox-by-index: ();
+
+        @each $name in map.keys($-checkbox-selectors) {
+          $checkbox-by-index: map.set(
+            $checkbox-by-index,
+            list.index($order, $name),
+            $name
+          );
+        }
+
+        $first-checkbox: map.get(
+          $checkbox-by-index,
+          math.min(map.keys($checkbox-by-index)...)
+        );
+        $last-checkbox: map.get(
+          $checkbox-by-index,
+          math.max(map.keys($checkbox-by-index)...)
         );
 
-      @each $name in map.keys($-checkbox-selectors) {
-        $checkbox-by-index: map.set($checkbox-by-index, list.index($order, $name), $name);
-      }
+        @if $buttons-grouped {
+          &:not(#{map.get($-checkbox-selectors, $last-checkbox)}) {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+          }
 
-      $first-checkbox: map.get($checkbox-by-index, math.min(map.keys($checkbox-by-index)...));
-      $last-checkbox: map.get($checkbox-by-index, math.max(map.keys($checkbox-by-index)...));
+          &:not(#{map.get($-checkbox-selectors, $first-checkbox)}) {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-left-width: 0;
+          }
 
-      @if $buttons-grouped {
-        &:not(#{map.get($-checkbox-selectors, $last-checkbox)}) {
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-        }
+          margin-inline-start: -$space-unit + 1px !important;
 
-        &:not(#{map.get($-checkbox-selectors, $first-checkbox)}) {
-          border-top-left-radius: 0;
-          border-bottom-left-radius: 0;
-          border-left-width: 0;
-        }
+          &:is(#{map.get($-checkbox-selectors, $first-checkbox)}) {
+            margin-inline-start: -4px !important;
+          }
 
-        margin-inline-start: -$space-unit +1px !important;
-
-        &:is(#{map.get($-checkbox-selectors, $first-checkbox)}) {
-          margin-inline-start: -4px !important;
-        }
-
-        &:is(#{map.get($-checkbox-selectors, $last-checkbox)}) {
-          margin-inline-end: 4px !important;
-        }
-      }
-
-      @else {
-        &:not(#{map.get($-checkbox-selectors, $first-checkbox)}) {
-          margin-inline-end: -1 * math.div($space-unit, 2) !important;
+          &:is(#{map.get($-checkbox-selectors, $last-checkbox)}) {
+            margin-inline-end: 4px !important;
+          }
+        } @else {
+          &:not(#{map.get($-checkbox-selectors, $first-checkbox)}) {
+            margin-inline-end: -1 * math.div($space-unit, 2) !important;
+          }
         }
       }
     }
-  }
 
-  // Label and Description Order
-  description.findbar-label:empty {
-    display: none;
-  }
+    // Label and Description Order
+    description.findbar-label:empty {
+      display: none;
+    }
 
-  [anonid='findbar-textbox-wrapper'] {
-    order: list.index($order, TEXT_BOX) - 1;
-  }
+    [anonid="findbar-textbox-wrapper"] {
+      order: list.index($order, TEXT_BOX) - 1;
+    }
 
-  @each $name, $selector in $-checkbox-selectors {
-    #{$selector} {
-      order: list.index($order, $name) - 1;
+    @each $name, $selector in $-checkbox-selectors {
+      #{$selector} {
+        order: list.index($order, $name) - 1;
+      }
+    }
+
+    label.findbar-label {
+      order: list.index($order, LABELS) - 1;
+    }
+
+    description.findbar-label {
+      order: list.index($order, DESCRIPTION) - 1;
     }
   }
-
-  label.findbar-label {
-    order: list.index($order, LABELS) - 1;
-  }
-
-  description.findbar-label {
-    order: list.index($order, DESCRIPTION) - 1;
-  }
-}
 }
 
 // Include Mixin
@@ -239,7 +247,7 @@ $-checkbox-selectors: (
 }
 
 // findbar position
-.browserContainer>findbar {
+.browserContainer > findbar {
   position: absolute !important;
   margin: 5px 17px 0 5px !important;
   align-items: center !important;
@@ -289,7 +297,7 @@ $-checkbox-selectors: (
   min-height: $button-size !important;
   min-width: $button-size !important;
 
-  &>.toolbarbutton-icon {
+  & > .toolbarbutton-icon {
     display: flex !important;
     max-height: $button-size !important;
     max-width: $button-size !important;
@@ -302,7 +310,7 @@ $-checkbox-selectors: (
 }
 
 .findbar-closebutton {
-  &>.toolbarbutton-icon {
+  & > .toolbarbutton-icon {
     padding: 6px !important;
   }
 }
@@ -318,7 +326,7 @@ $-checkbox-selectors: (
   display: flex !important;
   align-items: center !important;
 
-  &>.toolbarbutton-icon {
+  & > .toolbarbutton-icon {
     display: flex !important;
     align-items: center !important;
   }
@@ -337,7 +345,7 @@ $-checkbox-selectors: (
 [dir="rtl"] {
   findbar {
     left: 0 !important;
-    right: unset !important
+    right: unset !important;
   }
 
   .findbar-textbox {
@@ -363,8 +371,6 @@ $-checkbox-selectors: (
   margin-inline-start: 8px !important;
 }
 
-
-
 // Find bar height size
 .findbar-container {
   height: 32px !important;
@@ -375,10 +381,9 @@ $-checkbox-selectors: (
 }
 
 // Prev/Next buttons on the vertical center
-[anonid="findbar-textbox-wrapper"]>toolbarbutton {
+[anonid="findbar-textbox-wrapper"] > toolbarbutton {
   margin: auto 0 !important;
 }
-
 
 // Find bar input hover effect when findbar not focused
 .findbar-textbox {
@@ -388,7 +393,8 @@ $-checkbox-selectors: (
   transition-duration: get-var("short-duration") !important;
 }
 
-.findbar-textbox:not(:focus):hover, .findbar-textbox[status="notfound"] {
+.findbar-textbox:not(:focus):hover,
+.findbar-textbox[status="notfound"] {
   border-radius: 6px !important;
   border-color: transparent !important;
   background-color: get-var("urlbar-background-color-hover") !important;
@@ -409,8 +415,9 @@ $-checkbox-selectors: (
 .findbar-container {
   flex-wrap: wrap !important;
 }
-@media only screen and (max-width: 550px) { // hide checkboxes on extra small window size
-  .findbar-container checkbox{
+@media only screen and (max-width: 550px) {
+  // hide checkboxes on extra small window size
+  .findbar-container checkbox {
     display: none !important;
   }
 }

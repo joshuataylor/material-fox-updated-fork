@@ -1,97 +1,95 @@
+// checkbox
+input[type="checkbox"],
+.checkbox-check,
+.sponsored-checkbox {
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-color: get-var("menu-border-color") !important;
+  background-color: get-var("background-color-0") !important;
+  border-radius: 2px !important;
 
+  width: 18px !important;
+  height: 18px !important;
 
-  // checkbox
-  input[type="checkbox"],
-  .checkbox-check,
-  .sponsored-checkbox {
-    border-width: 2px !important;
-    border-style: solid !important;
-    border-color: get-var("menu-border-color") !important;
-    background-color: get-var("background-color-0") !important;
-    border-radius: 2px !important;
-
-    width: 18px !important;
-    height: 18px !important;
-
-    &:is([checked], :checked) {
-      background-image: get-var("check-icon") !important;
-      background-color: get-var("accent-color") !important;
-      border-color: get-var("accent-color") !important;
-    }
+  &:is([checked], :checked) {
+    background-image: get-var("check-icon") !important;
+    background-color: get-var("accent-color") !important;
+    border-color: get-var("accent-color") !important;
   }
+}
 
-  input[type="checkbox"]:not(:disabled, [disabled="true"]):hover,
-  checkbox:not([disabled="true"]):hover>.checkbox-check {
-    &:not([checked], :checked) {
-      background-color: get-var("background-color-50") !important;
-    }
+input[type="checkbox"]:not(:disabled, [disabled="true"]):hover,
+checkbox:not([disabled="true"]):hover > .checkbox-check {
+  &:not([checked], :checked) {
+    background-color: get-var("background-color-50") !important;
   }
+}
 
-  // checkbox material hover effect
+// checkbox material hover effect
+:not(.findbar-container) > checkbox {
+  position: relative !important;
+
+  &::after {
+    content: "";
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 50%;
+    left: -15px;
+    background-color: transparent;
+    border-radius: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+
+    transition-property: background-color;
+    transition-duration: get-var("medium-short-duration");
+    transition-timing-function: get-var("fast-invoke");
+  }
+}
+
+// checkbox material hover effect (rtl support)
+[dir="rtl"] {
   :not(.findbar-container) > checkbox {
-    position: relative !important;
-
     &::after {
-      content: "";
-      width: 48px;
-      height: 48px;
-      position: absolute;
-      top: 50%;
-      left: -15px;
-      background-color: transparent;
-      border-radius: 50%;
-      z-index: 1;
-      transform: translateY(-50%);
-
-      transition-property: background-color;
-      transition-duration: get-var("medium-short-duration");
-      transition-timing-function: get-var("fast-invoke");
+      left: unset;
+      right: -15px;
     }
   }
+}
 
-  // checkbox material hover effect (rtl support)
-  [dir="rtl"] {
-    :not(.findbar-container) > checkbox {
-      &::after {
-        left: unset;
-        right: -15px;
-      }
-    }
+@keyframes control-hover {
+  0% {
+    transform: scale(0.8) translateY(-50%);
   }
 
-  @keyframes control-hover {
-    0% {
-      transform: scale(0.8) translateY(-50%);
-    }
+  100% {
+    transform: scale(1) translateY(-50%);
+  }
+}
 
-    100% {
-      transform: scale(1) translateY(-50%);
-    }
+:not(.findbar-container) > checkbox:not([disabled="true"]) {
+  &:hover::after {
+    background-color: get-var("accent-color-transparent");
+
+    animation-name: control-hover;
+    animation-duration: get-var("short-duration");
+    animation-timing-function: get-var("fast-invoke");
   }
 
-  :not(.findbar-container) > checkbox:not([disabled="true"]) {
-    &:hover::after {
-      background-color: get-var("accent-color-transparent");
-
-      animation-name: control-hover;
-      animation-duration: get-var("short-duration");
-      animation-timing-function: get-var("fast-invoke");
-    }
-
-    &:hover:active::after {
-      background-color: get-var("accent-color-transparent-active");
-    }
+  &:hover:active::after {
+    background-color: get-var("accent-color-transparent-active");
   }
+}
 
-  // hand cursor on hover
-  checkbox:not([disabled="true"]) {
+// hand cursor on hover
+checkbox:not([disabled="true"]) {
+  cursor: pointer !important;
+
+  // also for label, because it doesn't inherit
+  label {
     cursor: pointer !important;
-
-    // also for label, because it doesn't inherit
-    label {
-      cursor: pointer !important;
-    }
   }
+}
 
 // fix checkbox checkmark fill color
 .checkbox-check[checked] {

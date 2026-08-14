@@ -46,9 +46,8 @@ $font-family: (
 :root,
 html,
 body {
-  --#{$prefix}-font-family: system-ui,
-  -apple-system,
-  #{meta.inspect($font-family)};
+  --#{$prefix}-font-family:
+    system-ui, -apple-system, #{meta.inspect($font-family)};
 
   font-family: var(--#{$prefix}-font-family) !important;
   text-rendering: optimizeLegibility;
@@ -63,7 +62,6 @@ body {
 // Custom font (only for windows)
 @media (-moz-platform: windows) {
   @include moz-pref-media("not userChrome.ui-system-font") {
-
     :root,
     html,
     body {
