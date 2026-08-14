@@ -15,12 +15,15 @@ body {
 
 .tab-background {
   margin-top: var(--tab-vertical-padding) !important;
-  min-height: calc(var(--tab-min-height) - var(--tab-vertical-padding)) !important;
-  max-height: calc(var(--tab-min-height) - var(--tab-vertical-padding)) !important;
+  min-height: calc(
+    var(--tab-min-height) - var(--tab-vertical-padding)
+  ) !important;
+  max-height: calc(
+    var(--tab-min-height) - var(--tab-vertical-padding)
+  ) !important;
 }
 
 .tab-background {
-
   &::before,
   &::after {
     min-width: 12px !important;
@@ -120,16 +123,15 @@ body {
   border-bottom-right-radius: 0px !important;
 
   &::before {
-    box-shadow: 4px 4px 0 4px var(--tab-selected-bgcolor) !important;
+    box-shadow: 4px 4px 0 4px var(--tab-background-color) !important;
   }
 
   &::after {
-    box-shadow: -4px 4px 0 4px var(--tab-selected-bgcolor) !important;
+    box-shadow: -4px 4px 0 4px var(--tab-background-color) !important;
   }
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
-
   // hover bg opacity for not selected tab
   .tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
   .tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {

@@ -1,5 +1,4 @@
 @include moz-pref-media("not userChrome.theme-default") {
-
   // accent color vars
   :root,
   html,
@@ -32,7 +31,19 @@
     --button-primary-active-bgcolor: #{get-var("accent-color")} !important;
     --button-primary-bgcolor: #{get-var("accent-color")} !important;
     --button-primary-hover-bgcolor: #{get-var("accent-color-hover")} !important;
-    --toolbar-field-focus-border-color: #{get-var("accent-color")} !important;
+    // Softer focused-urlbar outline: mix the accent toward the field background so
+    // it stays on-brand blue but reads calmer than full-saturation accent-color.
+    // background-color-0 is defined in both light and dark maps, so this adapts.
+    --toolbar-field-focus-border-color: #{cm(
+        get-var("background-color-0"),
+        get-var("accent-color"),
+        0.6
+      )} !important;
+    --toolbar-field-border-color-focus: #{cm(
+        get-var("background-color-0"),
+        get-var("accent-color"),
+        0.6
+      )} !important;
 
     --link-color: #{get-var("accent-color")} !important;
     --link-color-hover: #{get-var("accent-color")} !important;
@@ -51,6 +62,7 @@
   panel {
     --panel-border-color: #{get-var("menu-border-color")} !important;
     --panel-shadow: #{get-var("elevation-2")} !important;
+    --panel-box-shadow: #{get-var("elevation-2")} !important;
     --windows-panel-box-shadow: #{get-var("elevation-2")} !important;
   }
 
@@ -64,10 +76,12 @@
     --lwt-accent-color: #{get-var("background-color-0")} !important;
     --toolbar-field-background-color: #{get-var("background-color-0")} !important;
     --toolbar-field-focus-background-color: #{get-var("background-color-0")} !important;
+    --toolbar-field-background-color-focus: #{get-var("background-color-0")} !important;
     --lwt-background-tab-separator-color: #{get-var("background-color-0")} !important;
 
     // grey-900-white-4-percent - 50% lt dark bg
     --arrowpanel-background: #{get-var("menu-background-color")} !important;
+    --panel-background-color: #{get-var("menu-background-color")} !important;
     --arrowpanel-border-color: #{get-var("menu-border-color")} !important;
     --panel-separator-color: #{get-var("menu-border-color")} !important;
     --lwt-selected-tab-background-color: #{get-var("background-color-50")} !important;
@@ -78,15 +92,20 @@
 
     // grey-900-white-5-percent - 100% lt dark bg
     --toolbar-bgcolor: #{get-var("background-color-100")} !important;
+    --toolbar-background-color: #{get-var("background-color-100")} !important;
 
     // grey-200 - primary text
     --arrowpanel-color: #{get-var("text-primary")} !important;
+    --panel-text-color: #{get-var("text-primary")} !important;
     --input-color: #{get-var("text-primary")} !important;
     --lwt-tab-text: #{get-var("text-primary")} !important;
     --lwt-text-color: #{get-var("text-primary")} !important;
     --toolbar-color: #{get-var("text-primary")} !important;
+    --toolbar-text-color: #{get-var("text-primary")} !important;
     --toolbar-field-color: #{get-var("text-primary")} !important;
+    --toolbar-field-text-color: #{get-var("text-primary")} !important;
     --toolbar-field-focus-color: #{get-var("text-primary")} !important;
+    --toolbar-field-text-color-focus: #{get-var("text-primary")} !important;
 
     // text on accent
     --button-primary-color: #{get-var("text-on-accent")} !important;
@@ -116,19 +135,16 @@
     --in-content-primary-button-text-color: #{get-var("text-on-accent")} !important;
     --in-content-primary-button-background: #{get-var("accent-color")} !important;
     --in-content-primary-button-background-hover: #{get-var(
- "accent-color-hover"
-    )
+        "accent-color-hover"
+      )} !important;
+    --in-content-primary-button-background-active: #{get-var("accent-color")} !important;
   }
 
-  !important;
-  --in-content-primary-button-background-active: #{get-var("accent-color")} !important;
-}
-
-// Remove tab outline described in https://github.com/edelvarden/material-fox-updated/issues/62
-:root,
-html,
-body,
-.tab-background {
-  --tab-selected-outline-color: transparent !important;
-}
+  // Remove tab outline described in https://github.com/edelvarden/material-fox-updated/issues/62
+  :root,
+  html,
+  body,
+  .tab-background {
+    --tab-selected-outline-color: transparent !important;
+  }
 }

@@ -1,12 +1,16 @@
-// Main URL bar wrapper with paddings
+// Main URL bar wrapper with paddings.
+// Firefox derives the nav-bar height and the pill's vertical padding from this
+// var: .urlbar-input-container padding-block = (container-height - urlbar-height) / 2.
+// 38px against the 34px pill leaves 2px above/below instead of 4px, tightening the
+// white band between the tab strip and the URL bar (and URL bar to bookmarks).
 #urlbar-container {
-  --urlbar-container-height: 42px !important;
+  --urlbar-container-height: 38px !important;
 }
 
 // Just URL bar without top and bottom paddings
 #urlbar {
   --urlbar-height: 34px !important;
-  --urlbar-toolbar-height: 42px !important;
+  --urlbar-toolbar-height: 38px !important;
 }
 
 html,
@@ -14,9 +18,11 @@ body {
   --urlbar-min-height: 34px !important; // Minimum Height
   --toolbarbutton-height: 34px !important; // Button Height
   --toolbarbutton-inner-padding: 6px !important; // Button Inner Padding
+  --toolbarbutton-padding-inner: 6px !important; // Button Inner Padding (Firefox 155 rename)
   --urlbar-icon-border-radius: 100px !important; // Icon Border Radius
   --toolbarbutton-border-radius: 100px !important; // Button Border Radius
   --urlbar-container-padding: 2px !important; // Container Padding
+  --urlbar-input-container-padding: 2px !important; // Container Padding (Firefox 155 rename)
 }
 
 // Keep urlbar/searchbar border geometry constant across every state
@@ -29,7 +35,8 @@ body {
 #urlbar,
 #searchbar {
   --urlbar-background-border: 1px solid var(--toolbar-field-border-color) !important;
-  --urlbar-background-border-focused: 1px solid var(--toolbar-field-border-color-focus) !important;
+  --urlbar-background-border-focused: 1px solid
+    var(--toolbar-field-border-color-focus) !important;
   --urlbar-background-border-breakout: 1px solid transparent !important;
 }
 
@@ -48,7 +55,9 @@ body {
 #urlbar-go-button,
 .search-go-button {
   width: auto !important;
-  height: calc(var(--urlbar-height) - var(--urlbar-container-padding) * 2) !important;
+  height: calc(
+    var(--urlbar-height) - var(--urlbar-container-padding) * 2
+  ) !important;
   border-radius: var(--urlbar-icon-border-radius) !important;
   padding: 0 8px !important;
   -moz-box-pack: center !important;
@@ -66,7 +75,6 @@ body {
 
 #urlbar {
   &[open] {
-
     #urlbar-background,
     .urlbar-background,
     #searchbar {
@@ -84,7 +92,6 @@ body {
   }
 
   &:not([open])[focused] {
-
     #urlbar-background,
     .urlbar-background,
     #searchbar {
@@ -103,7 +110,6 @@ body {
 
 @include moz-pref-media("not userChrome.theme-default") {
   #urlbar:is([open], [focused]) {
-
     #urlbar-background,
     .urlbar-background,
     #searchbar {
