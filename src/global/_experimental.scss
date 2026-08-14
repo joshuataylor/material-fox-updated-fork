@@ -54,7 +54,12 @@
   @media (prefers-color-scheme: dark) {
     html,
     body {
-      --toolbar-bgcolor: var(--tab-selected-bgcolor) !important;
+      // Firefox 155 "Nova" renamed --tab-selected-bgcolor -> --tab-background-color-selected
+      // (Bug 2023619). Prefer the new name, fall back to the old one on pre-155 builds.
+      --toolbar-bgcolor: var(
+        --tab-background-color-selected,
+        var(--tab-selected-bgcolor)
+      ) !important;
     }
 
     #nav-bar {
@@ -78,7 +83,10 @@
   @include moz-pref-media("userChrome.ui-chrome-refresh") {
     #alltabs-button {
       .toolbarbutton-badge-stack {
-        background-color: var(--tab-selected-bgcolor) !important;
+        background-color: var(
+          --tab-background-color-selected,
+          var(--tab-selected-bgcolor)
+        ) !important;
       }
 
       &:not(:active, [open="true"]):hover {
@@ -89,7 +97,10 @@
 
       &:active:hover {
         .toolbarbutton-badge-stack {
-          background-color: var(--tab-selected-bgcolor) !important;
+          background-color: var(
+            --tab-background-color-selected,
+            var(--tab-selected-bgcolor)
+          ) !important;
         }
       }
     }
