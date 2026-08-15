@@ -103,6 +103,33 @@
     background-color: get-var("input-background-color") !important;
   }
 
+  // Firefox moved the newtab/home search box into a shadow-DOM web component
+  // (<content-search-handoff-ui>, Bug 2002027), so the light-DOM rules above no
+  // longer reach the .search-handoff-button / .fake-textbox inside it (they stay
+  // for older builds). Drive the component's host-token API instead -- custom
+  // properties inherit through the shadow boundary, and userContent is a user
+  // stylesheet so !important beats the component's own :host defaults.
+  // Caveat: there is no resting box-shadow token, so the elevation drop-shadow
+  // the light-DOM rule applies cannot be reproduced through this API.
+  content-search-handoff-ui {
+    --content-search-handoff-ui-background-color: #{get-var(
+        "input-background-color"
+      )} !important;
+    --content-search-handoff-ui-color: #{get-var("text-primary")} !important;
+    --content-search-handoff-ui-fill: #{get-var("icon-color-secondary")} !important;
+    --content-search-handoff-ui-caret-color: #{get-var("text-primary")} !important;
+    --content-search-handoff-ui-border-radius: 99px !important;
+    --content-search-handoff-ui-fakefocus-border-color: #{get-var(
+        "accent-color"
+      )} !important;
+    --content-search-handoff-ui-fakefocus-box-shadow-inner: #{get-var(
+        "accent-color-transparent"
+      )} !important;
+    --content-search-handoff-ui-fakefocus-box-shadow-outer: #{get-var(
+        "accent-color-transparent"
+      )} !important;
+  }
+
   // top sites
   .top-site-outer {
     display: flex !important;

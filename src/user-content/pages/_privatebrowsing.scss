@@ -51,6 +51,29 @@
     top: 13px !important;
   }
 
+  // about:privatebrowsing uses the same shadow-DOM search component as newtab
+  // (<content-search-handoff-ui>, Bug 2002027), so the light-DOM rules above no
+  // longer reach it on newer builds (kept for older ones). Drive its host tokens
+  // instead; !important beats the component's :host defaults from userContent.
+  content-search-handoff-ui {
+    --content-search-handoff-ui-background-color: #{get-var(
+        "input-background-color"
+      )} !important;
+    --content-search-handoff-ui-color: #{get-var("text-primary")} !important;
+    --content-search-handoff-ui-fill: #{get-var("icon-color-secondary")} !important;
+    --content-search-handoff-ui-caret-color: #{get-var("text-primary")} !important;
+    --content-search-handoff-ui-border-radius: 99px !important;
+    --content-search-handoff-ui-fakefocus-border-color: #{get-var(
+        "accent-color"
+      )} !important;
+    --content-search-handoff-ui-fakefocus-box-shadow-inner: #{get-var(
+        "accent-color-transparent"
+      )} !important;
+    --content-search-handoff-ui-fakefocus-box-shadow-outer: #{get-var(
+        "accent-color-transparent"
+      )} !important;
+  }
+
   // promo card
   .promo-visible {
     background-color: get-var("background-color-0") !important;
