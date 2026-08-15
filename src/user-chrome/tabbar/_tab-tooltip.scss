@@ -51,8 +51,10 @@
     }
   }
 
-  // fix visibility priority for tab tooltip (make it over nav bar and bookmarks bar)
-  #titlebar {
+  // fix visibility priority for tab tooltip (make it over nav bar and bookmarks bar).
+  // The tab strip moved out of the removed #titlebar into #TabsToolbar (both are
+  // children of #navigator-toolbox), so raise #TabsToolbar instead.
+  #TabsToolbar {
     z-index: 3 !important;
   }
 
