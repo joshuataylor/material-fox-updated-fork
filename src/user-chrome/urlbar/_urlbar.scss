@@ -47,10 +47,14 @@ body {
   box-sizing: border-box !important;
 }
 
-// Fix Icons sizes after URL Bar Size Change
+// Fix Icons sizes after URL Bar Size Change.
+// #trust-icon-container is the leading "site info" chip Firefox's Trust Panel
+// (browser.urlbar.trustPanel.featureGate, on by default) shows in place of the
+// old tracking-protection/identity chip; size it like the others.
 .identity-box-button,
 #notification-popup-box,
 #tracking-protection-icon-container,
+#trust-icon-container,
 .urlbar-page-action,
 #urlbar-go-button,
 .search-go-button {

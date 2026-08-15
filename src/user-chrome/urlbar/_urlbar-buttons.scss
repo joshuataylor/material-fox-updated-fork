@@ -12,7 +12,8 @@
   order: 99 !important;
 }
 
-#tracking-protection-icon-container {
+#tracking-protection-icon-container,
+#trust-icon-container {
   order: 98 !important;
 }
 
@@ -23,6 +24,7 @@
 // URL icons
 #identity-box,
 #tracking-protection-icon-container,
+#trust-icon-container,
 #notification-popup-box,
 .urlbar-icon:not(#star-button[starred], #tracking-protection-icon-box[active]) {
   fill: get-var("icon-color-secondary") !important;
@@ -33,6 +35,7 @@
 #identity-popup,
 #permission-popup,
 #protections-popup,
+#trustpanel-popup,
 .popup-notification-icon,
 .permission-popup-permission-icon,
 .subviewbutton-iconic:not([class*="identity-color-"]) > .toolbarbutton-icon {
@@ -42,7 +45,8 @@
 #urlbar {
   &[open] {
     #page-action-buttons,
-    #tracking-protection-icon-container {
+    #tracking-protection-icon-container,
+    #trust-icon-container {
       display: none !important;
     }
   }

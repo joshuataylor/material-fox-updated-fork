@@ -161,6 +161,20 @@
   list-style-image: get-var("tracking-protection-icon") !important;
 }
 
+// Trust Panel leading "site info" chip (browser.urlbar.trustPanel.featureGate,
+// on by default). Firefox sets the icon per connection state via list-style-image
+// on #trust-icon-container; swap in the theme's Material lock/warning icons to
+// match #identity-icon. .scanning keeps the native shield.
+#trust-icon-container {
+  &.secure {
+    list-style-image: get-var("lock-icon") !important;
+  }
+
+  &:is(.insecure, .breached) {
+    list-style-image: get-var("warning-icon") !important;
+  }
+}
+
 #star-button,
 #pageAction-panel-bookmark,
 #urlbar-engine-one-off-item-bookmarks {
