@@ -28,14 +28,21 @@ button[type="menu"] {
   }
 }
 
-// select dropdown menu styles
+// select dropdown menu styles.
+// Firefox renamed these panel tokens (Bug 2019097 --panel-shadow -> --panel-box-shadow,
+// Bug 2017979 --panel-background/--panel-color -> --panel-background-color/--panel-text-color).
+// Set the new names alongside the legacy ones so 154+ picks up the new tokens and older
+// builds keep the old ones; otherwise the dropdown reverts to native Menu/MenuText colours.
 menulist > menupopup {
   --panel-shadow: #{get-var("elevation-2")} !important;
+  --panel-box-shadow: #{get-var("elevation-2")} !important;
 
   --panel-border-color: #{get-var("menu-border-color")} !important;
   --panel-border-radius: 4px !important;
   --panel-background: #{get-var("input-background-color")} !important;
+  --panel-background-color: #{get-var("input-background-color")} !important;
   --panel-color: #{get-var("text-primary")} !important;
+  --panel-text-color: #{get-var("text-primary")} !important;
 }
 
 dropmarker {
