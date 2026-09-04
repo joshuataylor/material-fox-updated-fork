@@ -111,6 +111,9 @@
   // stylesheet so !important beats the component's own :host defaults.
   // Caveat: there is no resting box-shadow token, so the elevation drop-shadow
   // the light-DOM rule applies cannot be reproduced through this API.
+  // This is still the search box on Release/Beta and on about:privatebrowsing.
+  // @todo remove once the <moz-urlbar> newtab search bar below ships to Release
+  // (browser.urlbar.newtab.featureGate is Nightly-only in Firefox 157).
   content-search-handoff-ui {
     --content-search-handoff-ui-background-color: #{get-var(
         "input-background-color"
@@ -128,6 +131,25 @@
     --content-search-handoff-ui-fakefocus-box-shadow-outer: #{get-var(
         "accent-color-transparent"
       )} !important;
+  }
+
+  // Firefox 157 Nightly replaces the handoff box with <moz-urlbar>, the address
+  // bar component itself (Bugs 2062209 / 2062212 / 2062215), behind
+  // browser.urlbar.newtab.featureGate (true on Nightly, false on Beta/Release).
+  // It renders in the light DOM and links chrome://browser/skin/urlbar.css into
+  // the page, so it reads the ordinary urlbar tokens and is already a pill in a
+  // page (--urlbarview-border-radius is half the height). Set the colour tokens
+  // and put the resting elevation back on its background layer.
+  moz-urlbar {
+    --urlbar-background-color: #{get-var("input-background-color")} !important;
+    --urlbar-background-color-focus: #{get-var("input-background-color")} !important;
+    --toolbar-field-text-color: #{get-var("text-primary")} !important;
+    --toolbar-field-border-color: transparent !important;
+    --toolbar-field-border-color-focus: #{get-var("accent-color")} !important;
+
+    > .urlbar-background {
+      box-shadow: get-var("elevation-2") !important;
+    }
   }
 
   // top sites
@@ -227,7 +249,8 @@
 
   // searchbar shadow
   .search-wrapper .search-handoff-button,
-  .search-wrapper input {
+  .search-wrapper input,
+  .search-wrapper moz-urlbar > .urlbar-background {
     box-shadow: get-var("search-input-shadow") !important;
   }
 

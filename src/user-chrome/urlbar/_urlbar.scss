@@ -145,18 +145,25 @@ body {
   border-bottom: 1px solid get-var("content-separator-color") !important;
 }
 
-// Firefox 155 "Nova" redesign (browser.nova.enabled, default on Nightly) frames
-// the chrome as a floating "island": a 1px border with rounded corners on the
-// .chrome-block elements (#navigator-toolbox, #sidebar-box, #sidebar-container),
-// plus an inset gap that pushes the toolbar and content away from the window
-// edges. Opt-in via `userChrome.ui-no-nova-border` to strip all of it and sit
-// flush; the intended bottom content separator is kept.
+// Firefox 155+ "Nova" redesign (browser.nova.enabled, on by default on Nightly
+// only) frames the chrome with borders and rounded corners. Opt-in via
+// `userChrome.ui-no-nova-border` to strip all of it so the chrome sits flush;
+// the intended bottom content separator is kept. Two Firefox models to cover:
+//
+// - Firefox 155: a floating "island" -- a 1px border with rounded corners on
+//   the .chrome-block elements (#navigator-toolbox, #sidebar-box,
+//   #sidebar-container) plus an inset gap (--chrome-window-gap) that pushes the
+//   toolbar and content away from the window edges.
+// - Firefox 156+ (Bugs 2062351 / 2063294): the gap and the .chrome-block border
+//   are gone and the chrome sits flush by default. The content .browserContainer
+//   and #sidebar-box draw a border and --border-radius-medium corners only on
+//   the edges that face other chrome (content-area.css, sidebar.css);
+//   --chrome-block-radius survives for split-view panels alone.
 @include moz-pref-media("userChrome.ui-no-nova-border") {
   @include moz-pref-media("browser.nova.enabled") {
-    // The inset frame is driven entirely by --chrome-window-gap (content-area.css
-    // feeds it into #navigator-toolbox margins and #browser padding/gap) and the
-    // corners by --chrome-block-radius. Zero both so the opt-out is fully flush,
-    // instead of only dropping the 1px line while the floating gap remains.
+    // Firefox 155 floating-island model. --chrome-window-gap does not exist from
+    // 156 on and #sidebar-container carries no border there, so these are no-ops
+    // on 156+. @todo: remove once Stable is Firefox 157.
     :root {
       --chrome-window-gap: 0px !important;
       --chrome-block-radius: 0 !important;
@@ -173,13 +180,18 @@ body {
       border-bottom: 1px solid get-var("content-separator-color") !important;
     }
 
-    // Nova frames the web content area itself as well: the content .browserContainer
-    // gets its own border + rounded corners (content-area.css), separate from the
-    // toolbox border above. Flatten it too so the opt-out is consistent -- otherwise
-    // the toolbar is flat but the page stays rounded and bordered.
-    #tabbrowser-tabpanels .browserContainer {
+    // Web content area, both models. Scoped to the non-split-view container so
+    // split-view panels keep their own separator border.
+    #tabbrowser-tabpanels > :not(.split-view-panel) .browserContainer {
       border: none !important;
       border-radius: 0 !important;
+    }
+
+    // Firefox 156+: #sidebar-box draws the border (stripped above) but the
+    // rounded surface is the <browser> inside it (--sidebar-box-start-*-radius).
+    #sidebar-box #sidebar {
+      border-start-start-radius: 0 !important;
+      border-start-end-radius: 0 !important;
     }
   }
 }
