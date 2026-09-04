@@ -9,6 +9,9 @@
 > [!NOTE]
 > This is a fork of the fantastic [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden). Full credit for the original theme goes to them -- this fork exists to continue maintenance and updates.
 
+> [!NOTE]
+> **Using Firefox 155+ (Nightly)?** Firefox's "Nova" redesign is on by default in Nightly and changes how the window, tabs and find bar look. This theme adapts to it -- see [Firefox 155 "Nova" redesign](#firefox-155-nova-redesign) below.
+
 ![preview](docs/assets/preview.png)
 
 ## 🚀 Getting Started
@@ -46,6 +49,27 @@ For Firefox version **119** or below (Firefox ESR, Floorp or Waterfox)
 ```powershell
 $env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestricted -c "iwr https://raw.githubusercontent.com/joshuataylor/material-fox-updated-fork/main/install.ps1 -useb | iex"
 ```
+
+## Firefox 155 "Nova" redesign
+
+Firefox 155 introduces a large visual redesign codenamed **"Nova"** (Project Nova), gated behind the `browser.nova.enabled` preference. It is **on by default in Firefox Nightly** (from `155.0a1`, 2026-07-27) and off on Beta/Release, with a broader rollout planned during 2026.
+
+Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and -- most visibly for this theme -- wraps the toolbar, sidebar and web content in rounded, bordered "islands". The theme adapts to it:
+
+- **Window / content border.** Nova wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the border, corners and gap so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
+- **Find bar.** Nova moved the find bar into a CSS grid at the bottom of the content area. The theme handles this automatically -- no action needed.
+
+A couple of things worth knowing:
+
+- Do not confuse `browser.nova.enabled` (the whole-browser redesign) with `browser.newtabpage.activity-stream.nova.enabled`, which only affects the new-tab page.
+- Nova is under active development in Nightly and changes frequently. If something looks off after a Nightly update, please [open an issue](https://github.com/joshuataylor/material-fox-updated-fork/issues).
+
+### References
+
+- [Try the New Firefox Design in Nightly](https://blog.nightly.mozilla.org/2026/07/27/new-firefox-design/) -- Mozilla Nightly blog (2026-07-27)
+- [This is the new Firefox design](https://blog.mozilla.org/en/firefox/new-firefox-design/) -- Mozilla blog (Project Nova announcement)
+- [These Weeks in Firefox](https://blog.nightly.mozilla.org/) -- Mozilla Nightly blog (running changelog)
+- Bugzilla: [Bug 2049244](https://bugzilla.mozilla.org/show_bug.cgi?id=2049244) (find bar moved into the `.browserContainer` CSS grid) and [Bug 2023711](https://bugzilla.mozilla.org/show_bug.cgi?id=2023711) (Nova styles for floating chrome and sidebar)
 
 ## 💖 Support & Suggestions
 
@@ -127,6 +151,10 @@ To **disable** a preference:
   <tr>
     <td><code>userChrome.ui-no-ripple</code></td>
     <td>Disable ripple effect from buttons</td>
+  </tr>
+  <tr>
+    <td><code>userChrome.ui-no-nova-border</code></td>
+    <td>Remove the border, rounded corners and surrounding gap Firefox 155+'s "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly).</td>
   </tr>
 </table>
 
