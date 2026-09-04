@@ -10,9 +10,45 @@
 > This is a fork of the fantastic [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden). Full credit for the original theme goes to them -- this fork exists to continue maintenance and updates.
 
 > [!NOTE]
-> **Using Firefox 155+ (Nightly)?** Firefox's "Nova" redesign is on by default in Nightly and changes how the window, tabs and find bar look. This theme adapts to it -- see [Firefox 155 "Nova" redesign](#firefox-155-nova-redesign) below.
+> **Using Firefox Nightly?** Firefox's "Nova" redesign is on by default in Nightly (and only there) and changes how the window, tabs, find bar and new-tab search box look. This theme adapts to it -- see [Firefox 155 "Nova" redesign](#firefox-155-nova-redesign) below.
 
 ![preview](docs/assets/preview.png)
+
+## Supported Firefox versions
+
+Only the current Firefox **Release**, **Beta** and **Nightly** are supported. Nightly is best effort: the Nova redesign and Firefox's browser-chrome markup change there every build, so a Nightly update can break things before this theme catches up.
+
+> [!TIP]
+> See https://whattrainisitnow.com for the latest Firefox releases.
+
+As of 2026-09-04 (this will get quickly out of date, so check above...)
+
+<table>
+  <tr>
+    <th>Channel</th>
+    <th>Version</th>
+    <th>Support</th>
+  </tr>
+  <tr>
+    <td>Release</td>
+    <td>Firefox 155 (released 2026-09-01)</td>
+    <td>Supported</td>
+  </tr>
+  <tr>
+    <td>Beta</td>
+    <td>Firefox 156 (releases 2026-09-15)</td>
+    <td>Supported</td>
+  </tr>
+  <tr>
+    <td>Nightly</td>
+    <td>Firefox 157 (releases 2026-09-29)</td>
+    <td>Best effort</td>
+  </tr>
+</table>
+
+Firefox moved to a two-week release cycle with Firefox 155, so these numbers move quickly; the theme tracks whatever the latest three are. If something breaks after a Firefox update, please [open an issue](https://github.com/joshuataylor/material-fox-updated-fork/issues) with the exact Firefox version and channel.
+
+> For Firefox 119 or below, the pinned `v1.0.7` release still works -- see the install-script note below.!
 
 ## 🚀 Getting Started
 
@@ -52,12 +88,13 @@ $env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestric
 
 ## Firefox 155 "Nova" redesign
 
-Firefox 155 introduces a large visual redesign codenamed **"Nova"** (Project Nova), gated behind the `browser.nova.enabled` preference. It is **on by default in Firefox Nightly** (from `155.0a1`, 2026-07-27) and off on Beta/Release, with a broader rollout planned during 2026.
+Firefox 155 introduced a large visual redesign codenamed **"Nova"** (Project Nova), gated behind the `browser.nova.enabled` preference. It is **on by default in Firefox Nightly only** (from `155.0a1`, 2026-07-27). Release 155 and Beta 156 ship with it off, and Mozilla has said a broader rollout will follow later in 2026. Firefox 156 and 157 continue Nova rather than redesign it again.
 
-Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and -- most visibly for this theme -- wraps the toolbar, sidebar and web content in rounded, bordered "islands". The theme adapts to it:
+Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and -- most visibly for this theme -- draws borders and rounded corners around the toolbar, sidebar and web content. The theme adapts to it:
 
-- **Window / content border.** Nova wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the border, corners and gap so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
-- **Find bar.** Nova moved the find bar into a CSS grid at the bottom of the content area. The theme handles this automatically -- no action needed.
+- **Window / content border.** Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the borders, corners and gap on either version so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
+- **Find bar.** Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed.
+- **New-tab search box.** Firefox 157 Nightly replaces the new-tab search box with the address bar component (`<moz-urlbar>`). The theme styles both the old and the new box -- no action needed.
 
 A couple of things worth knowing:
 
@@ -154,7 +191,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-no-nova-border</code></td>
-    <td>Remove the border, rounded corners and surrounding gap Firefox 155+'s "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly).</td>
+    <td>Remove the border, rounded corners and surrounding gap the Firefox 155+ "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly only).</td>
   </tr>
 </table>
 
