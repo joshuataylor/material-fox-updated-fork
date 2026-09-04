@@ -52,6 +52,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
+          if gh release view "$TAG_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release $TAG_NAME already exists. Bump the version in package.json (e.g. via scripts/release.sh) before publishing."
+            exit 1
+          fi
           gh release create "$TAG_NAME" chrome.zip \
             --title "$TAG_NAME" \
             --repo "$GITHUB_REPOSITORY"
