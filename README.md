@@ -93,7 +93,7 @@ Firefox 155 introduced a large visual redesign codenamed **"Nova"** (Project Nov
 Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and -- most visibly for this theme -- draws borders and rounded corners around the toolbar, sidebar and web content. The theme adapts to it:
 
 - **Window / content border.** Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the borders, corners and gap on either version so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
-- **Find bar.** Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed.
+- **Find bar.** Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed. Prefer the old top-right floating find bar? Enable the `userChrome.ui-findbar-top-right` preference (see [Available preferences](#available-preferences)). (Thanks to [zerix on Reddit](https://www.reddit.com/r/FirefoxCSS/comments/1w50dgs/comment/p7de6ug) and [SKDemon820's tweaks](https://github.com/edelvarden/material-fox-updated/issues/152#issuecomment-5544742129))!
 - **New-tab search box.** Firefox 157 Nightly replaces the new-tab search box with the address bar component (`<moz-urlbar>`). The theme styles both the old and the new box -- no action needed.
 
 A couple of things worth knowing:
@@ -192,6 +192,14 @@ To **disable** a preference:
   <tr>
     <td><code>userChrome.ui-no-nova-border</code></td>
     <td>Remove the border, rounded corners and surrounding gap the Firefox 155+ "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly only).</td>
+  </tr>
+  <tr>
+    <td><code>userChrome.ui-findbar-top-right</code></td>
+    <td>Move the find-in-page bar (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>F</kbd>) to the top-right corner of the content area, matching its pre-"Nova" floating position, instead of the default bottom dock. Works whether or not <code>browser.nova.enabled</code> is set.</td>
+  </tr>
+  <tr>
+    <td><code>userChrome.ui-findbar-hide-checkboxes</code></td>
+    <td>With <code>userChrome.ui-findbar-top-right</code> enabled, hide the find bar's four toggle checkboxes (Match Case, Match Diacritics, Whole Words, Highlight All) for a more compact bar. Shown by default.</td>
   </tr>
 </table>
 

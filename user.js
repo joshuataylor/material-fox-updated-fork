@@ -25,3 +25,13 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * draws around the window, so the chrome sits flush to the window edges
 // * (browser.nova.enabled, default on Nightly).
 // user_pref("userChrome.ui-no-nova-border", true);
+
+// * Move the find-in-page bar (Ctrl/Cmd+F) to the top-right corner of the
+// * content area (its pre-"Nova" floating position) instead of the default
+// * bottom dock. Works whether or not browser.nova.enabled is set.
+// user_pref("userChrome.ui-findbar-top-right", true);
+
+// * With the top-right find bar above, also hide its four toggle checkboxes
+// * (Match Case / Match Diacritics / Whole Words / Highlight All) for a more
+// * compact bar. Checkboxes are shown by default.
+// user_pref("userChrome.ui-findbar-hide-checkboxes", true);

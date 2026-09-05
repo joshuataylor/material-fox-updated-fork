@@ -443,3 +443,102 @@ $-checkbox-selectors: (
     }
   }
 } // end: not browser.nova.enabled
+
+// ============================================================================
+// Opt-in: float the find-in-page bar in the TOP-RIGHT corner of the content
+// area (its pre-"Nova" position) instead of the bottom grid dock. Off by
+// default -- set userChrome.ui-findbar-top-right = true in about:config.
+//
+// Works regardless of browser.nova.enabled: Firefox 155+ moved the findbar into
+// the .browserContainer grid (grid-area: findbar) for EVERY build, so this
+// branch overrides that docking with position: absolute in both pref states. It
+// also hides the closed findbar outright, because Nova collapses it with
+// visibility: collapse + a negative margin-bottom that leaves a residual
+// floating bar once the findbar is absolutely positioned.
+//
+// The bar keeps its native (Nova) internals when browser.nova.enabled is true;
+// when it is false the theme's material cosmetics from the bottom-dock branch
+// above still apply, so the two compose into a fully material floating bar.
+//
+// Adapted (values mapped onto theme tokens) from SKDemon820's snippet in
+// edelvarden/material-fox-updated#152:
+//   https://github.com/edelvarden/material-fox-updated/issues/152#issuecomment-5544742129
+// itself based on an r/FirefoxCSS post by u/zerix-:
+//   https://www.reddit.com/r/FirefoxCSS/comments/1w50dgs/comment/p7de6ug/
+// ============================================================================
+@include moz-pref-media("userChrome.ui-findbar-top-right") {
+  .browserContainer > findbar {
+    grid-area: 1 / 1 / -1 / -1 !important;
+    position: absolute !important;
+    contain: content !important;
+    max-height: 45px !important;
+    inset: 13px 18px auto auto !important; // top right bottom left
+    margin: 4px 0 0 5px !important;
+    padding-inline-start: 4px !important;
+    transform-origin: top right;
+    border-radius: 6px !important;
+    animation: none !important;
+    transition: none !important;
+    color: get-var("text-primary") !important;
+    background: get-var("input-background-color") !important;
+    border: 1px solid get-var("menu-border-color") !important;
+    box-shadow: get-var("elevation-2") !important;
+  }
+
+  // Hide the closed findbar (see header note).
+  .browserContainer > findbar[hidden] {
+    display: none !important;
+  }
+
+  // Match count on the left, then the text box.
+  label.findbar-label {
+    order: 1;
+    margin-inline-start: 8px !important;
+  }
+
+  description.findbar-label {
+    order: 2;
+    margin-inline-start: 8px !important;
+  }
+
+  [anonid="findbar-textbox-wrapper"] {
+    order: 3;
+    height: 100% !important;
+  }
+
+  // Checkboxes (Match Case / Diacritics / Whole Words / Highlight All) stay
+  // visible by default. Opt in to a more compact bar with
+  // userChrome.ui-findbar-hide-checkboxes.
+  @include moz-pref-media("userChrome.ui-findbar-hide-checkboxes") {
+    @each $name, $selector in $-checkbox-selectors {
+      #{$selector} {
+        display: none !important;
+      }
+    }
+  }
+
+  // Centre the close / prev / next glyphs.
+  .findbar-closebutton > .toolbarbutton-icon,
+  .findbar-find-previous > .toolbarbutton-icon,
+  .findbar-find-next > .toolbarbutton-icon {
+    display: flex !important;
+    padding: 4px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .findbar-find-status {
+    display: none !important;
+  }
+
+  .found-matches {
+    padding-inline-end: 5px !important;
+    white-space: nowrap;
+  }
+
+  // RTL: mirror to the top-left corner.
+  [dir="rtl"] .browserContainer > findbar {
+    inset: 13px auto auto 18px !important;
+    transform-origin: top left;
+  }
+} // end: userChrome.ui-findbar-top-right
