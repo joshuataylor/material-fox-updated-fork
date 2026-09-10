@@ -35,3 +35,9 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * (Match Case / Match Diacritics / Whole Words / Highlight All) for a more
 // * compact bar. Checkboxes are shown by default.
 // user_pref("userChrome.ui-findbar-hide-checkboxes", true);
+
+// * (Windows/Linux) Render the window controls as macOS-style "traffic light"
+// * circles (red/amber/green) on the left, next to the tabs. Cosmetic only --
+// * the buttons keep their native minimise/maximise/close behaviour. No-op on
+// * macOS, which already draws real traffic lights.
+// user_pref("userChrome.ui-mac-window-controls", true);

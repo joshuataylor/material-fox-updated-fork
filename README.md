@@ -201,6 +201,10 @@ To **disable** a preference:
     <td><code>userChrome.ui-findbar-hide-checkboxes</code></td>
     <td>With <code>userChrome.ui-findbar-top-right</code> enabled, hide the find bar's four toggle checkboxes (Match Case, Match Diacritics, Whole Words, Highlight All) for a more compact bar. Shown by default.</td>
   </tr>
+  <tr>
+    <td><code>userChrome.ui-mac-window-controls</code></td>
+    <td>(Windows/Linux) Render the window controls as macOS-style "traffic light" circles (red/amber/green) on the left, next to the tabs. Cosmetic only -- the buttons keep their native minimise/maximise/close behaviour. No-op on macOS, which already draws real traffic lights.</td>
+  </tr>
 </table>
 
 ## Custom CSS rules

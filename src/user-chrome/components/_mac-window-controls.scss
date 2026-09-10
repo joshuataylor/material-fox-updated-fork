@@ -1,0 +1,74 @@
+// macOS-style "traffic light" window controls (opt-in via
+// userChrome.ui-mac-window-controls). Windows/Linux only -- on macOS the OS
+// draws the real traffic lights, so the pref is a no-op there. Purely
+// cosmetic: the buttons keep their native minimise/maximise/close behaviour.
+@include moz-pref-media("userChrome.ui-mac-window-controls") {
+  @media (-moz-platform: windows), (-moz-platform: linux) {
+    // Move the caption box to the far left, before the tabs. Overrides the
+    // theme's default 48px left margin (new-tabbar-feature/_tab-buttons.scss).
+    .titlebar-buttonbox-container {
+      order: -1 !important;
+      --margin-left: 0px;
+      margin: 0 10px 0 12px !important;
+    }
+
+    [dir="rtl"] .titlebar-buttonbox-container {
+      margin: 0 12px 0 10px !important;
+    }
+
+    .titlebar-buttonbox {
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    // macOS button order (left -> right): close, minimise, zoom.
+    .titlebar-close {
+      order: 1 !important;
+    }
+
+    .titlebar-min {
+      order: 2 !important;
+    }
+
+    .titlebar-max,
+    .titlebar-restore {
+      order: 3 !important;
+    }
+
+    // Each caption button -> 12px coloured circle.
+    .titlebar-button {
+      appearance: none !important;
+      -moz-appearance: none !important;
+      min-width: 12px !important;
+      width: 12px !important;
+      height: 12px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 50% !important;
+      border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
+    }
+
+    .titlebar-button > .toolbarbutton-icon {
+      display: none !important;
+    }
+
+    // Colours (macOS Big Sur+).
+    .titlebar-close {
+      background-color: #ff5f57 !important;
+    }
+
+    .titlebar-min {
+      background-color: #febc2e !important;
+    }
+
+    .titlebar-max,
+    .titlebar-restore {
+      background-color: #28c840 !important;
+    }
+
+    // Dim to grey when the window is inactive, like macOS.
+    :root:-moz-window-inactive .titlebar-button {
+      background-color: #ceccc9 !important;
+    }
+  }
+}
