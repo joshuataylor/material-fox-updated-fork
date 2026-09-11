@@ -88,20 +88,33 @@ $env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestric
 
 ## Firefox 155 "Nova" redesign
 
-Firefox 155 introduced a large visual redesign codenamed **"Nova"** (Project Nova), gated behind the `browser.nova.enabled` preference. It is **on by default in Firefox Nightly only** (from `155.0a1`, 2026-07-27). Release 155 and Beta 156 ship with it off, and Mozilla has said a broader rollout will follow later in 2026. Firefox 156 and 157 continue Nova rather than redesign it again.
+Firefox 155 introduced a large visual redesign codenamed Project Nova, behind `browser.nova.enabled` in `about:config`.
 
-Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and -- most visibly for this theme -- draws borders and rounded corners around the toolbar, sidebar and web content. The theme adapts to it:
+It is on by default in Firefox Nightly only.
 
-- **Window / content border.** Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the borders, corners and gap on either version so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
-- **Find bar.** Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed. Prefer the old top-right floating find bar? Enable the `userChrome.ui-findbar-top-right` preference (see [Available preferences](#available-preferences)). (Thanks to [zerix on Reddit](https://www.reddit.com/r/FirefoxCSS/comments/1w50dgs/comment/p7de6ug) and [SKDemon820's tweaks](https://github.com/edelvarden/material-fox-updated/issues/152#issuecomment-5544742129))!
-- **New-tab search box.** Firefox 157 Nightly replaces the new-tab search box with the address bar component (`<moz-urlbar>`). The theme styles both the old and the new box -- no action needed.
+Release 155 and Beta 156 ship with it off, and Mozilla has said a broader rollout will follow later in 2026.
+
+Firefox 156 and 158 continue Nova rather than redesign it again.
+
+Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and draws borders and rounded corners around the toolbar, sidebar and web content.
+
+### material-fox-updated Nova workarounds
+
+To account for these changes, material-fox-updated tries to work around these new quirks.
+
+- Window / content border - Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the borders, corners and gap on either version so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
+- Find bar - Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed.
+> Prefer the old top-right floating find bar? Enable the `userChrome.ui-findbar-top-right` preference (see [Available preferences](#available-preferences)). (Thanks to [zerix on Reddit](https://www.reddit.com/r/FirefoxCSS/comments/1w50dgs/comment/p7de6ug) and [SKDemon820's tweaks](https://github.com/edelvarden/material-fox-updated/issues/152#issuecomment-5544742129))!
+- New-tab search box - Firefox 158 Nightly replaces the new-tab search box with the address bar component (`<moz-urlbar>`). The theme styles both the old and the new box.
+
+### More Nova-related notes
 
 A couple of things worth knowing:
 
 - Do not confuse `browser.nova.enabled` (the whole-browser redesign) with `browser.newtabpage.activity-stream.nova.enabled`, which only affects the new-tab page.
 - Nova is under active development in Nightly and changes frequently. If something looks off after a Nightly update, please [open an issue](https://github.com/joshuataylor/material-fox-updated-fork/issues).
 
-### References
+For more information, see:
 
 - [Try the New Firefox Design in Nightly](https://blog.nightly.mozilla.org/2026/07/27/new-firefox-design/) -- Mozilla Nightly blog (2026-07-27)
 - [This is the new Firefox design](https://blog.mozilla.org/en/firefox/new-firefox-design/) -- Mozilla blog (Project Nova announcement)
