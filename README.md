@@ -207,6 +207,10 @@ To **disable** a preference:
     <td>Remove the border, rounded corners and surrounding gap the Firefox 155+ "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly only).</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-white-toolbox</code></td>
+    <td>Changes the whole toolbox to be white instead of the default light-grey tint, so the tab strip and the framing around the toolbars match the white URL-bar and bookmarks rows for an all-white top chrome. The tab strip loses its grey, so unselected tabs rely on the active tab and separators for distinction. `false` by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-findbar-top-right</code></td>
     <td>Move the find-in-page bar (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>F</kbd>) to the top-right corner of the content area, matching its pre-"Nova" floating position, instead of the default bottom dock. Works whether or not <code>browser.nova.enabled</code> is set.</td>
   </tr>
@@ -217,6 +221,10 @@ To **disable** a preference:
   <tr>
     <td><code>userChrome.ui-no-not-secure-warning</code></td>
     <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. Off by default -- the warning is a safety signal.</td>
+  </tr>
+  <tr>
+    <td><code>userChrome.ui-white-urlbar-results</code></td>
+    <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. `false` by default.</td>
   </tr>
 </table>
 

@@ -110,6 +110,23 @@
   }
 }
 
+// Changes the whole toolbox to be white instead of the material grey tint.
+// #nav-bar and #PersonalToolbar are already white.
+// Off by default.
+@include moz-pref-media("userChrome.ui-white-toolbox") {
+  @include moz-pref-media("not userChrome.theme-default") {
+    #navigator-toolbox,
+    #toolbar-menubar,
+    #TabsToolbar,
+    #titlebar,
+    :root:-moz-window-inactive
+      :is(#navigator-toolbox, #toolbar-menubar, #TabsToolbar, #titlebar) {
+      background-color: get-var("background-color-100") !important;
+      background-image: none !important;
+    }
+  }
+}
+
 // restore tab opacity when window-inactive
 :root[tabsintitlebar] #titlebar {
   &:-moz-window-inactive {

@@ -26,6 +26,12 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * (browser.nova.enabled, default on Nightly).
 // user_pref("userChrome.ui-no-nova-border", true);
 
+// * Changes the whole toolbox to be white instead of the default light-grey tint, so
+// * the tab strip and toolbar framing match the white URL-bar/bookmarks rows
+// * (all-white top chrome). Unselected tabs then rely on the active tab +
+// * separators for distinction.
+// user_pref("userChrome.ui-white-toolbox", true);
+
 // * Move the find-in-page bar (Ctrl/Cmd+F) to the top-right corner of the
 // * content area (its pre-"Nova" floating position) instead of the default
 // * bottom dock. Works whether or not browser.nova.enabled is set.
@@ -40,3 +46,6 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * Chrome-like address bar. The secure (lock) indicator and breached-connection
 // * warnings are always kept. Off by default -- the warning is a safety signal.
 // user_pref("userChrome.ui-no-not-secure-warning", true);
+
+// * Changes the open/focused URL bar and its results dropdown to white, like Chrome's omnibox, instead of the material grey tint. false by default.
+// user_pref("userChrome.ui-white-urlbar-results", true);
