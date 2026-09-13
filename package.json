@@ -21,7 +21,8 @@
     "husky": "^9.1.3",
     "npm-run-all2": "^9.0.2",
     "prettier": "^3.9.6",
-    "sass": "^1.101.6"
+    "sass": "^1.101.6",
+    "selenium-webdriver": "^4.47.0"
   },
   "browserslist": [
     "last 5 Firefox version"
