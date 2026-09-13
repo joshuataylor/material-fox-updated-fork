@@ -122,6 +122,24 @@ body {
   }
 }
 
+// Changes the urlbar + results dropdown to white, matching Chrome's omnibox.
+// The material theme tints the open urlbar, and since Firefox 158 (Nova) splits the results into a separate `.urlbarView-background` backed by `--urlbar-background-color-focus` (the dropdown), both grey.
+// This changes the URL Bar and the dropdown results to white.
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=2069885
+// false by default.
+@include moz-pref-media("userChrome.ui-white-urlbar-results") {
+  @include moz-pref-media("not userChrome.theme-default") {
+    #urlbar:is([open], [focused]) {
+      #urlbar-background,
+      .urlbar-background,
+      #searchbar {
+        background-color: get-var("background-color-100") !important;
+      }
+      --urlbar-background-color-focus: #{get-var("background-color-100")} !important;
+    }
+  }
+}
+
 // hide url bar search input placeholder if focused
 #urlbar:is([open], [focused]) {
   #urlbar-input::placeholder {
