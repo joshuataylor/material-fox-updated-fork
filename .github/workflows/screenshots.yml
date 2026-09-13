@@ -1,0 +1,105 @@
+# Per-feature chrome screenshots across Stable/Beta/Nightly, supported OS, uploaded for manual visual regression inspection.
+#
+# Two macOS versions on purpose: 15 and 26 render native controls differently.
+# `mise run download-firefox` is a single cross-platform Node script, so every OS uses the same step (yay).
+name: screenshots
+
+on:
+  workflow_dispatch:
+  # to test before merge.
+#  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-26.04, windows-2025, macos-15, macos-26 ]
+        channel: [ nightly, beta, stable ]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@v4.3.0
+        with:
+          experimental: 'true'
+
+      - name: Cache node_modules
+        uses: actions/cache@v6
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node_modules-
+
+      - name: mise run npm_install
+        run: mise run npm_install
+
+      - name: mise run build
+        run: mise run build
+
+      - name: Restore Firefox cache (${{ matrix.channel }})
+        uses: actions/cache/restore@v6
+        with:
+          path: tmp/firefox
+          key: firefox-${{ runner.os }}-${{ matrix.channel }}
+          restore-keys: firefox-${{ runner.os }}-${{ matrix.channel }}-
+
+      - name: Download Firefox (${{ matrix.channel }})
+        run: mise run download-firefox --channel ${{ matrix.channel }}
+
+      # tmp/firefox/nightly/.identity is for example `buildid:20260913084423`
+      # So we can use this as the key to the specific build of Firefox we downloaded.
+      # We restore using the channel only, but this lets us specifically cache build downloaded.
+      - name: Firefox cache key (${{ matrix.channel }})
+        id: ff-id
+        shell: bash
+        run: |
+          f="tmp/firefox/${{ matrix.channel }}/.identity"
+          [ -f "$f" ] && echo "key=firefox-${{ runner.os }}-${{ matrix.channel }}-$(tr ':' '-' < "$f")" >> "$GITHUB_OUTPUT"
+
+      - name: Save Firefox cache (${{ matrix.channel }})
+        if: steps.ff-id.outputs.key != ''
+        uses: actions/cache/save@v6
+        with:
+          path: tmp/firefox
+          key: ${{ steps.ff-id.outputs.key }}
+
+      - name: Capture screenshots (${{ matrix.channel }})
+        run: mise run screenshots -- --channels ${{ matrix.channel }}
+
+      - name: Capture panels non-headless (${{ matrix.channel }})
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            xvfb-run -a mise run screenshots -- --channels ${{ matrix.channel }} --headful-only
+          else
+            mise run screenshots -- --channels ${{ matrix.channel }} --headful-only
+          fi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: screenshots-${{ matrix.os }}-${{ matrix.channel }}
+          path: tmp/screenshots/
+          if-no-files-found: error
+
+  # Merge the per-OS/channel artifacts into one downloadable ZIP once the matrix
+  # is done. The flat filenames carry OS + channel + scheme, so everything sits in
+  # a single directory without colliding. `!cancelled()` still bundles whatever
+  # succeeded when a matrix leg fails (fail-fast is off); delete-merged drops the
+  # 12 intermediate artifacts, leaving just `screenshots-all`.
+  bundle:
+    needs: screenshots
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Merge screenshots into a single artifact
+        uses: actions/upload-artifact/merge@v7
+        with:
+          name: screenshots-all
+          pattern: screenshots-*
+          delete-merged: true

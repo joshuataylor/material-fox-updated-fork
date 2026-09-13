@@ -4,5 +4,11 @@
   "singleQuote": false,
   "bracketSpacing": true,
   "quoteProps": "as-needed",
-  "printWidth": 80
+  "printWidth": 80,
+  "overrides": [
+    {
+      "files": "*.{js,mjs,cjs}",
+      "options": { "tabWidth": 4 }
+    }
+  ]
 }

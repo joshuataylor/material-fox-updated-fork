@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>Browser widget & input testbed</title>
+    <meta content="light dark" name="color-scheme" />
+    <style>
+      /* Honour the OS/browser light-dark preference and expose it to native controls. */
+      :root {
+        color-scheme: light dark;
+        accent-color: light-dark(#3060c0, #6ea0ff);
+        --bg: light-dark(#ffffff, #16161a);
+        --panel: light-dark(#f5f5f7, #1f1f26);
+        --border: light-dark(#d0d0d8, #34343e);
+        --text: light-dark(#1a1a1f, #e6e6ea);
+        --muted: light-dark(#666, #999);
+        --accent: light-dark(#3060c0, #6ea0ff);
+        --ok: light-dark(#127c2f, #4cd07a);
+        --bad: light-dark(#c02626, #ff6b6b);
+        --warn: light-dark(#a06000, #ffb454);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 1.5rem clamp(1rem, 4vw, 3rem) 6rem;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      /* Sticky control bar to flip the whole page's scheme independent of the OS. */
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        margin: 0 0 1.5rem;
+        background: color-mix(in srgb, var(--panel) 92%, transparent);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+
+      .toolbar strong {
+        margin-right: auto;
+      }
+
+      /* Forced scheme overrides via a data attribute on <html>. */
+      html[data-scheme="light"] {
+        color-scheme: light;
+      }
+
+      html[data-scheme="dark"] {
+        color-scheme: dark;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin: 0 0 0.25rem;
+      }
+
+      h2 {
+        font-size: 1.1rem;
+        margin: 2.5rem 0 0.5rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 2px solid var(--accent);
+      }
+
+      h3 {
+        font-size: 0.95rem;
+        margin: 1.25rem 0 0.5rem;
+        color: var(--muted);
+      }
+
+      .lede {
+        color: var(--muted);
+        max-width: 70ch;
+      }
+
+      section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1.25rem 1.5rem;
+        margin: 0 0 1.25rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+      }
+
+      label.field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        font-size: 0.85rem;
+      }
+
+      label.field > span:first-child {
+        color: var(--muted);
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem 1.5rem;
+        align-items: center;
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        font: inherit;
+        color: inherit;
+      }
+
+      input[type="text"],
+      input[type="search"],
+      input[type="email"],
+      input[type="url"],
+      input[type="tel"],
+      input[type="password"],
+      input[type="number"],
+      input[type="date"],
+      input[type="month"],
+      input[type="week"],
+      input[type="time"],
+      input[type="datetime-local"],
+      select,
+      textarea {
+        padding: 0.45rem 0.55rem;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 4rem;
+      }
+
+      /* State pseudo-classes surfaced for theming checks. */
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
+      input:invalid,
+      select:invalid,
+      textarea:invalid {
+        border-color: var(--bad);
+      }
+
+      input:user-invalid {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 25%, transparent);
+      }
+
+      input:valid:not(:placeholder-shown) {
+        border-color: var(--ok);
+      }
+
+      input:disabled,
+      select:disabled,
+      textarea:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      input:read-only:not([type="range"]) {
+        background: var(--panel);
+        font-style: italic;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: var(--muted);
+        opacity: 1;
+      }
+
+      /* Autofill styling hook (WebKit + the standard :autofill). */
+      input:autofill,
+      input:-webkit-autofill {
+        -webkit-text-fill-color: var(--text);
+        box-shadow: 0 0 0 100px color-mix(in srgb, var(--warn) 20%, var(--bg))
+          inset;
+      }
+
+      /* Text selection colour. */
+      ::selection {
+        background: var(--accent);
+        color: light-dark(#fff, #000);
+      }
+
+      button,
+      input[type="button"],
+      input[type="submit"],
+      input[type="reset"] {
+        padding: 0.45rem 0.9rem;
+        background: var(--accent);
+        color: light-dark(#fff, #06101f);
+        border: 1px solid transparent;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--text);
+        border-color: var(--border);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      code {
+        background: color-mix(in srgb, var(--muted) 25%, transparent);
+        padding: 0 0.3em;
+        border-radius: 3px;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.6rem;
+        text-align: left;
+      }
+
+      thead th {
+        background: color-mix(in srgb, var(--accent) 15%, transparent);
+      }
+
+      tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--muted) 10%, transparent);
+      }
+
+      /* Custom scrollbars (WebKit) plus the standard scrollbar-color. */
+      .scrollbox {
+        max-height: 140px;
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        scrollbar-color: var(--accent) var(--panel);
+      }
+
+      .scrollbox::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+      }
+
+      .scrollbox::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 6px;
+      }
+
+      .scrollbox::-webkit-scrollbar-track {
+        background: var(--panel);
+      }
+
+      progress,
+      meter {
+        width: 100%;
+        height: 1rem;
+      }
+
+      details {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      dialog {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--text);
+      }
+
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:visited {
+        color: color-mix(in srgb, var(--accent) 70%, purple);
+      }
+
+      fieldset {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+
+      legend {
+        color: var(--muted);
+        padding: 0 0.4rem;
+      }
+
+      mark {
+        background: var(--warn);
+        color: light-dark(#000, #000);
+      }
+
+      .swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .swatch {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <strong>Widget & input testbed</strong>
+      <span>scheme:</span>
+      <button class="secondary" onclick="setScheme('auto')">Auto (OS)</button>
+      <button class="secondary" onclick="setScheme('light')">Light</button>
+      <button class="secondary" onclick="setScheme('dark')">Dark</button>
+      <span id="schemeState" style="color: var(--muted)"></span>
+    </div>
+
+    <h1>Browser widget &amp; input testbed</h1>
+    <p class="lede">
+      Single-file page to eyeball how a theme renders native form controls,
+      autofill, selection, scrollbars and validation states in light and dark
+      mode. The form below uses real <code>autocomplete</code> tokens so the
+      browser's autofill dropdown will offer suggestions once you have saved
+      addresses / cards / logins.
+    </p>
+
+    <!-- ============================================================= -->
+    <h2>1. Autofill / autocomplete form</h2>
+    <section>
+      <p class="lede">
+        Submit once (it posts to itself via GET so nothing leaves the machine)
+        so the browser offers to remember the values, then reload and re-focus
+        to trigger the autofill dropdown. Fields carry the standard
+        <code>autocomplete</code> tokens.
+      </p>
+      <form action="" autocomplete="on" method="get">
+        <h3>Identity &amp; contact</h3>
+        <div class="grid">
+          <label class="field"
+            ><span>Full name (name)</span
+            ><input
+              autocomplete="name"
+              name="name"
+              placeholder="Jane Citizen"
+              type="text"
+          /></label>
+          <label class="field"
+            ><span>Given (given-name)</span
+            ><input autocomplete="given-name" name="fname" type="text"
+          /></label>
+          <label class="field"
+            ><span>Family (family-name)</span
+            ><input autocomplete="family-name" name="lname" type="text"
+          /></label>
+          <label class="field"
+            ><span>Email (email)</span
+            ><input
+              autocomplete="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              type="email"
+          /></label>
+          <label class="field"
+            ><span>Phone (tel)</span
+            ><input
+              autocomplete="tel"
+              name="tel"
+              placeholder="+61 400 000 000"
+              type="tel"
+          /></label>
+          <label class="field"
+            ><span>Organisation (organization)</span
+            ><input autocomplete="organization" name="org" type="text"
+          /></label>
+        </div>
+
+        <h3>Address</h3>
+        <div class="grid">
+          <label class="field"
+            ><span>Street (street-address)</span
+            ><input autocomplete="street-address" name="street" type="text"
+          /></label>
+          <label class="field"
+            ><span>Suburb/City (address-level2)</span
+            ><input autocomplete="address-level2" name="city" type="text"
+          /></label>
+          <label class="field"
+            ><span>State (address-level1)</span
+            ><input autocomplete="address-level1" name="state" type="text"
+          /></label>
+          <label class="field"
+            ><span>Postcode (postal-code)</span
+            ><input
+              autocomplete="postal-code"
+              inputmode="numeric"
+              name="zip"
+              type="text"
+          /></label>
+          <label class="field"
+            ><span>Country (country-name)</span
+            ><input autocomplete="country-name" name="country" type="text"
+          /></label>
+        </div>
+
+        <h3>Login (username / passwords)</h3>
+        <div class="grid">
+          <label class="field"
+            ><span>Username (username)</span
+            ><input autocomplete="username" name="username" type="text"
+          /></label>
+          <label class="field"
+            ><span>Current password</span
+            ><input
+              autocomplete="current-password"
+              name="cur_pw"
+              type="password"
+          /></label>
+          <label class="field"
+            ><span>New password</span
+            ><input
+              autocomplete="new-password"
+              minlength="8"
+              name="new_pw"
+              type="password"
+          /></label>
+          <label class="field"
+            ><span>One-time code (OTP)</span
+            ><input
+              autocomplete="one-time-code"
+              inputmode="numeric"
+              maxlength="6"
+              name="otp"
+              type="text"
+          /></label>
+        </div>
+
+        <h3>Payment card</h3>
+        <div class="grid">
+          <label class="field"
+            ><span>Card number (cc-number)</span
+            ><input
+              autocomplete="cc-number"
+              inputmode="numeric"
+              name="cc"
+              type="text"
+          /></label>
+          <label class="field"
+            ><span>Name on card (cc-name)</span
+            ><input autocomplete="cc-name" name="ccname" type="text"
+          /></label>
+          <label class="field"
+            ><span>Expiry (cc-exp)</span
+            ><input
+              autocomplete="cc-exp"
+              name="ccexp"
+              placeholder="MM/YY"
+              type="text"
+          /></label>
+          <label class="field"
+            ><span>CVC (cc-csc)</span
+            ><input
+              autocomplete="cc-csc"
+              inputmode="numeric"
+              maxlength="4"
+              name="cvc"
+              type="text"
+          /></label>
+        </div>
+
+        <div class="row" style="margin-top: 1rem">
+          <button type="submit">Submit (save values)</button>
+          <button class="secondary" type="reset">Reset</button>
+          <label class="field" style="flex-direction: row; align-items: center"
+            ><input checked name="remember" type="checkbox" />
+            <span>Remember me</span></label
+          >
+        </div>
+      </form>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>2. Every input type</h2>
+    <section>
+      <div class="grid">
+        <label class="field"
+          ><span>text</span
+          ><input placeholder="placeholder text" type="text" value=""
+        /></label>
+        <label class="field"
+          ><span>search</span><input placeholder="search…" type="search"
+        /></label>
+        <label class="field"
+          ><span>email</span><input placeholder="a@b.com" type="email"
+        /></label>
+        <label class="field"
+          ><span>url</span><input placeholder="https://" type="url"
+        /></label>
+        <label class="field"
+          ><span>tel</span><input placeholder="+61…" type="tel"
+        /></label>
+        <label class="field"
+          ><span>password</span><input type="password" value="secret"
+        /></label>
+        <label class="field"
+          ><span>number</span
+          ><input max="100" min="0" step="5" type="number" value="20"
+        /></label>
+        <label class="field"
+          ><span>range (accent-color)</span
+          ><input max="100" min="0" type="range" value="60"
+        /></label>
+        <label class="field"><span>date</span><input type="date" /></label>
+        <label class="field"><span>month</span><input type="month" /></label>
+        <label class="field"><span>week</span><input type="week" /></label>
+        <label class="field"><span>time</span><input type="time" /></label>
+        <label class="field"
+          ><span>datetime-local</span><input type="datetime-local"
+        /></label>
+        <label class="field"
+          ><span>color (native picker)</span
+          ><input type="color" value="#3060c0"
+        /></label>
+        <label class="field"><span>file</span><input type="file" /></label>
+        <label class="field"
+          ><span>file (multiple)</span
+          ><input accept="image/*" multiple type="file"
+        /></label>
+      </div>
+
+      <h3>datalist (native suggestion popup)</h3>
+      <div class="grid">
+        <label class="field"
+          ><span>Browser engine</span>
+          <input list="engines" placeholder="type Ge…" type="text" />
+          <datalist id="engines">
+            <option value="Gecko"></option>
+            <option value="Blink"></option>
+            <option value="WebKit"></option>
+            <option value="Servo"></option>
+          </datalist>
+        </label>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>3. Field states</h2>
+    <section>
+      <div class="grid">
+        <label class="field"
+          ><span>normal</span><input placeholder="normal" type="text"
+        /></label>
+        <label class="field"
+          ><span>required (empty = invalid)</span
+          ><input placeholder="required" required type="text"
+        /></label>
+        <label class="field"
+          ><span>invalid email pattern</span
+          ><input type="email" value="not-an-email"
+        /></label>
+        <label class="field"
+          ><span>valid (filled)</span
+          ><input placeholder=" " type="text" value="filled ok"
+        /></label>
+        <label class="field"
+          ><span>disabled</span><input disabled type="text" value="disabled"
+        /></label>
+        <label class="field"
+          ><span>readonly</span><input readonly type="text" value="readonly"
+        /></label>
+        <label class="field"
+          ><span>pattern (digits only)</span
+          ><input
+            pattern="\d+"
+            placeholder="123"
+            title="digits only"
+            type="text"
+        /></label>
+        <label class="field"
+          ><span>textarea</span
+          ><textarea placeholder="multi-line…">
+Some text
+across lines.</textarea>
+        </label>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>4. Checkboxes, radios, selects</h2>
+    <section>
+      <div class="row">
+        <fieldset>
+          <legend>Checkboxes</legend>
+          <label><input checked type="checkbox" /> checked</label><br />
+          <label><input type="checkbox" /> unchecked</label><br />
+          <label><input id="indet" type="checkbox" /> indeterminate</label
+          ><br />
+          <label><input checked disabled type="checkbox" /> disabled</label>
+        </fieldset>
+        <fieldset>
+          <legend>Radios</legend>
+          <label><input checked name="r" type="radio" /> option A</label><br />
+          <label><input name="r" type="radio" /> option B</label><br />
+          <label><input disabled name="r" type="radio" /> disabled</label>
+        </fieldset>
+        <fieldset>
+          <legend>Toggle (switch-ish)</legend>
+          <label class="field" style="flex-direction: row; align-items: center"
+            ><input role="switch" type="checkbox" /> switch role</label
+          >
+        </fieldset>
+      </div>
+
+      <h3>Selects</h3>
+      <div class="grid">
+        <label class="field"
+          ><span>single</span>
+          <select>
+            <option>Choose…</option>
+            <option>One</option>
+            <option>Two</option>
+            <option>Three</option>
+          </select>
+        </label>
+        <label class="field"
+          ><span>with optgroup</span>
+          <select>
+            <optgroup label="Fruit">
+              <option>Apple</option>
+              <option>Pear</option>
+            </optgroup>
+            <optgroup label="Veg">
+              <option>Carrot</option>
+              <option>Pea</option>
+            </optgroup>
+          </select>
+        </label>
+        <label class="field"
+          ><span>multiple</span>
+          <select multiple size="4">
+            <option>Alpha</option>
+            <option selected>Beta</option>
+            <option>Gamma</option>
+            <option selected>Delta</option>
+          </select>
+        </label>
+        <label class="field"
+          ><span>disabled</span>
+          <select disabled>
+            <option>can't touch this</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>5. Buttons</h2>
+    <section>
+      <div class="row">
+        <button>button</button>
+        <button class="secondary">secondary</button>
+        <button disabled>disabled</button>
+        <input type="button" value="input button" />
+        <input type="submit" value="input submit" />
+        <input type="reset" value="input reset" />
+        <a
+          href="#"
+          role="button"
+          style="
+            text-decoration: none;
+            padding: 0.45rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+          "
+          >link as button</a
+        >
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>6. Progress / meter / output</h2>
+    <section>
+      <div class="grid">
+        <label class="field"
+          ><span>progress (determinate)</span>
+          <progress max="100" value="65"></progress>
+        </label>
+        <label class="field"
+          ><span>progress (indeterminate)</span>
+          <progress></progress>
+        </label>
+        <label class="field"
+          ><span>meter (ok)</span>
+          <meter
+            high="70"
+            low="30"
+            max="100"
+            min="0"
+            optimum="90"
+            value="80"
+          ></meter>
+        </label>
+        <label class="field"
+          ><span>meter (warn)</span>
+          <meter
+            high="70"
+            low="30"
+            max="100"
+            min="0"
+            optimum="90"
+            value="50"
+          ></meter>
+        </label>
+        <label class="field"
+          ><span>meter (bad)</span>
+          <meter
+            high="70"
+            low="30"
+            max="100"
+            min="0"
+            optimum="90"
+            value="15"
+          ></meter>
+        </label>
+      </div>
+      <p style="margin-top: 1rem">
+        Live output:
+        <input
+          max="100"
+          min="0"
+          oninput="this.nextElementSibling.value = this.value"
+          type="range"
+          value="40"
+        />
+        <output>40</output>
+      </p>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>7. Disclosure, dialog, tooltips</h2>
+    <section>
+      <details>
+        <summary>details / summary (closed by default)</summary>
+        <p>Hidden content revealed on toggle.</p>
+      </details>
+      <details open style="margin-top: 0.75rem">
+        <summary>details (open)</summary>
+        <p>Already expanded.</p>
+      </details>
+      <p style="margin-top: 1rem">
+        <button onclick="document.getElementById('dlg').showModal()">
+          Open &lt;dialog&gt;
+        </button>
+        <span title="This is a native title tooltip"
+          >hover me for a native tooltip</span
+        >
+      </p>
+      <dialog id="dlg">
+        <form method="dialog" style="padding: 1rem; min-width: 260px">
+          <p>Native modal dialog with a backdrop.</p>
+          <label class="field"
+            ><span>type something</span><input autofocus type="text"
+          /></label>
+          <div class="row" style="margin-top: 1rem">
+            <button>Close</button>
+          </div>
+        </form>
+      </dialog>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>8. Selection, links, inline text</h2>
+    <section>
+      <p>
+        Drag-select this paragraph to check <code>::selection</code> colours. It
+        has a <a href="https://example.com">normal link</a>, a
+        <a href="#visited-anchor">visited-style link</a>,
+        <mark>marked text</mark>
+        , <strong>bold</strong>, <em>italic</em>, <code>inline code</code>,
+        <abbr title="HyperText Markup Language">HTML</abbr>, and
+        <kbd>Ctrl</kbd>+<kbd>C</kbd>.
+      </p>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>9. Scrollbars</h2>
+    <section>
+      <div class="row">
+        <div class="scrollbox" style="flex: 1 1 240px">
+          <p>Vertical scroll. Line 1</p>
+          <p>Line 2</p>
+          <p>Line 3</p>
+          <p>Line 4</p>
+          <p>Line 5</p>
+          <p>Line 6</p>
+          <p>Line 7</p>
+          <p>Line 8</p>
+        </div>
+        <div class="scrollbox" style="flex: 1 1 240px; white-space: nowrap">
+          Horizontal scroll
+          ---------------------------------------------------------- end.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>10. Table</h2>
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Input type</th>
+            <th>Native widget</th>
+            <th>Themeable</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>date</td>
+            <td>calendar popup</td>
+            <td>partial</td>
+          </tr>
+          <tr>
+            <td>color</td>
+            <td>OS colour picker</td>
+            <td>no (native window)</td>
+          </tr>
+          <tr>
+            <td>range</td>
+            <td>slider</td>
+            <td>accent-color</td>
+          </tr>
+          <tr>
+            <td>select</td>
+            <td>dropdown</td>
+            <td>partial</td>
+          </tr>
+          <tr>
+            <td>checkbox/radio</td>
+            <td>tick / dot</td>
+            <td>accent-color</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>11. Colour swatches (theme variables)</h2>
+    <section>
+      <div class="swatches">
+        <div
+          class="swatch"
+          style="background: var(--accent)"
+          title="--accent"
+        ></div>
+        <div class="swatch" style="background: var(--ok)" title="--ok"></div>
+        <div
+          class="swatch"
+          style="background: var(--warn)"
+          title="--warn"
+        ></div>
+        <div class="swatch" style="background: var(--bad)" title="--bad"></div>
+        <div
+          class="swatch"
+          style="background: var(--panel)"
+          title="--panel"
+        ></div>
+        <div
+          class="swatch"
+          style="background: var(--border)"
+          title="--border"
+        ></div>
+      </div>
+    </section>
+
+    <script>
+      // Force a scheme by setting data-scheme on <html>; "auto" clears it (falls back to OS).
+      function setScheme(mode) {
+        const html = document.documentElement;
+        if (mode === "auto") html.removeAttribute("data-scheme");
+        else html.setAttribute("data-scheme", mode);
+        updateState();
+      }
+
+      function updateState() {
+        const forced = document.documentElement.getAttribute("data-scheme");
+        const os = matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+        document.getElementById("schemeState").textContent = forced
+          ? `forced ${forced}`
+          : `auto (OS: ${os})`;
+      }
+
+      matchMedia("(prefers-color-scheme: dark)").addEventListener(
+        "change",
+        updateState,
+      );
+      // One checkbox starts in the indeterminate state (can only be set via JS).
+      document.getElementById("indet").indeterminate = true;
+      updateState();
+    </script>
+  </body>
+</html>

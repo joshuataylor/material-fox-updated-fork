@@ -25,7 +25,6 @@ dist-ssr
 
 # ignore
 node_modules
-.profiles/
 # Scratch dir for downloaded Firefox builds (scripts/download_firefox.sh), test
 # profiles, and other throwaway artefacts.
 /tmp/
