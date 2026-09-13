@@ -220,7 +220,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-no-not-secure-warning</code></td>
-    <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. Off by default -- the warning is a safety signal.</td>
+    <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. `false` by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
