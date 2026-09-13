@@ -25,8 +25,10 @@ dist-ssr
 
 # ignore
 node_modules
-dev/nightly/
 .profiles/
+# Scratch dir for downloaded Firefox builds (scripts/download_firefox.sh), test
+# profiles, and other throwaway artefacts.
+/tmp/
 yarn.lock
 pnpm-lock.yaml
 *.zip
