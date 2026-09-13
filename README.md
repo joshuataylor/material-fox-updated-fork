@@ -214,6 +214,10 @@ To **disable** a preference:
     <td><code>userChrome.ui-findbar-hide-checkboxes</code></td>
     <td>With <code>userChrome.ui-findbar-top-right</code> enabled, hide the find bar's four toggle checkboxes (Match Case, Match Diacritics, Whole Words, Highlight All) for a more compact bar. Shown by default.</td>
   </tr>
+  <tr>
+    <td><code>userChrome.ui-no-not-secure-warning</code></td>
+    <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. Off by default -- the warning is a safety signal.</td>
+  </tr>
 </table>
 
 ## Custom CSS rules

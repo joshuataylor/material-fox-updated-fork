@@ -35,3 +35,8 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * (Match Case / Match Diacritics / Whole Words / Highlight All) for a more
 // * compact bar. Checkboxes are shown by default.
 // user_pref("userChrome.ui-findbar-hide-checkboxes", true);
+
+// * Hide the leading "Not Secure" chip on insecure (HTTP) pages for a minimal,
+// * Chrome-like address bar. The secure (lock) indicator and breached-connection
+// * warnings are always kept. Off by default -- the warning is a safety signal.
+// user_pref("userChrome.ui-no-not-secure-warning", true);
