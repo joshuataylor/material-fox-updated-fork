@@ -12,9 +12,17 @@
   order: 99 !important;
 }
 
-#tracking-protection-icon-container,
-#trust-icon-container {
+#tracking-protection-icon-container {
   order: 98 !important;
+}
+
+// The Trust Panel chip (Firefox 156+, browser.urlbar.trustPanel.featureGate, on
+// by default) is the leading site-security indicator that replaces #identity-box
+// -- keep it at the natural leading order (its DOM position precedes the input
+// box), not order 98, which would push it to the trailing edge after the URL and
+// hide it off-screen on a narrow urlbar.
+#trust-icon-container {
+  order: 0 !important;
 }
 
 .urlbar-input-box {
@@ -49,6 +57,28 @@
     #trust-icon-container {
       display: none !important;
     }
+  }
+}
+
+// Opt-in: hide the leading "Not Secure" chip on insecure (HTTP) pages for a
+// minimal, Chrome-like address bar. Off by default -- the warning is a safety
+// signal. Secure (lock) and breached states are left untouched.
+@include moz-pref-media("userChrome.ui-no-not-secure-warning") {
+  // Trust Panel path (Firefox 156+, gate on by default).
+  @media (-moz-pref("browser.urlbar.trustPanel.featureGate")) {
+    #trust-icon-container.insecure {
+      display: none !important;
+    }
+  }
+
+  // Pre-Trust-Panel fallback (gate off): the old #identity-box "Not Secure" chip.
+  #identity-box[pageproxystate="valid"]:is(
+      .notSecure,
+      .notSecureText,
+      .mixedActiveContent
+    )
+    > .identity-box-button {
+    display: none !important;
   }
 }
 
