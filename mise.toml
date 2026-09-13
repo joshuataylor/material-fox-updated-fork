@@ -1,0 +1,124 @@
+# See https://mise.jdx.dev/mise-cookbook/nodejs.html
+
+[settings]
+jobs = 1
+experimental = true
+env_shell_expand = true
+task.output = "prefix"
+
+[tools]
+node = "26.8.2"
+
+[[env]]
+_.path = ['{{ config_root }}/node_modules/.bin']
+
+[tasks."npm_install"]
+run = "npm install"
+
+[tasks."setup"]
+run = "npm install && npm run build"
+
+[tasks."build"]
+# sources/outputs let mise skip the recompile when src/ is unchanged.
+run = "npm run build"
+sources = ["src/**/*.scss"]
+outputs = ["chrome/**/*.css"]
+
+[tasks."dev"]
+run = "npm run dev"
+
+[tasks."format"]
+run = "npm run format"
+
+[tasks."lint"]
+run = "npm run lint"
+
+[tasks."precommit"]
+description = "Pre-commit gate: build (SCSS compile) + Prettier format + lint check"
+# `&&` short-circuits on failure under both sh and cmd, so this is the
+# cross-platform equivalent of the old `set -euo pipefail` body.
+run = "npm run build && npm run format && npm run lint"
+
+# Launch a themed test Firefox.
+# Thin wrapper over scripts/firefox.mjs (the real, cross-platform launcher, runnable directly as `node scripts/firefox.mjs ...` without mise).
+# Reusable profile at tmp/profiles/<channel> with chrome/ symlinked in.
+# Flags are parsed by scripts/firefox.mjs itself; mise appends anything after `--`
+# to the command, so `mise run firefox -- --channel beta --nova off --prefs josh`
+# and `--remote` all reach the script.
+# This stays a bare `node` call (no shell arg arrays) so it runs natively under cmd/PowerShell on Windows.
+[tasks."firefox"]
+description = "Launch a themed Firefox (pass -- --channel nightly|beta|stable, --nova on|off, --prefs <name>, --remote)"
+depends = ["build"]
+dir = "{{config_root}}"
+# raw = connect stdio straight to the terminal (no "[firefox]" prefixing). This
+# keeps an interactive console real, so on Windows firefox.mjs can add
+# -attach-console (see there) and Firefox's logs stream; it also lets Ctrl+C reach
+# Firefox on every OS. The launcher blocks via -wait-for-browser on Windows.
+raw = true
+run = "node scripts/firefox.mjs"
+
+# Automated screenshots, using a marionette-controlled Firefox in chrome context (selenium-webdriver/geckodriver).
+# The aim is to write relevant screenshots to screenshots/<channel>/<scheme>/, stripping Firefox's automation indicator first (the red URL bar).
+# Builds its own temporary profile per channel under tmp/profiles/, so it only needs a downloaded binary.
+# Configurable via scripts/screenshot.config.mjs
+#
+# Usage examples:
+# - mise run screenshots -- --channels nightly,beta --schemes light
+# - mise run screenshots -- --only findbar --no-headless
+[tasks."screenshots"]
+description = "Capture themed chrome-UI screenshots to tmp/screenshots/ (pass -- --channels, --schemes, --only, --no-headless)"
+dir = "{{config_root}}"
+depends = ["build"]
+# mise appends args after `--` to the command, so `mise run screenshots -- --only
+# findbar` forwards to the script -- no shell var expansion, works on Windows.
+run = "node scripts/screenshot.mjs"
+
+# Assert the theme's "contracts" across channels.
+# Drives a headless Firefox per channel/scenario on an temporary profile and checks things like nav-bar opaque, etc.
+#
+# Usage examples:
+#   mise run verify-theme # all channels + scenarios
+#   mise run verify-theme -- --channels nightly # one channel
+[tasks."verify-theme"]
+description = "Assert themed chrome contracts across channels (CI gate; needs download-firefox)"
+dir = "{{config_root}}"
+depends = ["build"]
+# Args after `--` (e.g. --channels nightly) are appended by mise; bare node call
+# keeps it cross-platform.
+run = "node scripts/verify-theme.mjs"
+
+# Downloads Firefox build(s) into tmp/firefox, so you don't need to use the installed global Firefox installs (yay).
+# This is handy for also testing specific nightly builds to bisect where something changed (broken :-().
+# Passing --channel allows you to download JUST that channel (stable/beta/nightly).
+# Without passing --channel, it will download all three.
+# We use @puppeteer/browsers , which is really handy as it tracks versions for us.
+# Nightly is pulled from archive.mozilla.org because @puppeteer/browsers only downloads the latest nightly.
+# --build can be passed a buildID, which can be found in "Update History" in Firefox Nightly, shows as "Nightly 158.0a1 (20260912211859)",
+# so for example `--build 20260912211859`.
+#
+# This is used for figuring out exactly which nightly build changed something.
+#
+# Caches the download, so running the command again won't re-download unless a new download is available, or you pass --force .
+#
+# Usage examples:
+#
+#   mise run download-firefox                        # Downloads all three (stable/beta/nightly), downloading only when a new version.
+#   mise run download-firefox --channel stable       # Download just stable
+#   mise run download-firefox --force                # Re-download all regardless
+#   mise run download-firefox --build 20260910214118 # a specific nightly version
+[tasks."download-firefox"]
+description = "Download changed Firefox build(s) into tmp/firefox (no --channel = all; --channel <c>; --build <buildID|url>; --force)"
+dir = "{{config_root}}"
+# raw = connect the script's stdio directly so the printed binary path reaches
+# stdout without mise's "[download-firefox]" prefix -- keeps BIN=$(mise run ...)
+# capturable.
+raw = true
+run = "node scripts/download-firefox.mjs"
+
+# Remove temporary files (downloaded Firefox builds (tmp/firefox), reusable launcher profiles (tmp/profiles))
+# Everything removed is inside the repo -- the shared Firefox profiles.ini is never touched.
+# Done via a node script so it works on Windows...
+[tasks."clean"]
+description = "Remove downloaded builds + test profiles (tmp/firefox, tmp/profiles, .profiles/mfox-*)"
+dir = "{{config_root}}"
+run = "node scripts/clean.mjs"
