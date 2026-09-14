@@ -6,6 +6,26 @@ name: screenshots
 
 on:
   workflow_dispatch:
+    inputs:
+      os:
+        description: OS to run
+        type: choice
+        default: all
+        options:
+          - all
+          - ubuntu-26.04
+          - windows-2025
+          - macos-15
+          - macos-26
+      channel:
+        description: Firefox channel to run
+        type: choice
+        default: all
+        options:
+          - all
+          - nightly
+          - beta
+          - stable
   # to test before merge.
 #  pull_request:
 
@@ -13,13 +33,39 @@ permissions:
   contents: read
 
 jobs:
+  # Turn the os/channel inputs into JSON matrix axes. "all" (or an empty value,
+  # e.g. a non-dispatch trigger) expands to the full set.
+  setup:
+    runs-on: ubuntu-26.04
+    outputs:
+      os: ${{ steps.axes.outputs.os }}
+      channel: ${{ steps.axes.outputs.channel }}
+    steps:
+      - id: axes
+        shell: bash
+        env:
+          IN_OS: ${{ inputs.os }}
+          IN_CHANNEL: ${{ inputs.channel }}
+        run: |
+          if [ -z "$IN_OS" ] || [ "$IN_OS" = "all" ]; then
+            echo 'os=["ubuntu-26.04","windows-2025","macos-15","macos-26"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "os=[\"$IN_OS\"]" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -z "$IN_CHANNEL" ] || [ "$IN_CHANNEL" = "all" ]; then
+            echo 'channel=["nightly","beta","stable"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=[\"$IN_CHANNEL\"]" >> "$GITHUB_OUTPUT"
+          fi
+
   screenshots:
+    needs: setup
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-26.04, windows-2025, macos-15, macos-26 ]
-        channel: [ nightly, beta, stable ]
+        os: ${{ fromJSON(needs.setup.outputs.os) }}
+        channel: ${{ fromJSON(needs.setup.outputs.channel) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -71,6 +117,12 @@ jobs:
 
       - name: Capture screenshots (${{ matrix.channel }})
         run: mise run screenshots -- --channels ${{ matrix.channel }}
+
+      # scrot grabs the whole Xvfb display for shots whose popup is a native
+      # window (fullScreen shots), which geckodriver's own screenshots miss.
+      - name: Install screen grabber (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y scrot
 
       - name: Capture panels non-headless (${{ matrix.channel }})
         shell: bash
