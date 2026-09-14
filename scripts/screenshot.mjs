@@ -238,6 +238,9 @@ function buildOptions({ binary, profileDir, headless, nova, scheme, dpr }) {
     // Skip the Firefox 158+ pre-onboarding Terms-of-Use splash.
     options.setPreference("browser.preonboarding.enabled", false);
     options.setPreference("termsofuse.bypassNotification", true);
+    // Suppress the startup default-browser / "pin to taskbar" prompt
+    // (DefaultBrowserCheck.sys.mjs) so it does not overlay captures on Windows.
+    options.setPreference("browser.shell.checkDefaultBrowser", false);
     // Set the system and page colour schemes.
     options.setPreference("ui.systemUsesDarkTheme", scheme === "dark" ? 1 : 0);
     options.setPreference(
@@ -497,6 +500,11 @@ async function captureScreenshot(driver, screenshot, nameFor, settleMs) {
     // Native-window popups are invisible to WebDriver screenshots; capture the
     // whole display from the OS instead. This is the only aspect for such a shot.
     if (screenshot.fullScreen) {
+        // Re-strip and let the repaint land before the OS grab: opening the popup
+        // can re-assert the `remotecontrol` attribute, and on Xvfb the striped
+        // automation urlbar otherwise shows in the capture.
+        await stripAutomationIndicator(driver);
+        await sleep(500);
         const out = nameFor("fullscreen");
         if (osFullScreenShot(out)) {
             written.push({ aspect: "fullscreen", file: out });
