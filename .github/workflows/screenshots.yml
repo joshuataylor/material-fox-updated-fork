@@ -124,7 +124,7 @@ jobs:
         if: runner.os == 'Windows'
         continue-on-error: true
         shell: pwsh
-        run: .github/scripts/set-resolution.ps1 -Width 2560 -Height 1600
+        run: .github/scripts/set-resolution.ps1 -Width 1920 -Height 1080
 
       - name: Force display resolution (macOS)
         if: runner.os == 'macOS'
@@ -133,8 +133,7 @@ jobs:
           brew install displayplacer || true
           id=$(displayplacer list | awk -F': ' '/Persistent screen id/{print $2; exit}')
           echo "display id: $id"
-          displayplacer "id:$id res:2560x1600 scaling:off origin:(0,0) degree:0" \
-            || displayplacer "id:$id res:1920x1080 scaling:off origin:(0,0) degree:0" \
+          displayplacer "id:$id res:1920x1080 scaling:off origin:(0,0) degree:0" \
             || echo "displayplacer could not set a resolution; leaving default"
 
       - name: Capture screenshots (${{ matrix.channel }})
@@ -150,7 +149,7 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = "Linux" ]; then
-            xvfb-run -a -s "-screen 0 2560x1600x24" mise run screenshots -- --channels ${{ matrix.channel }} --headful-only
+            xvfb-run -a -s "-screen 0 1920x1080x24" mise run screenshots -- --channels ${{ matrix.channel }} --headful-only
           else
             mise run screenshots -- --channels ${{ matrix.channel }} --headful-only
           fi
