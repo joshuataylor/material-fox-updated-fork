@@ -192,18 +192,29 @@ export default {
 
         {
             // Content autofill popup (#PopupAutoComplete) over a dark webpage.
+            // Regression guard for the dark-page autofill fix in
+            // src/global/_tree.scss: the popup follows the page's colour-scheme,
+            // so on a dark page Firefox drew the row text light -- invisible on
+            // the theme's light popup background until the theme pinned the row
+            // colour. The forced-dark <datalist> section in scripts/input-test.html
+            // drives the popup deterministically (options in HTML, no form history).
             //
-            // Capture caveat: the popup is a native OS window that Firefox's own takeScreenshot cannot see it on macOS
+            // Capture: the popup is a native OS window, invisible to geckodriver's
+            // window/element screenshots on every platform (confirmed from CI
+            // artifacts). So this shot uses `fullScreen: true` -- an OS-level grab
+            // of the whole display (macOS screencapture / Windows PowerShell /
+            // Linux X11 grabber under Xvfb), the only capture that includes it.
+            // Output is one `fullscreen` aspect (desktop + browser + open popup).
             name: "autocomplete-popup",
             headful: true,
             isolate: true,
+            fullScreen: true,
             url: TESTBED_URL,
             contentTrigger: {
                 selector: 'input[list="group-tags"]',
                 type: "a",
                 showPopup: true,
             },
-            crops: [{ label: "popup", selector: "#PopupAutoComplete" }],
         },
 
         // --- Nova / Firefox 156+ features (regression coverage) ---

@@ -327,6 +327,61 @@ function writePng(base64, outPath) {
     writeFileSync(outPath, Buffer.from(base64, "base64"));
 }
 
+// Grab the whole OS display via the platform's screen-capture tool. Needed for
+// content-anchored popups (#PopupAutoComplete) that render as separate native
+// windows and are therefore invisible to geckodriver's window/element
+// screenshots -- a full-display grab is the only capture that includes them.
+// macOS: screencapture; Windows: PowerShell (System.Drawing); Linux: an X11
+// grabber (import/scrot/xwd -- present when the shot runs under Xvfb).
+// Returns true on success; false (with a warning) if no tool is available.
+function osFullScreenShot(outPath) {
+    mkdirSync(dirname(outPath), { recursive: true });
+    const run = (cmd, args) => {
+        execFileSync(cmd, args, { stdio: "ignore" });
+    };
+    try {
+        if (process.platform === "darwin") {
+            run("screencapture", ["-x", outPath]);
+            return true;
+        }
+        if (process.platform === "win32") {
+            const ps = [
+                "Add-Type -AssemblyName System.Windows.Forms,System.Drawing;",
+                "$b=[System.Windows.Forms.SystemInformation]::VirtualScreen;",
+                "$bmp=New-Object System.Drawing.Bitmap $b.Width,$b.Height;",
+                "$g=[System.Drawing.Graphics]::FromImage($bmp);",
+                "$g.CopyFromScreen($b.Location,[System.Drawing.Point]::Empty,$b.Size);",
+                `$bmp.Save('${outPath.replace(/'/g, "''")}',[System.Drawing.Imaging.ImageFormat]::Png)`,
+            ].join(" ");
+            run("powershell", ["-NoProfile", "-Command", ps]);
+            return true;
+        }
+        // Linux: needs an X display (Xvfb sets $DISPLAY); skip cleanly on the
+        // headless pass where there is none.
+        if (!process.env.DISPLAY) return false;
+        // Try common X11 grabbers in order.
+        for (const [cmd, args] of [
+            ["import", ["-window", "root", outPath]],
+            ["scrot", ["-o", outPath]],
+            ["gnome-screenshot", ["-f", outPath]],
+        ]) {
+            try {
+                run(cmd, args);
+                return true;
+            } catch {
+                /* try the next tool */
+            }
+        }
+        console.warn(
+            "  ! full-screen capture: no X11 grabber found (install imagemagick or scrot)",
+        );
+        return false;
+    } catch (err) {
+        console.warn(`  ! full-screen capture failed: ${err.message}`);
+        return false;
+    }
+}
+
 // Run setup in chrome context, then wait for UI updates before capture.
 // For example, setup can open the findbar with document.getElementById("cmd_find").doCommand().
 async function runSetup(driver, setup, settleMs) {
@@ -438,6 +493,17 @@ async function captureScreenshot(driver, screenshot, nameFor, settleMs) {
     await runSetup(driver, screenshot.setup, settleMs);
     await runContentTrigger(driver, screenshot.contentTrigger, settleMs);
     await stripAutomationIndicator(driver);
+
+    // Native-window popups are invisible to WebDriver screenshots; capture the
+    // whole display from the OS instead. This is the only aspect for such a shot.
+    if (screenshot.fullScreen) {
+        const out = nameFor("fullscreen");
+        if (osFullScreenShot(out)) {
+            written.push({ aspect: "fullscreen", file: out });
+        }
+        await clearPrefs(driver, screenshot.prefs);
+        return written;
+    }
 
     if (screenshot.window !== false) {
         const png = await driver.takeScreenshot();
