@@ -66,6 +66,23 @@
     --windows-panel-box-shadow: #{get-var("elevation-2")} !important;
   }
 
+  // Firefox's popup.css declares --panel-text-color: MenuText (and --panel-background-color: Menu) directly on the menupopup/panel element
+  // for non-arrow popups, which shadows the html/body overrides above.
+  // On Windows/Linux the theme paints menus with the dark --arrowpanel-background (components/_context-menu.scss), so
+  // the native MenuText renders dark-on-dark in dark mode.
+  //
+  // Re-assert the themed text colour on the element itself.
+  //
+  // Scoped to Windows/Linux to match where menus are themed -- macOS keeps native menus, so would risk light-on-light.
+  // See https://github.com/joshuataylor/material-fox-updated-fork/issues/4
+  @media (-moz-platform: windows), (-moz-platform: linux) {
+    menupopup,
+    panel {
+      --arrowpanel-color: #{get-var("text-primary")} !important;
+      --panel-text-color: #{get-var("text-primary")} !important;
+    }
+  }
+
   html,
   body {
     //----------------------------------------------------------------------
