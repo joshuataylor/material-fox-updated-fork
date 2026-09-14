@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
-    <title>Browser widget & input testbed</title>
+    <title>HTML testing</title>
     <meta content="light dark" name="color-scheme" />
     <style>
       /* Honour the OS/browser light-dark preference and expose it to native controls. */
@@ -92,6 +92,28 @@
         border-radius: 10px;
         padding: 1rem 1.25rem 1.5rem;
         margin: 0 0 1.25rem;
+      }
+
+      /* Force a dark subtree with a dark input bg, independent of the page toggle.
+         Mimics pure-min.css .pure-form input[type="text"] to reproduce the
+         light-theme autofill popup rendering light-on-light over a dark page. */
+      section.force-dark {
+        color-scheme: dark;
+        background: #262626;
+        border-color: #444;
+        color: #fff;
+      }
+
+      section.force-dark input[type="text"],
+      section.force-dark input[type="email"] {
+        background-color: rgb(86, 93, 100);
+        color: #fff;
+        border: none;
+        box-shadow: rgb(17, 17, 17) 0 1px 3px 0 inset;
+      }
+
+      section.force-dark .field > span:first-child {
+        color: #bbb;
       }
 
       .grid {
@@ -513,6 +535,74 @@
             ><input checked name="remember" type="checkbox" />
             <span>Remember me</span></label
           >
+        </div>
+      </form>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>1b. Autofill on a forced-dark form</h2>
+    <section class="force-dark">
+      <p class="lede">
+        This section is locally forced to a dark <code>color-scheme</code> with
+        a dark input background (mimicking pure-min.css's
+        <code>.pure-form input[type="text"]</code>), regardless of the page
+        toggle above. It reproduces the case where a light theme's autofill
+        popup renders light text on its light background because Firefox
+        computes the content popup in the page's dark scheme. Fields reuse the
+        same <code>autocomplete</code> tokens, so once you've submitted section
+        1 the dropdown offers the same suggestions here -- they should stay
+        readable.
+      </p>
+      <p class="lede">
+        The <strong>Group tag</strong> field below is backed by a
+        <code>&lt;datalist&gt;</code>. It drives the same
+        <code>#PopupAutoComplete</code> panel as form autofill, but its options
+        are declared in HTML, so it reproduces the popup deterministically with
+        no saved history -- focus it and press Down (or type "a") to open it.
+      </p>
+      <form action="" autocomplete="on" method="get">
+        <div class="grid">
+          <label class="field"
+            ><span>Group tag (datalist, no history needed)</span>
+            <input
+              autocomplete="off"
+              list="group-tags"
+              name="grouptag"
+              placeholder="type a"
+              type="text"
+            />
+            <datalist id="group-tags">
+              <option value="platypus"></option>
+              <option value="quokka"></option>
+              <option value="emu"></option>
+              <option value="koala"></option>
+              <option value="dropbear"></option>
+            </datalist>
+          </label>
+          <label class="field"
+            ><span>Full name (name)</span
+            ><input
+              autocomplete="name"
+              name="name"
+              placeholder="Jane Citizen"
+              type="text"
+          /></label>
+          <label class="field"
+            ><span>Email (email)</span
+            ><input
+              autocomplete="email"
+              name="email"
+              placeholder="you@example.com"
+              type="email"
+          /></label>
+          <label class="field"
+            ><span>Organisation (organization)</span
+            ><input autocomplete="organization" name="org" type="text"
+          /></label>
+          <label class="field"
+            ><span>Username (username)</span
+            ><input autocomplete="username" name="username" type="text"
+          /></label>
         </div>
       </form>
     </section>
