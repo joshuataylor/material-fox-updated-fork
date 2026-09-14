@@ -401,7 +401,7 @@
             ><input
               autocomplete="name"
               name="name"
-              placeholder="Jane Citizen"
+              placeholder="Alex Bandicoot"
               type="text"
           /></label>
           <label class="field"
@@ -417,7 +417,7 @@
             ><input
               autocomplete="email"
               name="email"
-              placeholder="you@example.com"
+              placeholder="quokka@example.com"
               required
               type="email"
           /></label>
@@ -584,7 +584,7 @@
             ><input
               autocomplete="name"
               name="name"
-              placeholder="Jane Citizen"
+              placeholder="Alex Bandicoot"
               type="text"
           /></label>
           <label class="field"
@@ -592,7 +592,7 @@
             ><input
               autocomplete="email"
               name="email"
-              placeholder="you@example.com"
+              placeholder="quokka@example.com"
               type="email"
           /></label>
           <label class="field"
@@ -710,6 +710,14 @@
 Some text
 across lines.</textarea>
         </label>
+        <label class="field"
+          ><span>textarea (disabled)</span
+          ><textarea disabled>can't edit this</textarea>
+        </label>
+        <label class="field"
+          ><span>textarea (readonly)</span
+          ><textarea readonly>read only</textarea>
+        </label>
       </div>
     </section>
 
@@ -727,8 +735,8 @@ across lines.</textarea>
         </fieldset>
         <fieldset>
           <legend>Radios</legend>
-          <label><input checked name="r" type="radio" /> option A</label><br />
-          <label><input name="r" type="radio" /> option B</label><br />
+          <label><input checked name="r" type="radio" /> koala</label><br />
+          <label><input name="r" type="radio" /> emu</label><br />
           <label><input disabled name="r" type="radio" /> disabled</label>
         </fieldset>
         <fieldset>
@@ -736,6 +744,11 @@ across lines.</textarea>
           <label class="field" style="flex-direction: row; align-items: center"
             ><input role="switch" type="checkbox" /> switch role</label
           >
+        </fieldset>
+        <fieldset disabled>
+          <legend>Disabled fieldset (cascades)</legend>
+          <label><input checked type="checkbox" /> koala</label><br />
+          <label><input name="dr" type="radio" /> emu</label>
         </fieldset>
       </div>
 
@@ -745,37 +758,58 @@ across lines.</textarea>
           ><span>single</span>
           <select>
             <option>Choose…</option>
-            <option>One</option>
-            <option>Two</option>
-            <option>Three</option>
+            <option>wombat</option>
+            <option>echidna</option>
+            <option>bilby</option>
           </select>
         </label>
         <label class="field"
           ><span>with optgroup</span>
           <select>
-            <optgroup label="Fruit">
-              <option>Apple</option>
-              <option>Pear</option>
+            <optgroup label="Marsupials">
+              <option>Koala</option>
+              <option>Quokka</option>
             </optgroup>
-            <optgroup label="Veg">
-              <option>Carrot</option>
-              <option>Pea</option>
+            <optgroup label="Monotremes">
+              <option>Platypus</option>
+              <option>Echidna</option>
             </optgroup>
           </select>
         </label>
         <label class="field"
           ><span>multiple</span>
           <select multiple size="4">
-            <option>Alpha</option>
-            <option selected>Beta</option>
-            <option>Gamma</option>
-            <option selected>Delta</option>
+            <option>Dingo</option>
+            <option selected>Numbat</option>
+            <option>Bilby</option>
+            <option selected>Kangaroo</option>
           </select>
         </label>
         <label class="field"
           ><span>disabled</span>
           <select disabled>
             <option>can't touch this</option>
+          </select>
+        </label>
+        <label class="field"
+          ><span>disabled options</span>
+          <select>
+            <option>Wombat</option>
+            <option disabled>Bilby (disabled option)</option>
+            <optgroup label="Reptiles" disabled>
+              <option>Goanna (disabled group)</option>
+              <option>Taipan</option>
+            </optgroup>
+          </select>
+        </label>
+        <label class="field"
+          ><span>with hr separators</span>
+          <select>
+            <option>Koala</option>
+            <option>Quokka</option>
+            <hr />
+            <option>Emu</option>
+            <option>Cassowary</option>
           </select>
         </label>
       </div>
@@ -791,6 +825,11 @@ across lines.</textarea>
         <input type="button" value="input button" />
         <input type="submit" value="input submit" />
         <input type="reset" value="input reset" />
+        <input
+          alt="input image (submit)"
+          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='32'%3E%3Crect width='96' height='32' rx='6' fill='%233060c0'/%3E%3Ctext x='48' y='21' font-size='13' fill='white' text-anchor='middle'%3Eimage%3C/text%3E%3C/svg%3E"
+          type="image"
+        />
         <a
           href="#"
           role="button"
@@ -999,6 +1038,109 @@ across lines.</textarea>
           title="--border"
         ></div>
       </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>12. Media (native controls)</h2>
+    <section>
+      <p class="lede">
+        Native <code>&lt;video&gt;</code> / <code>&lt;audio&gt;</code> control
+        bars (play, scrubber, volume, timestamp). No source is attached -- the
+        control chrome still renders so the theme's accent and control styling
+        can be checked offline.
+      </p>
+      <div class="row">
+        <video controls playsinline width="320" style="max-width: 100%"></video>
+        <audio controls style="flex: 1 1 240px"></audio>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <h2>13. Content elements (non-input)</h2>
+    <section>
+      <p class="lede">
+        Common webpage-content elements a theme's <code>userContent.css</code>
+        may restyle -- lists, quotes, rules, figures, preformatted text and
+        inline semantics.
+      </p>
+
+      <h3>Lists</h3>
+      <div class="row" style="align-items: flex-start">
+        <ul>
+          <li>Koala</li>
+          <li>
+            Quokka
+            <ul>
+              <li>Rottnest Island</li>
+            </ul>
+          </li>
+          <li>Wombat</li>
+        </ul>
+        <ol>
+          <li>Emu</li>
+          <li>Cassowary</li>
+          <li>Kookaburra</li>
+        </ol>
+        <dl>
+          <dt>Platypus</dt>
+          <dd>Egg-laying monotreme.</dd>
+          <dt>Echidna</dt>
+          <dd>Spiny monotreme.</dd>
+        </dl>
+      </div>
+
+      <h3>Quote &amp; rule</h3>
+      <blockquote
+        cite="https://example.com"
+        style="
+          margin: 0;
+          padding-left: 0.75rem;
+          border-left: 3px solid var(--accent);
+          color: var(--muted);
+        "
+      >
+        The platypus was so improbable that early naturalists thought the first
+        specimen was a hoax.
+      </blockquote>
+      <hr style="border: none; border-top: 1px solid var(--border)" />
+
+      <h3>Figure &amp; image</h3>
+      <figure style="margin: 0">
+        <img
+          alt="placeholder swatch of a bilby"
+          height="60"
+          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Crect width='160' height='60' rx='6' fill='%236a4a2a'/%3E%3Ctext x='80' y='36' font-size='16' fill='white' text-anchor='middle'%3Ebilby%3C/text%3E%3C/svg%3E"
+          width="160"
+        />
+        <figcaption style="color: var(--muted); font-size: 0.85rem">
+          Figure: a greater bilby (placeholder).
+        </figcaption>
+      </figure>
+
+      <h3>Preformatted / code block</h3>
+      <pre
+        style="
+          background: color-mix(in srgb, var(--muted) 15%, transparent);
+          padding: 0.75rem;
+          border-radius: 6px;
+          overflow: auto;
+        "
+      ><code>animals = ["koala", "quokka", "numbat"]
+for a in animals:
+    print(a)</code></pre>
+
+      <h3>Inline semantics</h3>
+      <p>
+        A <dfn>numbat</dfn> (<abbr title="Myrmecobius fasciatus"
+          >M. fasciatus</abbr
+        >) eats up to 20,000 termites a day. Water boils at
+        100<sup>&deg;</sup>C; H<sub>2</sub>O. <del>Tasmanian tiger</del>
+        <ins>thylacine</ins>. Press <kbd>Ctrl</kbd>+<kbd>K</kbd>. As
+        <cite>Field Guide to Australian Mammals</cite> notes,
+        <q>the dingo is an apex predator</q>. Output: <samp>done</samp>,
+        variable <var>n</var>, spotted
+        <time datetime="2026-09-14">14 Sep 2026</time>.
+      </p>
     </section>
 
     <script>
