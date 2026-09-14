@@ -24,6 +24,10 @@ const HTTPS_OFF = {
     "dom.security.https_first_pbm": false,
 };
 
+// Local widget/input testbed shipped alongside this config. Resolved to a file://
+// URL so it works on any machine and in CI without a network dependency.
+const TESTBED_URL = new URL("./input-test.html", import.meta.url).href;
+
 export default {
     outDir: "tmp/screenshots",
     window: { width: 1280, height: 800 },
@@ -184,6 +188,22 @@ export default {
                     prefs: { "userChrome.ui-no-menu-icons": true },
                 },
             ],
+        },
+
+        {
+            // Content autofill popup (#PopupAutoComplete) over a dark webpage.
+            //
+            // Capture caveat: the popup is a native OS window that Firefox's own takeScreenshot cannot see it on macOS
+            name: "autocomplete-popup",
+            headful: true,
+            isolate: true,
+            url: TESTBED_URL,
+            contentTrigger: {
+                selector: 'input[list="group-tags"]',
+                type: "a",
+                showPopup: true,
+            },
+            crops: [{ label: "popup", selector: "#PopupAutoComplete" }],
         },
 
         // --- Nova / Firefox 156+ features (regression coverage) ---

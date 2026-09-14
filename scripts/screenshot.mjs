@@ -29,7 +29,7 @@
 // <feature>__<enabled|disabled>__<channel_major>__<light|dark>__<os>.png.
 // For example: findbar_top_right__nightly_158__light__windows_11.png.
 
-import { Builder, By } from "selenium-webdriver";
+import { Builder, By, Key } from "selenium-webdriver";
 import * as firefox from "selenium-webdriver/firefox.js";
 import {
     existsSync,
@@ -335,6 +335,36 @@ async function runSetup(driver, setup, settleMs) {
     await sleep(settleMs);
 }
 
+// Used when a web-content element needs to open a content-anchored chrome popup (e.g. the #PopupAutoComplete satchel/datalist dropdown).
+async function runContentTrigger(driver, trigger, settleMs) {
+    if (!trigger) return;
+    await driver.setContext("content");
+    try {
+        const el = await driver.findElement(By.css(trigger.selector));
+        // Centre the field so a downward-opening popup has room (else it opens
+        // off-screen and the crop grabs the page behind it).
+        await driver.executeScript(
+            "arguments[0].scrollIntoView({ block: 'center' });",
+            el,
+        );
+        await el.click();
+        if (trigger.type) await el.sendKeys(trigger.type);
+        if (trigger.key) await el.sendKeys(Key[trigger.key]);
+    } finally {
+        await driver.setContext("chrome");
+    }
+    if (trigger.showPopup) {
+        // The focused content input carries over the context switch; open its autocomplete popup from chrome (nsIFormFillController.showPopup).
+        await driver.executeScript(() => {
+            Cc["@mozilla.org/satchel/form-fill-controller;1"] // eslint-disable-line no-undef
+                .getService(Ci.nsIFormFillController) // eslint-disable-line no-undef
+                .showPopup();
+            return true;
+        });
+    }
+    await sleep(settleMs);
+}
+
 // Select the built-in theme matching the requested colour scheme.
 // An active light or dark theme overrides ui.systemUsesDarkTheme for browser UI.
 // This caused light captures to render dark on Firefox 156 beta...
@@ -406,6 +436,7 @@ async function captureScreenshot(driver, screenshot, nameFor, settleMs) {
     await setPrefs(driver, screenshot.prefs);
     await navigate(driver, screenshot.url, settleMs);
     await runSetup(driver, screenshot.setup, settleMs);
+    await runContentTrigger(driver, screenshot.contentTrigger, settleMs);
     await stripAutomationIndicator(driver);
 
     if (screenshot.window !== false) {
