@@ -246,7 +246,7 @@ async function main() {
                 pass: false,
                 got: binary
                     ? `missing ${binary}`
-                    : `no binary -- run: mise run download-firefox --channel ${channel} (or set $FF_${channel.toUpperCase()})`,
+                    : `no binary -- run: mise run firefox-download --channel ${channel} (or set $FF_${channel.toUpperCase()})`,
             });
             failed++;
             continue;

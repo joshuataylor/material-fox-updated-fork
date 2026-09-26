@@ -10,7 +10,7 @@
 //   1. $FF_<CHANNEL> (e.g. FF_NIGHTLY), if set and the path exists.
 //   2. Otherwise search the channel install dir tmp/firefox/<channel> for the executable.
 //
-// To download firefox, use `mise run download-firefox`.
+// To download firefox, use `mise run firefox-download`.
 //
 // Usage:
 // node scripts/lib/firefox-bin.mjs --channel nightly
@@ -90,7 +90,7 @@ export function resolveBinary(channel, opts = {}) {
     if (!bin) {
         throw new Error(
             `No Firefox binary for channel "${channel}". Set $FF_${channel.toUpperCase()} ` +
-                `or run: mise run download-firefox --channel ${channel}`,
+                `or run: mise run firefox-download --channel ${channel}`,
         );
     }
     return bin;

@@ -1,7 +1,7 @@
 # Per-feature chrome screenshots across Stable/Beta/Nightly, supported OS, uploaded for manual visual regression inspection.
 #
 # Two macOS versions on purpose: 15 and 26 render native controls differently.
-# `mise run download-firefox` is a single cross-platform Node script, so every OS uses the same step (yay).
+# `mise run firefox-download` is a single cross-platform Node script, so every OS uses the same step (yay).
 name: screenshots
 
 on:
@@ -96,7 +96,7 @@ jobs:
           restore-keys: firefox-${{ runner.os }}-${{ matrix.channel }}-
 
       - name: Download Firefox (${{ matrix.channel }})
-        run: mise run download-firefox --channel ${{ matrix.channel }}
+        run: mise run firefox-download --channel ${{ matrix.channel }}
 
       # tmp/firefox/nightly/.identity is for example `buildid:20260913084423`
       # So we can use this as the key to the specific build of Firefox we downloaded.

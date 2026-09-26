@@ -109,23 +109,23 @@ async function main() {
     let binary = findBinary(channel);
     if (!binary) {
         console.error(
-            `No ${channel} build under tmp/firefox -- running download-firefox ...`,
+            `No ${channel} build under tmp/firefox -- running firefox-download ...`,
         );
         const dl = spawnSync(
             process.execPath,
             [
-                join(REPO, "scripts", "download-firefox.mjs"),
+                join(REPO, "scripts", "firefox-download.mjs"),
                 "--channel",
                 channel,
             ],
             { stdio: "inherit" },
         );
-        if (dl.status !== 0) die(`download-firefox failed for ${channel}`);
+        if (dl.status !== 0) die(`firefox-download failed for ${channel}`);
         binary = findBinary(channel);
     }
     if (!binary)
         die(
-            `no ${channel} binary after download-firefox (check the output above)`,
+            `no ${channel} binary after firefox-download (check the output above)`,
         );
 
     const profileDir = args.profile ?? join(REPO, "tmp", "profiles", channel);

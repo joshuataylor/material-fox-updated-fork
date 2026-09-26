@@ -599,7 +599,7 @@ async function main() {
         const binary = BINARIES[channel];
         if (!binary || !existsSync(binary)) {
             console.warn(
-                `Skipping channel "${channel}": no binary (run: mise run download-firefox --channel ${channel}, or set $FF_${channel.toUpperCase()}).`,
+                `Skipping channel "${channel}": no binary (run: mise run firefox-download --channel ${channel}, or set $FF_${channel.toUpperCase()}).`,
             );
             continue;
         }

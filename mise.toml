@@ -80,7 +80,7 @@ run = "node scripts/screenshot.mjs"
 #   mise run verify-theme # all channels + scenarios
 #   mise run verify-theme -- --channels nightly # one channel
 [tasks."verify-theme"]
-description = "Assert themed chrome contracts across channels (CI gate; needs download-firefox)"
+description = "Assert themed chrome contracts across channels (CI gate; needs firefox-download)"
 dir = "{{config_root}}"
 depends = ["build"]
 # Args after `--` (e.g. --channels nightly) are appended by mise; bare node call
@@ -102,18 +102,18 @@ run = "node scripts/verify-theme.mjs"
 #
 # Usage examples:
 #
-#   mise run download-firefox                        # Downloads all three (stable/beta/nightly), downloading only when a new version.
-#   mise run download-firefox --channel stable       # Download just stable
-#   mise run download-firefox --force                # Re-download all regardless
-#   mise run download-firefox --build 20260910214118 # a specific nightly version
-[tasks."download-firefox"]
+#   mise run firefox-download                        # Downloads all three (stable/beta/nightly), downloading only when a new version.
+#   mise run firefox-download --channel stable       # Download just stable
+#   mise run firefox-download --force                # Re-download all regardless
+#   mise run firefox-download --build 20260910214118 # a specific nightly version
+[tasks."firefox-download"]
 description = "Download changed Firefox build(s) into tmp/firefox (no --channel = all; --channel <c>; --build <buildID|url>; --force)"
 dir = "{{config_root}}"
 # raw = connect the script's stdio directly so the printed binary path reaches
-# stdout without mise's "[download-firefox]" prefix -- keeps BIN=$(mise run ...)
+# stdout without mise's "[firefox-download]" prefix -- keeps BIN=$(mise run ...)
 # capturable.
 raw = true
-run = "node scripts/download-firefox.mjs"
+run = "node scripts/firefox-download.mjs"
 
 # Remove temporary files (downloaded Firefox builds (tmp/firefox), reusable launcher profiles (tmp/profiles))
 # Everything removed is inside the repo -- the shared Firefox profiles.ini is never touched.
