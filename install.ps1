@@ -1,6 +1,14 @@
 param (
-  [string]$ReleasesUrl = "https://api.github.com/repos/edelvarden/material-fox-updated/releases/$env:MATERIAL_FOX_VERSION"
+  # Release to install, as a GitHub releases API path: "latest" or "tags/vX.Y.Z".
+  [string]$Version = $(if ($env:MATERIAL_FOX_VERSION) { $env:MATERIAL_FOX_VERSION } else { "latest" }),
+  # Repository to install from. Defaults to this fork; set MATERIAL_FOX_REPO to override.
+  [string]$Repo = $(if ($env:MATERIAL_FOX_REPO) { $env:MATERIAL_FOX_REPO } else { "joshuataylor/material-fox-updated-fork" })
 )
+
+# Releases up to v2.0.0 (e.g. v1.0.7 for Firefox 119 and below) were only published upstream, so a
+# tag this fork has no release for falls back to the original repository.
+$UpstreamRepo = "edelvarden/material-fox-updated"
+$AppName = "material-fox-updated"
 
 function Get-FirefoxProfileDirectory {
 
@@ -221,7 +229,7 @@ function Update-FirefoxTheme {
   }
   finally {
     Write-Host "Done. Cleaning up temp files..."
-    Remove-Item $zipPath -Recurse -Force
+    Remove-Item $zipPath -Recurse -Force -ErrorAction SilentlyContinue
   }
 }
 
@@ -248,25 +256,67 @@ function Get-FileDownloadUrlFromGithubReleases {
 }
 
 
+function Resolve-ReleaseSource {
+  # Finds the chrome.zip for $Version in $Repo, and the user.js from the same tag so the example
+  # prefs match the installed theme. Only a pinned tag falls back to upstream; "latest" never does,
+  # so a failed lookup can't silently install the unmaintained upstream release.
+
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Repo,
+    [Parameter(Mandatory = $true)]
+    [string]$Version
+  )
+
+  $candidates = @($Repo)
+  if ($Version -like "tags/*" -and $Repo -ne $UpstreamRepo) {
+    $candidates += $UpstreamRepo
+  }
+
+  foreach ($candidate in $candidates) {
+    $downloadUrl = Get-FileDownloadUrlFromGithubReleases -ReleasesUrl "https://api.github.com/repos/$candidate/releases/$Version" -FileName "chrome.zip"
+
+    if ($downloadUrl) {
+      if ($candidate -ne $Repo) {
+        Write-Warning "No $($Version -replace 'tags/') release in $Repo, installing it from $candidate instead."
+      }
+
+      # Asset URLs look like .../releases/download/<tag>/chrome.zip
+      $ref = "main"
+      if ($downloadUrl -match '/releases/download/([^/]+)/') {
+        $ref = $Matches[1]
+      }
+
+      return @{
+        DownloadUrl       = $downloadUrl
+        UserJSDownloadUrl = "https://raw.githubusercontent.com/$candidate/$ref/user.js"
+      }
+    }
+  }
+
+  return $null
+}
+
+
 function Invoke-Installation {
-    
+
   [CmdletBinding()]
   param(
     [Parameter(Mandatory = $false)]
-    [string]$ProfileDirectory = (Get-FirefoxProfileDirectory),
-    [Parameter(Mandatory = $false)]
-    # [string]$DownloadUrl = (Get-FileDownloadUrlFromGithubReleases -ReleasesUrl "https://api.github.com/repos/edelvarden/material-fox-updated/releases/latest" -FileName "chrome.zip"),
-    # [string]$DownloadUrl = (Get-FileDownloadUrlFromGithubReleases -ReleasesUrl "https://api.github.com/repos/edelvarden/material-fox-updated/releases/tags/v1.0.7" -FileName "chrome.zip"),
-    [string]$DownloadUrl = (Get-FileDownloadUrlFromGithubReleases -ReleasesUrl $ReleasesUrl -FileName "chrome.zip"),
-    [Parameter(Mandatory = $false)]
-    [string]$UserJSDownloadUrl = "https://raw.githubusercontent.com/edelvarden/material-fox-updated/main/user.js"
+    [string]$ProfileDirectory = (Get-FirefoxProfileDirectory)
   )
 
-  if (!($DownloadUrl)) {
+  $source = Resolve-ReleaseSource -Repo $Repo -Version $Version
+
+  if (!($source)) {
     Write-Warning "Couldn't retrieve the download URL. Installation aborted."
 
     return
   }
+
+  $DownloadUrl = $source.DownloadUrl
+  $UserJSDownloadUrl = $source.UserJSDownloadUrl
 
   if ((!($ProfileDirectory)) -or (!(Test-Path -Path $ProfileDirectory))) {
     Write-Warning "Couldn't find the Firefox profile directory. Installation aborted."
@@ -321,7 +371,7 @@ function Invoke-Installation {
 
 Clear-Host
 Write-Host "----------------------------------------------------------------"  -ForegroundColor DarkGray
-Write-Host "MaterialFox UPDATED ($($env:MATERIAL_FOX_VERSION -replace 'tags/'))" -ForegroundColor White
+Write-Host "MaterialFox UPDATED ($($Version -replace 'tags/'))" -ForegroundColor White
 Write-Host "----------------------------------------------------------------" -ForegroundColor DarkGray
 
 Invoke-Installation
