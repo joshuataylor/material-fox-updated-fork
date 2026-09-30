@@ -1,6 +1,6 @@
 @use "sass:meta";
-// only for about:* pages
-@-moz-document regexp("about:(?!blank|devtools).*") {
+// only for about:* pages (about:srcdoc is an arbitrary site's iframe, not a Firefox page)
+@-moz-document regexp("about:(?!blank|srcdoc|devtools).*") {
   @import "variables/index";
   @import "global/reset";
   @import "global/fonts";
