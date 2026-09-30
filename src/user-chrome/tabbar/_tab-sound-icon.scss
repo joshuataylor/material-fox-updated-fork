@@ -136,12 +136,12 @@
   transform: translateX(0) !important;
   inset-inline-end: 0px !important;
 
-  transition-property: margin, transform, background-color !important;
+  // No `margin` here: the favicon/label gap changes when audio starts, and
+  // transitioning it re-laid out the tab on every frame.
+  transition-property: transform, background-color !important;
   transition-duration:
-    get-var("medium-duration"), get-var("medium-duration"),
-    get-var("short-duration") !important;
-  transition-timing-function:
-    get-var("point-to-point"), get-var("point-to-point"), ease !important;
+    get-var("medium-duration"), get-var("short-duration") !important;
+  transition-timing-function: get-var("point-to-point"), ease !important;
 }
 
 .tabbrowser-tab[pinned]:is([soundplaying], [muted], [activemedia-blocked]) {
