@@ -59,15 +59,11 @@
     padding-inline: 4px !important;
   }
 
-  #identity-icon-box {
-    background-color: get-var(background-color-100) !important;
-  }
-
-  #identity-box[pageproxystate="valid"].notSecureText > .identity-box-button,
-  #identity-box[pageproxystate="valid"].chromeUI > .identity-box-button,
-  #identity-box[pageproxystate="valid"].extensionPage > .identity-box-button,
-  #urlbar-label-box {
-    background-color: get-var(background-color-100) !important;
+  // Chip fill for this style, through Firefox's variables (see
+  // urlbar/_urlbar-buttons.scss) so hover/open/focused states still apply.
+  #urlbar {
+    --urlbar-box-background-color: #{get-var(background-color-100)} !important;
+    --urlbar-box-background-color-focus: #{get-var(background-color-100)} !important;
   }
 }
 

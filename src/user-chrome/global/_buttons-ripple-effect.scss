@@ -71,6 +71,23 @@ html {
     @include ripple-effect-for-button();
   }
 
+  // Icon buttons only. The text chips (#identity-icon-box as the about:/extension
+  // brand chip, the zoom level) are coloured through --urlbar-box-* in
+  // urlbar/_urlbar-buttons.scss; a width-sized ripple circle does not fit them.
+  #identity-permission-box,
+  #notification-popup-box,
+  #tracking-protection-icon-container,
+  #pageActionButton,
+  .urlbar-page-action,
+  // #scrollbutton-up,
+  // #scrollbutton-down,
+  .tab-close-button,
+  .tab-icon-overlay {
+    &:not([disabled]) {
+      @include ripple-effect-for-button();
+    }
+  }
+
   // effect for other nav bar buttons
   .findbar-find-next,
   .findbar-find-previous,

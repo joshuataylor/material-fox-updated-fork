@@ -101,17 +101,28 @@
   background-color: get-var("text-on-accent") !important;
 }
 
-// fix background for "Firefox" box in urlbar container
-#identity-box[pageproxystate="valid"].notSecureText > .identity-box-button,
-#identity-box[pageproxystate="valid"].chromeUI > .identity-box-button,
-#identity-box[pageproxystate="valid"].extensionPage > .identity-box-button,
-#urlbar-label-box {
-  // background-color: var(--urlbar-box-bgcolor); // Default
-  background-color: transparent !important;
-
-  &:hover {
-    background-color: get-var("control-background-color") !important;
-    outline-color: get-var("control-border-color") !important;
+// Address bar chips: the brand chip on Firefox's own pages ("Nightly" /
+// "Firefox" on about:config etc., #identity-box.chromeUI), the extension-page
+// chip, "Not Secure", the zoom level, the switch-to-tab label and page-action
+// hover. Firefox paints all of them from these variables
+// (identity-block.css, urlbar.css), so set them here instead of painting the
+// buttons: a direct paint misses states such as [open] and the focused bar.
+@include moz-pref-media("not userChrome.theme-default") {
+  #urlbar {
+    --urlbar-box-background-color: #{get-var("accent-color-transparent")} !important;
+    --urlbar-box-background-color-focus: #{get-var("accent-color-transparent")} !important;
+    --urlbar-box-background-color-hover: #{cm(
+        transparent,
+        get-var("accent-color"),
+        0.14
+      )} !important;
+    --urlbar-box-background-color-active: #{get-var(
+        "accent-color-transparent-active"
+      )} !important;
+    --urlbar-box-text-color: #{get-var("text-primary")} !important;
+    --urlbar-box-text-color-hover: #{get-var("text-primary")} !important;
+    --urlbar-box-text-color-active: #{get-var("text-primary")} !important;
+    --urlbar-box-text-color-focus: #{get-var("text-primary")} !important;
   }
 }
 
