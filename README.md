@@ -10,7 +10,7 @@
 > This is a fork of the fantastic [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden). Full credit for the original theme goes to them -- this fork exists to continue maintenance and updates.
 
 > [!NOTE]
-> **Using Firefox Nightly?** Firefox's "Nova" redesign is on by default in Nightly (and only there) and changes how the window, tabs, find bar and new-tab search box look. This theme adapts to it -- see [Firefox 155 "Nova" redesign](#firefox-155-nova-redesign) below.
+> Firefox's "Nova" redesign is on by default in every channel from Firefox 157 (Release, Beta and Nightly) and changes how the window, tabs, address bar, find bar and new-tab search box look. This theme adapts to it -- see [Firefox 155 "Nova" redesign](#firefox-155-nova-redesign) below.
 
 ![preview](docs/assets/preview.png)
 
@@ -21,7 +21,7 @@ Only the current Firefox **Release**, **Beta** and **Nightly** are supported. Ni
 > [!TIP]
 > See https://whattrainisitnow.com for the latest Firefox releases.
 
-As of 2026-09-11 (this will get quickly out of date, so check above...)
+As of 2026-09-30 (this will get quickly out of date, so check above...)
 
 <table>
   <tr>
@@ -31,17 +31,17 @@ As of 2026-09-11 (this will get quickly out of date, so check above...)
   </tr>
   <tr>
     <td>Release</td>
-    <td>Firefox 155 (released 2026-09-01)</td>
+    <td>Firefox 157</td>
     <td>Supported</td>
   </tr>
   <tr>
     <td>Beta</td>
-    <td>Firefox 156</td>
+    <td>Firefox 158</td>
     <td>Supported</td>
   </tr>
   <tr>
     <td>Nightly</td>
-    <td>Firefox 158</td>
+    <td>Firefox 159</td>
     <td>Best effort</td>
   </tr>
 </table>
@@ -90,11 +90,9 @@ $env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestric
 
 Firefox 155 introduced a large visual redesign codenamed Project Nova, behind `browser.nova.enabled` in `about:config`.
 
-It is on by default in Firefox Nightly only.
+It was Nightly-only at first, and has been on by default in every channel since Firefox 157 (Bug 2056186), so Release users get it too. You can still turn it off with `browser.nova.enabled` set to `false`; the theme supports both.
 
-Release 155 and Beta 156 ship with it off, and Mozilla has said a broader rollout will follow later in 2026.
-
-Firefox 156 and 158 continue Nova rather than redesign it again.
+Firefox 156 to 159 continue Nova rather than redesign it again. Firefox 157 also rebuilt the address bar (the results list is now its own popover below the input).
 
 Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and draws borders and rounded corners around the toolbar, sidebar and web content.
 
@@ -105,7 +103,7 @@ To account for these changes, material-fox-updated tries to work around these ne
 - Window / content border - Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the borders, corners and gap on either version so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
 - Find bar - Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed.
 > Prefer the old top-right floating find bar? Enable the `userChrome.ui-findbar-top-right` preference (see [Available preferences](#available-preferences)). (Thanks to [zerix on Reddit](https://www.reddit.com/r/FirefoxCSS/comments/1w50dgs/comment/p7de6ug) and [SKDemon820's tweaks](https://github.com/edelvarden/material-fox-updated/issues/152#issuecomment-5544742129))!
-- New-tab search box - Firefox 158 Nightly replaces the new-tab search box with the address bar component (`<moz-urlbar>`). The theme styles both the old and the new box.
+- New-tab search box - Firefox Nightly (158+) replaces the new-tab search box with the address bar component (`<moz-urlbar>`); Release and Beta still use the old box. The theme styles both.
 
 ### More Nova-related notes
 

@@ -113,7 +113,7 @@
   // the light-DOM rule applies cannot be reproduced through this API.
   // This is still the search box on Release/Beta and on about:privatebrowsing.
   // @todo remove once the <moz-urlbar> newtab search bar below ships to Release
-  // (browser.urlbar.newtab.featureGate is Nightly-only in Firefox 157).
+  // (browser.urlbar.newtab.featureGate is Nightly-only, `#ifdef NIGHTLY_BUILD`, as of 159).
   content-search-handoff-ui {
     --content-search-handoff-ui-background-color: #{get-var(
         "input-background-color"

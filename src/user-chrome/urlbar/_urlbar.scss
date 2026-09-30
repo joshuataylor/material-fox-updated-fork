@@ -163,8 +163,8 @@ body {
   border-bottom: 1px solid get-var("content-separator-color") !important;
 }
 
-// Firefox 155+ "Nova" redesign (browser.nova.enabled, on by default on Nightly
-// only) frames the chrome with borders and rounded corners. Opt-in via
+// Firefox 155+ "Nova" redesign (browser.nova.enabled, on by default in every
+// channel since 157) frames the chrome with borders and rounded corners. Opt-in via
 // `userChrome.ui-no-nova-border` to strip all of it so the chrome sits flush;
 // the intended bottom content separator is kept. Two Firefox models to cover:
 //
