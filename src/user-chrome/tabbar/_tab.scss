@@ -209,8 +209,11 @@ html {
   }
 }
 
-.tabbrowser-tab[fadein]:not([pinned]):not([style*="max-width"]) {
-  max-width: 238px !important;
+// Set Firefox's own variable rather than `max-width` on the tab, so the inline
+// `style.maxWidth` Firefox writes while closing or dragging tabs still wins
+// without a [style*="max-width"] selector.
+#tabbrowser-tabs {
+  --tab-max-width: 238px !important;
 }
 
 #tabs-newtab-button {
