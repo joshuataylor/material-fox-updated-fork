@@ -117,7 +117,7 @@ export default {
         },
         {
             // Full window so the Nova window/content border + corners are visible.
-            // ui-no-nova-border for browser.nova.enabled (nightly default).
+            // ui-no-nova-border for browser.nova.enabled (default on every channel since 157).
             name: "window-border",
             url: "https://example.com/",
             variants: [
@@ -219,9 +219,9 @@ export default {
 
         // --- Nova / Firefox 156+ features (regression coverage) ---
 
-        // Nova's window/tab/urlbar rendering itself is regression-tested by the channel matrix:
-        // nightly captures are nova-on, beta/stable nova-off, so the
-        // same screenshots above show both. window-border covers the Nova border toggle.
+        // Every channel defaults to nova-on since Firefox 157, so the channel matrix is all
+        // Nova. Run with `--nova off` for the Proton path. window-border covers the Nova
+        // border toggle.
         {
             // Revamped sidebar (155+): the theme styles the sidebar panel and border.
             name: "sidebar",

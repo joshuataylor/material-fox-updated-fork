@@ -23,9 +23,10 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO = resolve(HERE, "..", "..");
 
 // Nova (browser.nova.enabled) default per channel, mirroring each channel's own
-// default: on for nightly (158+), off for beta/stable (156/155). Shared so the
-// launcher and the headless harnesses agree.
-export const NOVA_DEFAULT = { nightly: true, beta: false, stable: false };
+// default: on everywhere since Firefox 157 (Bug 2056186). Shared so the launcher
+// and the headless harnesses agree; pass `--nova off` (or the verify-theme
+// `themed-proton` scenario) to exercise the Proton path.
+export const NOVA_DEFAULT = { nightly: true, beta: true, stable: true };
 
 export const CHANNELS = ["nightly", "beta", "stable"];
 

@@ -5,7 +5,7 @@
 //
 // Example Usage:
 //   node scripts/firefox.mjs # nightly, nova on
-//   node scripts/firefox.mjs --channel beta # beta, nova off (channel default)
+//   node scripts/firefox.mjs --channel beta # beta, nova on (channel default)
 //   node scripts/firefox.mjs --nova off # override nova
 //   node scripts/firefox.mjs --prefs josh # overlay scripts/user_profiles/josh.js
 //   node scripts/firefox.mjs --remote # Marionette
