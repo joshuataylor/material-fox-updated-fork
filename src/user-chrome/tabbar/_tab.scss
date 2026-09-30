@@ -134,24 +134,18 @@ html {
     max-height: 8px !important;
     bottom: 0 !important;
     pointer-events: none !important;
-    transition-property: opacity !important;
-    transition-duration: get-var("shortest-duration") !important;
-    transition-timing-function: get-var("fade-in-out") !important;
-
     background-image: none !important; // remove tab image for waterfox
   }
 
   &::before {
     border-bottom-right-radius: 8px !important;
-    left: 0 !important;
-    transform: translateX(-8px) !important;
+    left: -8px !important;
     box-shadow: 4px 4px 0 4px var(--tab-background-color) !important;
   }
 
   &::after {
     border-bottom-left-radius: 8px !important;
-    right: 0 !important;
-    transform: translateX(8px) !important;
+    right: -8px !important;
     box-shadow: -4px 4px 0 4px var(--tab-background-color) !important;
   }
 }

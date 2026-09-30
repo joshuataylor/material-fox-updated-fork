@@ -33,13 +33,13 @@ html {
 
   &::before {
     border-bottom-right-radius: 12px !important;
-    transform: translateX(-12px) !important;
+    left: -12px !important;
     box-shadow: none !important;
   }
 
   &::after {
     border-bottom-left-radius: 12px !important;
-    transform: translateX(12px) !important;
+    right: -12px !important;
     box-shadow: none !important;
   }
 }
