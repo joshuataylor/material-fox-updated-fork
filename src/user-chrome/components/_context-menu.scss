@@ -145,17 +145,17 @@ $image-padding-end: 8px;
     //   padding-inline-start: get-var("menuitem-padding-without-icon") !important;
     // }
 
-    :is(menuitem, menu):not(
-      [image],
-      .menu-iconic,
-      .menuitem-iconic,
-      [type="checkbox"]
-    ) {
-      padding-inline-start: get-var("menuitem-padding-without-icon") !important;
-    }
+    menuitem,
+    menu {
+      &:not([image], .menu-iconic, .menuitem-iconic, [type="checkbox"]) {
+        padding-inline-start: get-var(
+          "menuitem-padding-without-icon"
+        ) !important;
+      }
 
-    :is(menuitem, menu):is([image], .menu-iconic, .menuitem-iconic) {
-      padding-inline-start: get-var("menuitem-padding-with-icon") !important;
+      &:is([image], .menu-iconic, .menuitem-iconic) {
+        padding-inline-start: get-var("menuitem-padding-with-icon") !important;
+      }
     }
 
     menuitem[checked="true"] {
@@ -180,7 +180,8 @@ $image-padding-end: 8px;
   }
 
   #tabContextMenu {
-    :is(menuitem, menu):not([image], .menu-iconic, .menuitem-iconic) {
+    menuitem:not([image], .menu-iconic, .menuitem-iconic),
+    menu:not([image], .menu-iconic, .menuitem-iconic) {
       padding-inline-start: get-var("menuitem-padding-without-icon") !important;
     }
   }

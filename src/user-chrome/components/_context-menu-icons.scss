@@ -1,3 +1,30 @@
+// Menu item icon painted as a background from --menuitem-image.
+@mixin context-menu-background-icon($mirror-rtl: true) {
+  -moz-context-properties: fill, fill-opacity, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor;
+  background-size: 16px !important;
+  background-repeat: no-repeat !important;
+  background-image: var(--menuitem-image) !important;
+
+  background-position: left center !important;
+  background-position-x: 12px !important;
+
+  @media (-moz-platform: linux) {
+    background-position-x: 6px !important;
+  }
+
+  @if $mirror-rtl {
+    &:-moz-locale-dir(rtl) {
+      background-position-x: calc(100% - 12px) !important;
+
+      @media (-moz-platform: linux) {
+        background-position-x: calc(100% - 6px) !important;
+      }
+    }
+  }
+}
+
 @include moz-pref-media("userChrome.ui-context-menu-icons") {
   #context-back {
     --menuitem-image: #{get-var("arrow-back-icon")};
@@ -299,46 +326,17 @@
   }
 
   // Allowing set icons as background
+  // Tag-keyed selectors (menuitem / menu) rather than `:is(menuitem, menu)`, and
+  // :-moz-locale-dir(rtl) rather than a [dir="rtl"] ancestor, so each menu item
+  // is matched without an extra walk to the root.
   .textbox-contextmenu,
   #contentAreaContextMenu,
   #toolbar-context-menu,
-  :is(#placesContext, #tabContextMenu) {
-    :is(menuitem, menu):not(
-      [image],
-      .menu-iconic,
-      .menuitem-iconic,
-      [type="radio"],
-      [type="checkbox"],
-      [checked]
-    ),
-    #context-back,
-    #context-forward,
-    #context-reload,
-    #context-stop,
-    #context-bookmarkpage {
-      -moz-context-properties: fill, fill-opacity, stroke !important;
-      fill: currentColor !important;
-      stroke: currentColor;
-      background-size: 16px !important;
-      background-repeat: no-repeat !important;
-      background-image: var(--menuitem-image) !important;
-
-      background-position: left center !important;
-      background-position-x: 12px !important;
-
-      @media (-moz-platform: linux) {
-        background-position-x: 6px !important;
-      }
-    }
-  }
-
-  [dir="rtl"] {
-    // Allowing set icons as background
-    .textbox-contextmenu,
-    #contentAreaContextMenu,
-    #toolbar-context-menu,
-    :is(#placesContext, #tabContextMenu) {
-      :is(menuitem, menu):not(
+  #placesContext,
+  #tabContextMenu {
+    menuitem,
+    menu {
+      &:not(
         [image],
         .menu-iconic,
         .menuitem-iconic,
@@ -346,13 +344,17 @@
         [type="checkbox"],
         [checked]
       ) {
-        background-position: left center !important;
-        background-position-x: calc(100% - 12px) !important;
-
-        @media (-moz-platform: linux) {
-          background-position-x: calc(100% - 6px) !important;
-        }
+        @include context-menu-background-icon;
       }
+    }
+
+    #context-back,
+    #context-forward,
+    #context-reload,
+    #context-stop,
+    #context-bookmarkpage {
+      // not mirrored: these were never flipped for RTL
+      @include context-menu-background-icon($mirror-rtl: false);
     }
   }
 }
