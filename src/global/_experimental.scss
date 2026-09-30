@@ -34,9 +34,7 @@
   }
 
   // global accent color
-  :root,
-  html,
-  body {
+  :root {
     --#{$prefix}-accent-color: var(--color-accent-primary) !important;
     // --md-text-on-accent: var(--button-primary-color) !important;
     --#{$prefix}-menu-border-color: var(--arrowpanel-border-color) !important;
@@ -52,8 +50,7 @@
 
   // make navbar the same color as selected tab
   @media (prefers-color-scheme: dark) {
-    html,
-    body {
+    html {
       // Firefox 155 "Nova" renamed --tab-selected-bgcolor -> --tab-background-color-selected
       // (Bug 2023619). Prefer the new name, fall back to the old one on pre-155 builds.
       --toolbar-bgcolor: var(

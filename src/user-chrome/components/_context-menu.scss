@@ -133,9 +133,7 @@ $image-padding-end: 8px;
     }
   }
 
-  :root,
-  html,
-  body {
+  :root {
     --#{$prefix}-menuitem-padding-with-icon: #{$default-padding};
     --#{$prefix}-menuitem-padding-without-icon: calc(
       #{$default-padding} + #{$image-width} + #{$image-padding-end}

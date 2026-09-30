@@ -1,17 +1,14 @@
-html,
-body {
+html {
   --toolbarbutton-border-radius: 50% !important;
   --#{$prefix}-circle-size: 0;
 }
 
-html,
-body {
+html {
   --#{$prefix}-circle-icon: url("icons/circle-dark.svg");
 }
 
 @media (prefers-color-scheme: light) {
-  html,
-  body {
+  html {
     --#{$prefix}-circle-icon: url("icons/circle.svg");
   }
 }
@@ -102,8 +99,7 @@ body {
   //
   @include moz-pref-media("not userChrome.theme-default") {
     @include moz-pref-media("userChrome.ui-chrome-refresh") {
-      html,
-      body {
+      html {
         --#{$prefix}-circle-icon-refresh: url("icons/circle-refresh.svg");
       }
 

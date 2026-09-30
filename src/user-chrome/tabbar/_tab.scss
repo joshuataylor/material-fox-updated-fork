@@ -1,5 +1,4 @@
-html,
-body {
+html {
   --tab-min-height: 34px !important; // 34px (real height)
 
   // custom tab variables
@@ -158,8 +157,7 @@ body {
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
-  html,
-  body {
+  html {
     --tab-background-color: #{get-var("background-color-100")} !important;
   }
 

@@ -5,9 +5,7 @@
 @import "colors";
 @import "icons";
 
-:root,
-html,
-body {
+:root {
   // loading animation only if enabled, respects animation disable preference
   @media not (prefers-reduced-motion: reduce) {
     @include moz-pref-media("not userChrome.ui-no-animation") {
