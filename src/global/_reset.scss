@@ -68,10 +68,20 @@ body {
       --#{$prefix}-font-family: #{meta.inspect($font-family)};
     }
 
-    *:not(hbox.titlebar-buttonbox, hbox.titlebar-buttonbox *),
-    *:not(hbox.titlebar-buttonbox, hbox.titlebar-buttonbox *)::before,
-    *:not(hbox.titlebar-buttonbox, hbox.titlebar-buttonbox *)::after {
+    // A bare `*` is needed because Firefox sets `font: menu` / `message-box`
+    // on many chrome elements, so inheriting from :root is not enough. It used
+    // to be `*:not(hbox.titlebar-buttonbox, hbox.titlebar-buttonbox *)` plus
+    // ::before/::after copies, which walked every element's ancestors. Pseudo
+    // elements inherit from their element, and the caption buttons get their
+    // icon font back below instead.
+    * {
       font-family: var(--#{$prefix}-font-family) !important;
+    }
+
+    // Window caption glyphs (minimise/maximise/close) come from an icon font on
+    // .titlebar-button, rendered by its ::before (browser/themes/windows/browser.css).
+    .titlebar-button {
+      font-family: "Segoe Fluent Icons", "Segoe MDL2 Assets" !important;
     }
   }
 }
