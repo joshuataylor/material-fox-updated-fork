@@ -7,22 +7,34 @@
 }
 
 // added spinner animation
+// The theme's ring always replaces Firefox's throbber: under reduced motion
+// Firefox would otherwise show its static hourglass (loading.svg), with the
+// half-size busy favicon below drawn inside it. The SVGs are static arcs; all
+// motion is the rotation, which the compositor can run without repainting the
+// image each frame.
 .tab-throbber {
+  position: static !important;
+  margin: 0 !important;
+  padding: 0 !important;
   -moz-context-properties: fill !important;
   fill: var(--focus-outline-color) !important;
   background-image: url("icons/spinner-busy.svg") !important;
   transform-origin: center !important;
-  position: static !important;
-  margin: 0 !important;
-  padding: 0 !important;
 
-  animation: rotate-360 1.333s linear infinite reverse !important;
-}
-
-.tab-throbber {
   &[progress] {
     background-image: url("icons/spinner-progress.svg") !important;
-    animation-direction: normal !important;
+  }
+}
+
+// Only the rotation is gated: under reduced motion (or ui-no-animation) the
+// ring stays still.
+@include motion-allowed {
+  .tab-throbber {
+    animation: rotate-360 1.333s linear infinite reverse !important;
+
+    &[progress] {
+      animation-direction: normal !important;
+    }
   }
 }
 
