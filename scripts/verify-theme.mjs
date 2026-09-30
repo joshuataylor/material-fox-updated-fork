@@ -215,6 +215,12 @@ function probeScript() {
             const e = document.getElementById("nav-bar");
             return e ? e.getBoundingClientRect().height : null;
         })(),
+        // Background of the search-mode switcher's inner button (moz-button).
+        switcherBackground: (() => {
+            const sw = document.querySelector(".searchmode-switcher");
+            const part = sw?.shadowRoot?.querySelector('[part="button"]');
+            return part ? getComputedStyle(part).backgroundColor : null;
+        })(),
         scheme: matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light",
@@ -384,6 +390,13 @@ function contractsFor(scenarioId, p) {
             "navbar-height-38",
             p.navbarHeight !== null && Math.abs(p.navbarHeight - 38) <= 1,
             p.navbarHeight,
+        );
+        // The search-mode switcher is transparent, as the theme intends.
+        const sb = parseColor(p.switcherBackground);
+        add(
+            "searchmode-switcher-transparent",
+            p.switcherBackground === "transparent" || (!!sb && sb.a === 0),
+            p.switcherBackground,
         );
         // The tab strip keeps the theme's own colour, not the 40% accent tint.
         add("scheme-light", p.scheme === "light", p.scheme);

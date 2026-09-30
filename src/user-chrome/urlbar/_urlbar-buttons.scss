@@ -153,9 +153,13 @@
 }
 
 // The search-mode switcher (shown while typing or on an empty bar) is a
-// moz-button; its background is on the inner button part.
+// `moz-button type="muted"`. Its inner button paints from these variables
+// (moz-button.css); a `::part(button)` rule from userChrome does not reach it.
 @include moz-pref-media("not userChrome.theme-default") {
-  .searchmode-switcher::part(button) {
-    background-color: transparent !important;
+  .searchmode-switcher {
+    --button-background-color-muted: transparent !important;
+    --button-background-color-muted-hover: transparent !important;
+    --button-background-color-muted-active: transparent !important;
+    --button-background-color-muted-selected: transparent !important;
   }
 }
