@@ -1,7 +1,18 @@
-// Just URL bar without top and bottom paddings. The nav-bar height is this plus
-// 2 x --urlbar-container-padding-block (Firefox 157+; the old
-// --urlbar-container-height / --urlbar-toolbar-height / --urlbar-min-height
-// variables are no longer read).
+// Nav bar height = --urlbar-height + 2 x --urlbar-container-padding-block
+// (Firefox 157+; 156 and older derived it from --urlbar-container-height,
+// which is no longer read). 2px above/below the 34px pill keeps the theme's
+// 38px nav bar instead of Firefox's 42px, tightening the band between the tab
+// strip and the URL bar (and the URL bar to bookmarks). Compact mode's 28px
+// bar keeps Firefox's 4px padding, giving the 36px it always had.
+#urlbar-container {
+  --urlbar-container-padding-block: 2px !important;
+
+  @include moz-pref-media("userChrome.ui-compact-url-bar") {
+    --urlbar-container-padding-block: 4px !important;
+  }
+}
+
+// Just URL bar without top and bottom paddings
 #urlbar {
   --urlbar-height: 34px !important;
 }

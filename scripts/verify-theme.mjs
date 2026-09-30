@@ -210,6 +210,11 @@ function probeScript() {
             const e = gBrowser.selectedTab?.querySelector(".tab-background");
             return e ? getComputedStyle(e).outlineColor : null;
         })(),
+        // Nav bar height.
+        navbarHeight: (() => {
+            const e = document.getElementById("nav-bar");
+            return e ? e.getBoundingClientRect().height : null;
+        })(),
         scheme: matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light",
@@ -373,6 +378,13 @@ function contractsFor(scenarioId, p) {
         // so the pref A/B below is meaningful.
         const tb = parseColor(p.bg.toolbox);
         add("toolbox-not-white-by-default", !opaqueWhite(tb), p.bg.toolbox);
+        // The theme's 38px nav bar (34px pill + 2px above and below), which
+        // Firefox 157 would otherwise make 42px.
+        add(
+            "navbar-height-38",
+            p.navbarHeight !== null && Math.abs(p.navbarHeight - 38) <= 1,
+            p.navbarHeight,
+        );
         // The tab strip keeps the theme's own colour, not the 40% accent tint.
         add("scheme-light", p.scheme === "light", p.scheme);
         // The open bar is one surface: both halves use the theme colour (via
