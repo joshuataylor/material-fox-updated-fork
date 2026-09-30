@@ -12,7 +12,6 @@
     width: 1px !important;
     height: 20px !important;
     top: unset !important;
-    transform: translateY(0%) !important;
     opacity: 0 !important;
     border: none !important;
 
@@ -22,61 +21,38 @@
   }
 
   &::before {
-    left: 0 !important;
+    inset-inline-start: 0 !important;
   }
 
   &::after {
-    right: 0 !important;
+    inset-inline-end: 0 !important;
   }
 }
 
 // hide tab separators if hover or selected
-[dir="ltr"] {
-  .tabbrowser-tab:is([visuallyselected], [selected])[style*="transform"]
-    + .tabbrowser-tab[style*="transform"]
-    .tab-content::after,
-  .tabbrowser-tab[style*="transform"]:not(:is([visuallyselected], [selected]))
-    .tab-content::before,
-  .tabbrowser-tab[style*="transform"]
-    + .tabbrowser-tab:not(:is([visuallyselected], [selected]))
-    .tab-content::before,
-  .tabbrowser-tab:not(:is([visuallyselected], [selected])):not(:hover):not(
-      [multiselected]
-    )
-    + .tabbrowser-tab:not(:is([visuallyselected], [selected])):not(:hover):not(
-      [multiselected]
-    )
-    .tab-content::before,
-  #tabbrowser-tabs[hasadjacentnewtabbutton]:not([overflow])
-    .tabbrowser-tab[last-visible-tab]:not(
-      :is([visuallyselected], [selected])
-    ):not(:hover):not([multiselected])
-    .tab-content::after {
-    opacity: var(--tab-separator-opacity) !important;
-  }
+// ::before/::after sit at inline-start/end, so one block covers LTR and RTL.
+.tabbrowser-tab:not([visuallyselected], [selected], :hover, [multiselected])
+  + .tabbrowser-tab:not([visuallyselected], [selected], :hover, [multiselected])
+  .tab-content::before,
+#tabbrowser-tabs[hasadjacentnewtabbutton]:not([overflow])
+  .tabbrowser-tab[last-visible-tab]:not(
+    [visuallyselected],
+    [selected],
+    :hover,
+    [multiselected]
+  )
+  .tab-content::after {
+  opacity: var(--tab-separator-opacity) !important;
 }
 
-[dir="rtl"] {
-  .tabbrowser-tab:is([visuallyselected], [selected])[style*="transform"]
-    + .tabbrowser-tab[style*="transform"]
-    .tab-content::before,
-  .tabbrowser-tab[style*="transform"]:not(:is([visuallyselected], [selected]))
+// While dragging, Firefox moves tabs with inline `style.transform`. Keying off
+// the container's [movingtab] instead of [style*="transform"] keeps every
+// inline-style write on a tab from forcing attribute-selector invalidation.
+#tabbrowser-tabs[movingtab] {
+  .tabbrowser-tab:is([visuallyselected], [selected])
+    + .tabbrowser-tab
     .tab-content::after,
-  .tabbrowser-tab[style*="transform"]
-    + .tabbrowser-tab:not(:is([visuallyselected], [selected]))
-    .tab-content::after,
-  .tabbrowser-tab:not(:is([visuallyselected], [selected])):not(:hover):not(
-      [multiselected]
-    )
-    + .tabbrowser-tab:not(:is([visuallyselected], [selected])):not(:hover):not(
-      [multiselected]
-    )
-    .tab-content::after,
-  #tabbrowser-tabs[hasadjacentnewtabbutton]:not([overflow])
-    .tabbrowser-tab[last-visible-tab]:not(
-      :is([visuallyselected], [selected])
-    ):not(:hover):not([multiselected])
-    .tab-content::before {
+  .tabbrowser-tab:not([visuallyselected], [selected]) .tab-content::before {
     opacity: var(--tab-separator-opacity) !important;
   }
 }
