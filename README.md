@@ -253,6 +253,17 @@ body {
 > [!NOTE]  
 > Using this `custom.css` file can separate your changes from the source project. You can easily back up your file and not worry about overwriting your changes when updating or reinstalling the main files.
 
+> [!TIP]
+> `custom.css` is imported by both `userChrome.css` and `userContent.css`, so its rules also reach every web page you visit. Wrap anything you only want in the browser UI and Firefox's own pages in the same scope `chrome/theme-material-blue.css` uses:
+>
+> ```css
+> @-moz-document url-prefix("chrome:"), regexp("about:(?!blank|srcdoc|devtools).*") {
+>   :root {
+>     --md-accent-color: #ea4335 !important;
+>   }
+> }
+> ```
+
 ### Available variables
 
 <table>
