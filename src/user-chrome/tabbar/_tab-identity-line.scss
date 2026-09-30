@@ -6,6 +6,10 @@
 // user container identity line like dot
 .tab-stack {
   position: relative !important;
+}
+
+// Only container tabs get the dot box; ordinary tabs generate no ::before.
+.tabbrowser-tab[usercontextid] .tab-stack {
   &::before {
     content: "" !important;
     position: absolute !important;
