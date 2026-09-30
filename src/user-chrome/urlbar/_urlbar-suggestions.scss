@@ -1,7 +1,7 @@
-// urlbar suggestions
+// urlbar suggestions. No width/margin here: from Firefox 157 the view is a
+// popover sized by position-area and --urlbarView-margin-inline, and
+// .urlbarView-background derives its outset from that margin.
 .urlbarView {
-  margin: 0 !important;
-  width: 100% !important;
   border-inline: none !important;
 }
 

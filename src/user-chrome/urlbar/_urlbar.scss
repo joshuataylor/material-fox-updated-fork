@@ -69,39 +69,53 @@ body {
   justify-content: center !important;
 }
 
+// The anchor icons keep Firefox's own --urlbar-icon-padding, so each one is a
+// square hit area rather than a 16px-wide, 30px-tall capsule.
 #notification-popup-box {
   padding: 0 !important;
 }
 
-.notification-anchor-icon {
-  padding: 0 !important;
+// The open address bar is painted by two boxes that meet under the input:
+// .urlbar-background (top) and .urlbarView-background (the results popover,
+// Firefox 157+). Both read these variables, so set the look here rather than
+// painting .urlbar-background directly, which only reaches the top half. See
+// the urlbar reference doc (joint background) for the model.
+#urlbar {
+  // same-width transparent border, so the border box does not collapse when
+  // the results open (see the anti-bounce block above)
+  --urlbar-background-border-open: 1px solid transparent !important;
+  --urlbar-background-border-radius: 16px !important;
+  // Each half draws the whole shadow and is clipped at the seam, so the blur
+  // must stay under --urlbar-joint-background-overlap (24px) and the reach
+  // (offset + blur + spread) inside --urlbar-joint-background-shadow-margin
+  // (32px). elevation-3/4 overshoot that and show a hard-edged rectangle, so
+  // these are tighter versions of them.
+  --urlbar-background-box-shadow-open: 0 8px 20px 0 rgba(0, 0, 0, 0.5) !important;
+  // no inner outline around the input while the results are open (Nova)
+  --urlbar-input-container-outline-open: none !important;
+  --urlbar-input-container-outline-open-focused: none !important;
+
+  @media (prefers-color-scheme: light) {
+    --urlbar-background-box-shadow-open:
+      rgba(50, 50, 93, 0.25) 0 10px 20px -5px,
+      rgba(0, 0, 0, 0.3) 0 8px 16px -8px !important;
+  }
 }
 
-#urlbar {
-  &[open] {
-    #urlbar-background,
-    .urlbar-background,
-    #searchbar {
-      border-radius: 16px !important;
-      // same-width transparent border instead of `border: none` so the border
-      // box does not collapse to 0 when the dropdown opens (see anti-bounce
-      // block above)
-      border: 1px solid transparent !important;
-      box-shadow: get-var("elevation-4") !important;
+#searchbar {
+  #urlbar[open] & {
+    border-radius: 16px !important;
+    border: 1px solid transparent !important;
+    box-shadow: get-var("elevation-4") !important;
 
-      @media (prefers-color-scheme: light) {
-        box-shadow: get-var("elevation-3") !important;
-      }
+    @media (prefers-color-scheme: light) {
+      box-shadow: get-var("elevation-3") !important;
     }
   }
+}
 
-  &:not([open])[focused] {
-    #urlbar-background,
-    .urlbar-background,
-    #searchbar {
-      box-shadow: none !important;
-    }
-  }
+#urlbar:not([open])[focused] .urlbar-background {
+  box-shadow: none !important;
 }
 
 // Fix URL Input Font Size
@@ -113,12 +127,13 @@ body {
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
-  #urlbar:is([open], [focused]) {
-    #urlbar-background,
-    .urlbar-background,
-    #searchbar {
-      background-color: get-var("urlbar-background-color-open") !important;
-    }
+  // Both halves of the open surface read --urlbar-background-color-focus.
+  #urlbar {
+    --urlbar-background-color-focus: #{get-var("urlbar-background-color-open")} !important;
+  }
+
+  #urlbar:is([open], [focused]) #searchbar {
+    background-color: get-var("urlbar-background-color-open") !important;
   }
 }
 
@@ -129,13 +144,12 @@ body {
 // false by default.
 @include moz-pref-media("userChrome.ui-white-urlbar-results") {
   @include moz-pref-media("not userChrome.theme-default") {
-    #urlbar:is([open], [focused]) {
-      #urlbar-background,
-      .urlbar-background,
-      #searchbar {
-        background-color: get-var("background-color-100") !important;
-      }
+    #urlbar {
       --urlbar-background-color-focus: #{get-var("background-color-100")} !important;
+    }
+
+    #urlbar:is([open], [focused]) #searchbar {
+      background-color: get-var("background-color-100") !important;
     }
   }
 }
@@ -215,7 +229,6 @@ body {
 }
 
 // Url bar bg color change on hover, feat: https://github.com/edelvarden/material-fox-updated/issues/69
-#urlbar-background,
 .urlbar-background,
 #searchbar {
   transition-property: background-color !important;
@@ -223,13 +236,11 @@ body {
   transition-timing-function: get-var("point-to-point") !important;
 }
 
-#urlbar:not([focused]):hover #urlbar-background,
-#urlbar:not([focused]):hover .urlbar-background,
+#urlbar:not([focused], [open]):hover .urlbar-background,
 #searchbar:hover {
   background-color: get-var("urlbar-background-color-hover") !important;
 }
 
-#urlbar:is([open], [focused]) #urlbar-background,
 #urlbar:is([open], [focused]) .urlbar-background {
   transition-duration: 0s !important;
 }

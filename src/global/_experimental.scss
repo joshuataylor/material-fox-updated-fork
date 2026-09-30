@@ -64,17 +64,18 @@
     }
   }
 
-  #urlbar-background,
-  .urlbar-background {
-    background-color: var(--toolbar-field-background-color) !important;
+  // Resting and focused/open colours through Firefox's variables (Firefox 155+
+  // names), so both halves of the open bar (Firefox 157+) use them; a direct
+  // paint on .urlbar-background would override the focused state.
+  #urlbar {
+    --urlbar-background-color: var(--toolbar-field-background-color) !important;
+    --urlbar-background-color-focus: var(
+      --toolbar-field-background-color-focus
+    ) !important;
   }
 
-  #urlbar:is([open], [focused]) {
-    #urlbar-background,
-    .urlbar-background,
-    #searchbar {
-      background-color: var(--toolbar-field-focus-background-color) !important;
-    }
+  #urlbar:is([open], [focused]) #searchbar {
+    background-color: var(--toolbar-field-background-color-focus) !important;
   }
 
   @include moz-pref-media("userChrome.ui-chrome-refresh") {

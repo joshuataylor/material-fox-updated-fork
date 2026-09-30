@@ -1,7 +1,12 @@
 // accent color mix for title bar and url bar backgrounds
 @include moz-pref-media("not userChrome.theme-default") {
-  #urlbar-background,
-  .urlbar-background,
+  // Resting colour through Firefox's variable, so the focused/open state
+  // (--urlbar-background-color-focus, both halves of the open bar) still
+  // applies; a direct paint on .urlbar-background would override it.
+  #urlbar {
+    --urlbar-background-color: #{get-var("background-color-50")} !important;
+  }
+
   #searchbar {
     background-color: get-var("background-color-50") !important;
   }
@@ -20,8 +25,10 @@
 // default dark mode styles
 @media (prefers-color-scheme: dark) {
   @include moz-pref-media("not userChrome.theme-default") {
-    #urlbar-background,
-    .urlbar-background,
+    #urlbar {
+      --urlbar-background-color: #{get-var("background-color-50")} !important;
+    }
+
     #searchbar {
       background-color: get-var("background-color-50") !important;
     }
