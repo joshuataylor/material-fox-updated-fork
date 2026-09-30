@@ -174,7 +174,7 @@ html {
     }
   }
 
-  .tabbrowser-tab:is([visuallyselected], [selected]) {
+  .tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {
     --tab-background-color: var(--toolbar-bgcolor) !important;
   }
 }
@@ -182,20 +182,24 @@ html {
 // white selected tab for material light theme (contrast against darker toolbar)
 @include moz-pref-media("userChrome.theme-material") {
   @media (prefers-color-scheme: light) {
-    .tabbrowser-tab:is([visuallyselected], [selected]) {
+    .tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {
       --tab-background-color: white !important;
     }
   }
 }
 
+// Tab state variables are set on .tab-background, their only consumer (with
+// its ::before/::after corners), not on .tabbrowser-tab: a custom-property
+// change on the tab restyles its whole subtree on every hover.
+
 // hover bg opacity for not selected tab
-.tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
-.tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {
+.tabbrowser-tab:not([visuallyselected], [selected]):is(:hover, [multiselected])
+  .tab-background {
   --tab-opacity: #{get-var("tab-opacity-hover")} !important;
 }
 
 // bg color and opacity for selected tab
-.tabbrowser-tab:is([visuallyselected], [selected]) {
+.tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {
   --tab-opacity: #{get-var("tab-opacity")} !important;
 }
 

@@ -147,10 +147,9 @@
   }
 
   // Remove tab outline described in https://github.com/edelvarden/material-fox-updated/issues/62
-  :root,
-  html,
-  body,
-  .tab-background {
+  // (Firefox 155+ no longer defines this; kept for older builds. Not set on
+  // .tab-background, which gave every tab its own custom-property map.)
+  :root {
     --tab-selected-outline-color: transparent !important;
   }
 }
