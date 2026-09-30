@@ -52,11 +52,15 @@
     }
   }
 
-  &:not([busy]) {
-    .tab-icon-image {
-      animation-name: set-scale;
-      animation-duration: get-var("medium-short-duration");
-      animation-timing-function: get-var("fade-in-out");
+  // Gated so reduced motion does not start a 0s animation on every tab icon
+  // (every tab at startup and session restore).
+  @include motion-allowed {
+    &:not([busy]) {
+      .tab-icon-image {
+        animation-name: set-scale;
+        animation-duration: get-var("medium-short-duration");
+        animation-timing-function: get-var("fade-in-out");
+      }
     }
   }
 }

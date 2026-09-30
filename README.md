@@ -191,6 +191,10 @@ To **disable** a preference:
     <td>Force enable control animation, because it respects the user's animation disable preference by default. <em>(Not required if you do not disable animation)</em></td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-animation</code></td>
+    <td>Disable the theme's animations, including the tab loading spinner (the OS "reduce motion" setting does this too)</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-system-font</code></td>
     <td>(Windows only) Use the default system font instead of Roboto.</td>
   </tr>

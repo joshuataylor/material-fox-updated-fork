@@ -46,3 +46,14 @@ $base-font-size: 16px;
     }
   }
 }
+
+// Emit @content only when animations are allowed: motion is not reduced and
+// userChrome.ui-no-animation is off, or userChrome.ui-force-animation is on.
+// Mirrors how the duration variables are defined in variables/_index.scss; use
+// it for animation-name and anything else a 0s duration does not switch off.
+@mixin motion-allowed {
+  @media (not (prefers-reduced-motion: reduce)) and (not (-moz-pref("userChrome.ui-no-animation"))),
+    (-moz-pref("userChrome.ui-force-animation")) {
+    @content;
+  }
+}

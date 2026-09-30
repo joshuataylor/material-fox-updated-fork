@@ -6,18 +6,9 @@
 @import "icons";
 
 :root {
-  // loading animation only if enabled, respects animation disable preference
-  @media not (prefers-reduced-motion: reduce) {
-    @include moz-pref-media("not userChrome.ui-no-animation") {
-      // animation durations
-      @each $key, $value in $animation-durations {
-        --#{$prefix}-#{$key}: #{$value};
-      }
-    }
-  }
-
-  @include moz-pref-media("userChrome.ui-force-animation") {
-    // animation durations
+  // animation durations, left undefined (so 0s) when motion is reduced or
+  // userChrome.ui-no-animation is on, unless userChrome.ui-force-animation
+  @include motion-allowed {
     @each $key, $value in $animation-durations {
       --#{$prefix}-#{$key}: #{$value};
     }
