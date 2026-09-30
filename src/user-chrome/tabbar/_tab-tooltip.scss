@@ -5,9 +5,14 @@
   }
 
   // show new tooltip like chrome
-  .tabbrowser-tab::after {
+  // content/display only on hover, so idle tabs do not each carry a fixed,
+  // shadowed box that is rebuilt on every title change.
+  .tabbrowser-tab:hover::after {
     content: attr(label) !important;
     display: block !important;
+  }
+
+  .tabbrowser-tab::after {
     position: fixed !important;
     overflow: hidden !important;
     z-index: 2 !important;
