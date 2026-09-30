@@ -38,34 +38,6 @@
   }
 }
 
-// special light mode titlebar background color for theme-chrome-refresh or theme-material
-@media (prefers-color-scheme: light) {
-  @include moz-pref-media(
-    "userChrome.theme-chrome-refresh or userChrome.theme-material"
-  ) {
-    #navigator-toolbox,
-    #toolbar-menubar,
-    #TabsToolbar,
-    #titlebar {
-      background-color: cm(
-        get-var("background-color-50"),
-        get-var("accent-color"),
-        0.4
-      ) !important;
-    }
-
-    #urlbar-background,
-    .urlbar-background,
-    #searchbar {
-      background-color: cm(
-        get-var("background-color-50"),
-        get-var("accent-color"),
-        0.08
-      ) !important;
-    }
-  }
-}
-
 // special dark mode titlebar color for theme-material
 @media (prefers-color-scheme: dark) {
   @include moz-pref-media("userChrome.theme-material") {

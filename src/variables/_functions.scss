@@ -32,10 +32,11 @@ $base-font-size: 16px;
     @media not (#{'-moz-pref("' + $actual-pref-names + '")'}) {
       @content;
     }
-  } @else if str-index($pref-names, "or") == 1 {
-    $parts: str-split($pref-names, "or");
-    $first: nth($parts, 1);
-    $second: nth($parts, 2);
+  } @else if str-index($pref-names, " or ") {
+    // "pref.a or pref.b" -> -moz-pref("pref.a") or -moz-pref("pref.b")
+    $or-index: str-index($pref-names, " or ");
+    $first: str-slice($pref-names, 1, $or-index - 1);
+    $second: str-slice($pref-names, $or-index + 4);
     @media (#{'-moz-pref("' + $first + '")'}) or (#{'-moz-pref("' + $second + '")'}) {
       @content;
     }
