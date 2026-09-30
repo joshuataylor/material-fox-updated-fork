@@ -59,6 +59,21 @@ const SCENARIOS = [
             "ui.prefersReducedMotion": 1,
         },
     },
+    // A lightweight theme active, as with most users' installed themes: Firefox
+    // 157 then outlines the selected tab with
+    // `:root[lwtheme] { --tab-border-color-selected: currentColor }` unless the
+    // theme sets `tab_line`. Alpenglow is the built-in theme that still counts
+    // as one; Light and Dark are "in-app" themes and never set [lwtheme].
+    {
+        id: "themed-lwt",
+        themed: true,
+        lwt: "firefox-alpenglow@mozilla.org",
+        prefs: {
+            "userChrome.theme-material": true,
+            "ui.systemUsesDarkTheme": 0,
+            "ui.prefersReducedMotion": 0,
+        },
+    },
     // White open address bar: the open colour differs from the resting one, so a
     // direct paint on .urlbar-background (which would win over Firefox's
     // focused/open variable) shows up here.
@@ -188,6 +203,13 @@ function probeScript() {
             tabsToolbar: bg("#TabsToolbar"),
             personalToolbar: bg("#PersonalToolbar"),
         },
+        // Whether a lightweight theme is active, and the selected tab's outline
+        // colour (Firefox 157 draws it from --tab-border-color-selected).
+        lwtheme: document.documentElement.hasAttribute("lwtheme"),
+        selectedTabOutline: (() => {
+            const e = gBrowser.selectedTab?.querySelector(".tab-background");
+            return e ? getComputedStyle(e).outlineColor : null;
+        })(),
         scheme: matchMedia("(prefers-color-scheme: dark)").matches
             ? "dark"
             : "light",
@@ -266,7 +288,7 @@ function probeScript() {
     };
 }
 
-async function probe({ binary, nova, profileDir, headless }) {
+async function probe({ binary, nova, profileDir, headless, lwt }) {
     const options = new firefox.Options();
     options.addArguments("-no-remote", "-new-instance");
     if (headless) options.addArguments("-headless");
@@ -295,6 +317,31 @@ async function probe({ binary, nova, profileDir, headless }) {
         .build();
     try {
         await driver.setContext("chrome");
+        if (lwt) {
+            // Enable a built-in lightweight theme (same approach as the
+            // screenshot harness), then wait for the window to pick it up.
+            const res = await driver.executeAsyncScript((id, done) => {
+                const { AddonManager } = ChromeUtils.importESModule(
+                    "resource://gre/modules/AddonManager.sys.mjs",
+                );
+                AddonManager.getAddonByID(id)
+                    .then((addon) => (addon ? addon.enable() : "missing"))
+                    .then(
+                        (r) => {
+                            const t0 = Date.now();
+                            const wait = () =>
+                                document.documentElement.hasAttribute(
+                                    "lwtheme",
+                                ) || Date.now() - t0 > 3000
+                                    ? done(r === "missing" ? r : "ok")
+                                    : setTimeout(wait, 100);
+                            wait();
+                        },
+                        (e) => done(String(e)),
+                    );
+            }, lwt);
+            if (res !== "ok") console.error(`  lwt ${lwt}: ${res}`);
+        }
         await new Promise((r) => setTimeout(r, 600)); // let chrome settle
         return await driver.executeScript(probeScript);
     } finally {
@@ -391,6 +438,16 @@ function contractsFor(scenarioId, p) {
         );
     }
 
+    if (scenarioId === "themed-lwt") {
+        add("lwtheme-active", p.lwtheme === true, p.lwtheme);
+        const lo = parseColor(p.selectedTabOutline);
+        add(
+            "lwt:selected-tab-no-outline",
+            p.selectedTabOutline === "transparent" || (!!lo && lo.a === 0),
+            p.selectedTabOutline,
+        );
+    }
+
     if (scenarioId === "white-urlbar") {
         const u = p.urlbar || {};
         const want = parseColor(u.whiteColor);
@@ -470,7 +527,13 @@ async function main() {
                 console.error(
                     `\n[${channel}/${scenario.id}] launching (nova=${nova})...`,
                 );
-                p = await probe({ binary, nova, profileDir, headless });
+                p = await probe({
+                    binary,
+                    nova,
+                    profileDir,
+                    headless,
+                    lwt: scenario.lwt,
+                });
             } catch (err) {
                 rows.push({
                     channel,

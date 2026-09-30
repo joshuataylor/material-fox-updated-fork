@@ -147,9 +147,13 @@
   }
 
   // Remove tab outline described in https://github.com/edelvarden/material-fox-updated/issues/62
-  // (Firefox 155+ no longer defines this; kept for older builds. Not set on
-  // .tab-background, which gave every tab its own custom-property map.)
+  // --tab-selected-outline-color is the pre-155 name (kept for older builds);
+  // Firefox 155+ outlines the selected tab with --tab-border-color-selected
+  // (tab.tokens.css, visible again from 157). Set on :root, not on
+  // .tab-background, which would give every tab its own custom-property map.
+  // The multiselected outline (--focus-outline-color) is left alone.
   :root {
     --tab-selected-outline-color: transparent !important;
+    --tab-border-color-selected: transparent !important;
   }
 }
