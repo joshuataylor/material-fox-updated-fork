@@ -19,11 +19,12 @@
     }
   }
 
+  // No inline margins: Firefox 158+ spaces the identity box with
+  // --urlbar-component-gap (and 159 moved that onto its children, Bug 2074921),
+  // so hard margins here left a blank gap after the site-info icon.
   #identity-box {
     padding-bottom: 2px !important;
     padding-top: 2px !important;
-    margin-inline-end: 4px !important;
-    margin-inline-start: 2px !important;
 
     @include moz-pref-media("not userChrome.ui-force-old-icons") {
       fill: get-var(icon-color-primary) !important;

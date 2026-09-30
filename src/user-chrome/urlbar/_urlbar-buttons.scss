@@ -20,14 +20,10 @@
   order: 0 !important;
 }
 
-.urlbar-input-box {
-  flex: 1 1 auto !important;
-}
-
-// URL icons
+// URL icons. The breach-alert trust icon keeps Firefox's warning colour.
 #identity-box,
 #tracking-protection-icon-container,
-#trust-icon-container,
+#trust-icon-container:not(.breached),
 #notification-popup-box,
 .urlbar-icon:not(#star-button[starred], #tracking-protection-icon-box[active]) {
   fill: get-var("icon-color-secondary") !important;
@@ -113,12 +109,6 @@
   }
 }
 
-// remove unnecessary right space from shield icon button (like chrome)
-#identity-box {
-  // margin-inline-end: var(--identity-box-margin-inline); // default
-  margin-inline-end: 0 !important;
-}
-
 // fix "Not secure" doesn’t fit into pill shape correctly (#118)
 #identity-box[pageproxystate="valid"]:is(
     .extensionPage,
@@ -137,7 +127,7 @@
 }
 
 #identity-icon-label {
-  font-family: 500 !important;
+  font-weight: 500 !important;
 }
 
 // hide left border for menu button
