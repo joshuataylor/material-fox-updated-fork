@@ -1,22 +1,12 @@
-// Main URL bar wrapper with paddings.
-// Firefox derives the nav-bar height and the pill's vertical padding from this
-// var: .urlbar-input-container padding-block = (container-height - urlbar-height) / 2.
-// 38px against the 34px pill leaves 2px above/below instead of 4px, tightening the
-// white band between the tab strip and the URL bar (and URL bar to bookmarks).
-#urlbar-container {
-  --urlbar-container-height: 38px !important;
-}
-
-// Just URL bar without top and bottom paddings
+// Just URL bar without top and bottom paddings. The nav-bar height is this plus
+// 2 x --urlbar-container-padding-block (Firefox 157+; the old
+// --urlbar-container-height / --urlbar-toolbar-height / --urlbar-min-height
+// variables are no longer read).
 #urlbar {
   --urlbar-height: 34px !important;
-  --urlbar-toolbar-height: 38px !important;
 }
 
-html,
-body {
-  --urlbar-min-height: 34px !important; // Minimum Height
-  --toolbarbutton-height: 34px !important; // Button Height
+html {
   --toolbarbutton-inner-padding: 6px !important; // Button Inner Padding
   --toolbarbutton-padding-inner: 6px !important; // Button Inner Padding (Firefox 155 rename)
   --urlbar-icon-border-radius: 100px !important; // Icon Border Radius
@@ -37,10 +27,8 @@ body {
   --urlbar-background-border: 1px solid var(--toolbar-field-border-color) !important;
   --urlbar-background-border-focused: 1px solid
     var(--toolbar-field-border-color-focus) !important;
-  --urlbar-background-border-breakout: 1px solid transparent !important;
 }
 
-#urlbar-background,
 .urlbar-background,
 .urlbar-input-container,
 #searchbar {
@@ -56,7 +44,7 @@ body {
 #tracking-protection-icon-container,
 #trust-icon-container,
 .urlbar-page-action,
-#urlbar-go-button,
+.urlbar-go-button,
 .search-go-button {
   width: auto !important;
   height: calc(

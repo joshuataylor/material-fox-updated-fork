@@ -217,10 +217,6 @@
   // search icon
   #panelMenu_searchBookmarks,
   #appMenuSearchHistory,
-  #urlbar:not(.searchButton)
-    > #urlbar-input-container
-    > #identity-box[pageproxystate="invalid"]
-    #identity-icon,
   #allTabsMenu-searchTabs {
     list-style-image: get-var("search-icon") !important;
   }

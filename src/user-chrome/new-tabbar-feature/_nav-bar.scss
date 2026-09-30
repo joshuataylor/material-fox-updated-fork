@@ -44,7 +44,7 @@
   // for icon box middle position
   :is(#identity-icon-box, #identity-permission-box).identity-box-button,
   #notification-popup-box,
-  #urlbar-go-button,
+  .urlbar-go-button,
   .search-go-button {
     // height: unset !important;
     max-height: 24px !important;

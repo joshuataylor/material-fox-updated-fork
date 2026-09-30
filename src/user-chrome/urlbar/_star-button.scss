@@ -9,8 +9,3 @@
     --toolbarbutton-icon-fill-attention: #{get-var("accent-color")} !important;
   }
 }
-
-// disable animation for star button
-#star-button-animatable-box {
-  display: none !important;
-}

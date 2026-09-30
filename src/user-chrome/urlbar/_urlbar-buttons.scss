@@ -1,9 +1,4 @@
 // change icons position
-#urlbar-input-container {
-  display: flex !important;
-  align-items: center !important;
-}
-
 #urlbar-zoom-button {
   order: 100 !important;
 }
@@ -87,14 +82,6 @@
   -moz-box-align: center !important;
   align-items: center !important;
 }
-#urlbar-input-container:not([pageproxystate="invalid"]) {
-  .urlbar-page-action {
-    &:not([hidden]) {
-      display: grid !important;
-      align-content: center !important;
-    }
-  }
-}
 
 // protections-popup-tp-switch color
 .protections-popup-tp-switch::before {
@@ -159,14 +146,6 @@
   border-inline: none !important;
 }
 
-// hide right border for identity box button
-#identity-icon-box {
-  &::after,
-  &::before {
-    display: none !important;
-  }
-}
-
 // disable refresh button animation
 #nav-bar-customization-target {
   align-items: center;
@@ -183,11 +162,10 @@
   }
 }
 
+// The search-mode switcher (shown while typing or on an empty bar) is a
+// moz-button; its background is on the inner button part.
 @include moz-pref-media("not userChrome.theme-default") {
-  #urlbar-searchmode-switcher,
-  #urlbar-searchmode-switcher:hover,
-  #urlbar-searchmode-switcher[open],
-  #urlbar-searchmode-switcher[open]:hover {
+  .searchmode-switcher::part(button) {
     background-color: transparent !important;
   }
 }

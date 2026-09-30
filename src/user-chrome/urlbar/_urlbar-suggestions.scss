@@ -90,7 +90,8 @@
   }
 }
 
-// remove unnecessary border upper url bar suggestions
+// remove unnecessary border upper url bar suggestions (Firefox 157 with Nova
+// off; 158+ has no body wrappers and Nova draws no separator)
 #urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
   border-color: transparent !important;
 }
@@ -123,12 +124,13 @@
 // }
 
 // hide go buttons for search fields, because if you want use the mouse you can click on first item for search
-#urlbar-go-button,
+.urlbar-go-button,
 .search-go-button {
   display: none !important;
 }
 
 // crop the background of item which out of the results block on hover
+// (Firefox 157 only; 158+ removed the wrappers and scrolls .urlbarView-results)
 .urlbarView-body-outer,
 .urlbarView-body-inner {
   border-bottom-left-radius: 16px !important;

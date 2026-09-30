@@ -39,7 +39,8 @@
     // --md-text-on-accent: var(--button-primary-color) !important;
     --#{$prefix}-menu-border-color: var(--arrowpanel-border-color) !important;
 
-    --toolbar-field-focus-border-color: var(--color-accent-primary) !important;
+    // Firefox 155+ name (was --toolbar-field-focus-border-color)
+    --toolbar-field-border-color-focus: var(--color-accent-primary) !important;
   }
 
   .browser-toolbar {
