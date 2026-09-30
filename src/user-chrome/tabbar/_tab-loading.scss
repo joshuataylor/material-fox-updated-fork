@@ -79,6 +79,8 @@
   overflow: visible !important;
 }
 
-.tab-icon-stack * {
+// Child combinator: a descendant `*` made every element check for a
+// .tab-icon-stack ancestor.
+.tab-icon-stack > * {
   margin: 0 !important;
 }
