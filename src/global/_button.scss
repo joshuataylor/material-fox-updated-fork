@@ -54,49 +54,47 @@ $button-min-width: 5.14em;
 }
 
 // styles
-:not(dialog, .dialogBox) {
-  :not(button-group) > button {
-    &:is(
-        [accesskey],
-        .accessory-button,
-        [dlgtype="cancel"],
-        [autofocus],
-        [default],
-        .primary,
-        .primary-button,
-        .popup-notification-primary-button,
-        .disco-cta-button,
-        [data-l10n-id="translations-manage-language-download-button"]
-      ):not(button[type="menu"]),
-    [type="submit"] {
-      @include button-styles;
-    }
+:not(button-group) > button {
+  &:is(
+      [accesskey],
+      .accessory-button,
+      [dlgtype="cancel"],
+      [autofocus],
+      [default],
+      .primary,
+      .primary-button,
+      .popup-notification-primary-button,
+      .disco-cta-button,
+      [data-l10n-id="translations-manage-language-download-button"]
+    ):not(button[type="menu"]),
+  &[type="submit"] {
+    @include button-styles;
+  }
 
-    // Secondary buttons
-    &:is(
-        [accesskey],
-        .accessory-button,
-        [dlgtype="cancel"],
-        .disco-cta-button,
-        [data-l10n-id="translations-manage-language-download-button"]
-      ):not(button[type="menu"]) {
-      @include secondary-button-styles;
-    }
+  // Secondary buttons
+  &:is(
+      [accesskey],
+      .accessory-button,
+      [dlgtype="cancel"],
+      .disco-cta-button,
+      [data-l10n-id="translations-manage-language-download-button"]
+    ):not(button[type="menu"]) {
+    @include secondary-button-styles;
+  }
 
-    // Primary buttons
-    &:is(
-        [autofocus],
-        [default],
-        .primary,
-        .primary-button,
-        .popup-notification-primary-button
-      ):not(button[type="menu"]),
-    [type="submit"] {
-      @include primary-button-styles;
-    }
+  // Primary buttons
+  &:is(
+      [autofocus],
+      [default],
+      .primary,
+      .primary-button,
+      .popup-notification-primary-button
+    ):not(button[type="menu"]),
+  &[type="submit"] {
+    @include primary-button-styles;
+  }
 
-    &:not(.disabled, :disabled, [disabled]) {
-      cursor: pointer;
-    }
+  &:not(.disabled, :disabled, [disabled]) {
+    cursor: pointer;
   }
 }
