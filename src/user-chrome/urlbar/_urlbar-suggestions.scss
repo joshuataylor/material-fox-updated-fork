@@ -15,14 +15,16 @@
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
-  // urlbar suggestions item
+  // urlbar suggestions item. Hover only on [row-selectable] rows, as Firefox
+  // does: rows whose buttons are the selectable parts (the Actions search mode
+  // chips, tips) would otherwise get a full-height slab behind the button.
   .urlbarView-row {
     &[selected] {
       border-left-color: get-var("accent-color") !important;
       background-color: get-var("menu-background-color-hover") !important;
     }
 
-    &:not([selected]):hover {
+    &[row-selectable]:not([selected]):hover {
       border-left-color: get-var("menu-background-color-hover") !important;
       background-color: get-var("menu-background-color-hover") !important;
     }
@@ -51,7 +53,7 @@
         border-right-color: get-var("accent-color") !important;
       }
 
-      &:not([selected]):hover {
+      &[row-selectable]:not([selected]):hover {
         border-right-color: get-var("menu-background-color-hover") !important;
       }
     }
@@ -66,6 +68,19 @@
 // urlbar suggestions item left/right padding
 .urlbarView-row {
   padding: 0 9px !important;
+}
+
+// Actions search mode lays the rows out inline as chips; the list-row padding
+// and selection-marker border above double the gap between them, so use
+// Firefox's own gutter there. The container's inline padding keeps the first
+// chip in line with the favicons of normal rows (5px border + 9px padding).
+.urlbarView-results[actionmode] {
+  padding-inline: 11px !important;
+
+  > .urlbarView-row {
+    padding: var(--urlbarView-row-gutter) !important;
+    border-inline-width: 0 !important;
+  }
 }
 
 // urlbar suggestions item top/bottom padding
