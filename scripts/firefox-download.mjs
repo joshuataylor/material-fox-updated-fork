@@ -188,9 +188,10 @@ async function downloadOneLatest(channel) {
     );
     // Single shell string (not shell:true + args array -> Node DEP0190); outdir
     // quoted for spaces. stderr inherits so the progress bar shows; stdout is
-    // captured for the version token.
+    // captured for the version token. --no-install runs the package.json pin
+    // (devDependency) rather than fetching whatever is latest.
     const r = spawnSync(
-        `npx -y @puppeteer/browsers install firefox@${channel} --path "${outdir}"`,
+        `npx --no-install @puppeteer/browsers install firefox@${channel} --path "${outdir}"`,
         {
             shell: true,
             encoding: "utf8",

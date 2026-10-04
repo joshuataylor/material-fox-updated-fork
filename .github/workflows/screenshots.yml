@@ -82,8 +82,8 @@ jobs:
           key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
           restore-keys: ${{ runner.os }}-node_modules-
 
-      - name: mise run npm_install
-        run: mise run npm_install
+      - name: mise deps install npm
+        run: mise deps install npm
 
       - name: mise run build
         run: mise run build

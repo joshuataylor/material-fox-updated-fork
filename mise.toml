@@ -1,43 +1,77 @@
+#:schema https://mise.en.dev/schema/mise.json
 # See https://mise.jdx.dev/mise-cookbook/nodejs.html
 
+# for mise deps install
+min_version = "2026.4.18"
+
 [settings]
+# Run tasks (and their `depends`) serially: build must finish before the
+# Firefox/screenshot tasks read chrome/, and output stays readable.
 jobs = 1
 experimental = true
 env_shell_expand = true
 task.output = "prefix"
 
 [tools]
-node = "26.8.2"
+node = "26.10.0"
 
 [[env]]
 _.path = ['{{ config_root }}/node_modules/.bin']
 
-[tasks."npm_install"]
-run = "npm install"
+# Install node_modules before any `mise run` / `mise x` when package.json or
+# package-lock.json changed (or node_modules is missing); a no-op otherwise.
+# Replaces the old npm_install task. Default `npm install`, not `npm ci`:
+# ci deletes node_modules first, which would throw away CI's restored cache.
+# scripts/npm-install.mjs runs it with npm's stdout sent to stderr, because mise
+# passes provider stdout through to its own and the raw tasks need a clean
+# stdout (firefox-download prints the binary path for BIN=$(...),
+# firefox-css-theme-mcp speaks JSON-RPC over stdio). The redirect lives in Node,
+# not a shell `1>&2`, so it also works under PowerShell (wintest).
+# Skip for one invocation with `mise run --no-deps <task>`; inspect with
+# `mise deps install npm --explain`.
+[deps.npm]
+auto = true
+run = "node scripts/npm-install.mjs"
+
+# The npm scripts in package.json stay the single definition of each command
+# (so `npm run build` / `npm run dev` work without mise); these tasks call them
+# via `node --run`, which skips npm's start-up cost and still puts
+# node_modules/.bin on PATH.
 
 [tasks."setup"]
-run = "npm install && npm run build"
+description = "Install node_modules and build chrome/ (first run after a clone)"
+dir = "{{config_root}}"
+run = ["mise deps install npm", { task = "build" }]
 
 [tasks."build"]
-# sources/outputs let mise skip the recompile when src/ is unchanged.
-run = "npm run build"
-sources = ["src/**/*.scss"]
-outputs = ["chrome/**/*.css"]
+description = "Compile src/ SCSS to chrome/user-chrome.css + chrome/user-content.css"
+dir = "{{config_root}}"
+# sources/outputs let mise skip the recompile when nothing changed. The lockfile
+# is a source so a sass upgrade rebuilds; outputs name the two compiled files
+# only, because chrome/ also holds hand-written CSS (custom.css, theme-*.css).
+sources = ["src/**/*.scss", "package-lock.json"]
+outputs = ["chrome/user-chrome.css", "chrome/user-content.css"]
+run = "node --run build"
 
 [tasks."dev"]
-run = "npm run dev"
+description = "Watch src/ and recompile both stylesheets on save"
+dir = "{{config_root}}"
+run = "node --run dev"
 
 [tasks."format"]
-run = "npm run format"
+description = "Prettier --write over src/ and scripts/"
+dir = "{{config_root}}"
+run = "node --run format"
 
 [tasks."lint"]
-run = "npm run lint"
+description = "Prettier --check over src/ and scripts/"
+dir = "{{config_root}}"
+run = "node --run lint"
 
 [tasks."precommit"]
 description = "Pre-commit gate: build (SCSS compile) + Prettier format + lint check"
-# `&&` short-circuits on failure under both sh and cmd, so this is the
-# cross-platform equivalent of the old `set -euo pipefail` body.
-run = "npm run build && npm run format && npm run lint"
+dir = "{{config_root}}"
+run = [{ task = "build" }, { task = "format" }, { task = "lint" }]
 
 # Launch a themed test Firefox.
 # Thin wrapper over scripts/firefox.mjs (the real, cross-platform launcher, runnable directly as `node scripts/firefox.mjs ...` without mise).
