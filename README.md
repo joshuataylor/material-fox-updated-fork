@@ -269,6 +269,32 @@ body {
 >   }
 > }
 > ```
+>
+> The two halves cover different things:
+>
+> - `url-prefix("chrome:")` is the browser window itself (tabs, toolbars, the address bar, menus, the find bar) and other Firefox windows such as the Library.
+> - `regexp("about:...")` is Firefox's own pages (the new tab page, settings, `about:downloads` and so on), but not `about:blank`, embedded `about:srcdoc` frames or the developer tools.
+>
+> A rule that only touches the browser UI (the tab strip, for example) only needs `url-prefix("chrome:")`. Variable overrides and anything that also appears on an `about:` page (the downloads list is in both the downloads panel and `about:downloads`) need both. If you're not sure, just use both, so the rules never reach ordinary websites.
+>
+> ```css
+> @-moz-document url-prefix("chrome:"), regexp("about:(?!blank|srcdoc|devtools).*") {
+>   /* Library window (Bookmarks/History): smaller text so more rows fit */
+>   window#places {
+>     font-size: 10pt !important;
+>   }
+>
+>   /* Downloads panel and about:downloads */
+>   #downloadsListBox {
+>     font-size: 10pt !important;
+>   }
+>
+>   /* Find bar search box */
+>   .findbar-textbox {
+>     font-size: 12pt !important;
+>   }
+> }
+> ```
 
 ### Available variables
 
