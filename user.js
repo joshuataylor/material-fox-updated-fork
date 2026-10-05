@@ -51,6 +51,11 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * speaker icon. Off by default.
 // user_pref("userChrome.ui-no-tab-audio-background", true);
 
+// * Make the audio button on pinned tabs part of the tab, so clicking it
+// * selects the tab instead of muting it. The tab context menu and Ctrl+M still
+// * mute. Off by default.
+// user_pref("userChrome.ui-no-pinned-tab-mute-click", true);
+
 // * Hide the dot under an unselected pinned tab when its title changes (e.g.
 // * new messages in a chat or mail tab). The dot for a tab waiting on a dialog
 // * is kept. Off by default.

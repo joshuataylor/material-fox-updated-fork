@@ -229,6 +229,10 @@ To **disable** a preference:
     <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. `false` by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-pinned-tab-mute-click</code></td>
+    <td>Clicking the audio button on a pinned tab selects the tab instead of muting it. Mute from the tab's context menu or with <kbd>Ctrl</kbd>+<kbd>M</kbd> instead. Regular tabs keep their clickable audio button. `false` by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-no-tab-title-changed-dot</code></td>
     <td>Hide the dot under an unselected pinned tab when its title changes, for example when a chat or mail tab gets new messages. The dot shown when a tab is waiting on a dialog is kept. `false` by default.</td>
   </tr>

@@ -203,3 +203,12 @@
     }
   }
 }
+
+// Opt-in: make the audio button on pinned tabs part of the tab, so clicking
+// it selects the tab instead of muting it. The tab context menu and Ctrl+M
+// still mute. Unpinned tabs keep their clickable button.
+@include moz-pref-media("userChrome.ui-no-pinned-tab-mute-click") {
+  .tabbrowser-tab[pinned] :is(.tab-icon-sound, .tab-icon-overlay) {
+    pointer-events: none !important;
+  }
+}
