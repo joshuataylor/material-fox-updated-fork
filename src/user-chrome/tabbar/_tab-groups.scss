@@ -1,0 +1,40 @@
+// Tab groups (horizontal tab strip).
+
+// Label size. Nova sizes the group label to the full tab height
+// (--tab-group-label-size: var(--tab-min-height)), which suits its floating
+// tabs but makes a 34px pill next to the theme's flush tabs. Use the 24px
+// chip Firefox draws without Nova, closer to Chrome's group chip.
+#tabbrowser-tabs[orient="horizontal"] {
+  --tab-group-label-size: 24px !important;
+}
+
+// Group line. Firefox draws .tab-group-line inside .tab-background, which
+// the theme fades with `opacity: var(--tab-opacity)` (0 on an unselected
+// tab), so the line only showed under the selected tab and the group looked
+// disconnected. Draw a copy on the tab stack with Firefox's own geometry and
+// colour variables, for grouped tabs only (no extra box on other tabs).
+// Firefox's line stays in place for its drag-and-drop states.
+#tabbrowser-tabs[orient="horizontal"]
+  tab-group
+  > .tabbrowser-tab
+  > .tab-stack::after {
+  content: "";
+  position: absolute;
+  inset-inline: calc(-1 * var(--tab-overflow-clip-margin, 2px));
+  inset-block-end: var(--tab-group-line-toolbar-border-distance, 1px);
+  height: var(--tab-group-line-thickness, 2px);
+  background-color: var(--tab-group-line-color);
+  pointer-events: none;
+  z-index: 3;
+}
+
+// Collapsed group (edelvarden/material-fox-updated#129). Firefox collapses
+// the hidden tabs to `max-width: 0` with `overflow-clip-margin: 0` and relies
+// on the tab's clip; the theme sets `overflow: visible` on every tab (for the
+// corner flares), so the zero-width tabs still painted their favicon (and
+// the group line above) over the new-tab button.
+#tabbrowser-tabs[orient="horizontal"]
+  tab-group[collapsed]
+  > .tabbrowser-tab:not([visuallyselected], [multiselected]) {
+  overflow: clip !important;
+}
