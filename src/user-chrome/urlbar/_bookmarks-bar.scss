@@ -29,12 +29,13 @@
   align-items: center !important;
 }
 
-// centered bookmark item content
+// centered bookmark item content: the full 36px bar, so the 28px items get
+// 4px above and below (a 34px box plus a 2px bottom margin left 2px / 6px)
 #PlacesToolbar,
 #PlacesToolbarItems {
   align-items: center !important;
-  height: 34px !important;
-  margin-bottom: 2px !important;
+  height: 36px !important;
+  margin-bottom: 0 !important;
 }
 
 #PlacesToolbarItems > .bookmark-item {
@@ -64,9 +65,10 @@
   }
 }
 
-// bookmarks bar left/right padding
+// bookmarks bar left/right padding: with the items' 2px margin this gives a
+// 4px edge inset, the same as the gap between items and the block inset
 #PersonalToolbar {
-  padding-inline: 4px !important;
+  padding-inline: 2px !important;
 }
 
 // bookmart item max width (not in folder)
