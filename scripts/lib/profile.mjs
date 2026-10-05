@@ -53,6 +53,8 @@ export function makeThemedProfile({
         "browser.aboutwelcome.enabled": false,
         "datareporting.policy.dataSubmissionEnabled": false,
         "browser.startup.homepage_override.mstone": "ignore",
+        // No Windows "restart apps" relaunch of a test browser at login.
+        "toolkit.winRegisterApplicationRestart": false,
     };
     writeFileSync(join(dir, "user.js"), renderUserJs({ ...base, ...prefs }));
     return dir;

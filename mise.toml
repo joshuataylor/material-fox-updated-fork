@@ -156,3 +156,10 @@ run = "node scripts/firefox-download.mjs"
 description = "Remove downloaded builds + test profiles (tmp/firefox, tmp/profiles, .profiles/mfox-*)"
 dir = "{{config_root}}"
 run = "node scripts/clean.mjs"
+
+# Stop every Firefox running from the downloaded builds (tmp/firefox): a leftover `mise run firefox` window, or one Windows relaunched at login.
+# Windows cannot delete a running executable, so `clean` fails with EPERM until these are gone. Matched by executable path, so an installed Firefox is never touched. `mise run kill-firefox -- --dry-run` lists without stopping.
+[tasks."kill-firefox"]
+description = "Stop Firefox processes running from tmp/firefox (pass -- --dry-run to list only)"
+dir = "{{config_root}}"
+run = "node scripts/kill-firefox.mjs"

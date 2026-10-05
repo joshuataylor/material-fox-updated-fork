@@ -38,6 +38,10 @@ export default {
     "termsofuse.bypassNotification": true,
     // Skip the "Proceed with Caution" interstitial on about:config.
     "browser.aboutConfig.showWarning": false,
+    // Don't register with Windows "restart apps": otherwise a test browser left
+    // open at shutdown is relaunched at login (-os-autostart), running from
+    // tmp/firefox and blocking `mise run clean`.
+    "toolkit.winRegisterApplicationRestart": false,
 
     // Fewer nags in a throwaway profile (none of these change the themed chrome):
     "browser.shell.checkDefaultBrowser": false, // no "make default" prompt
