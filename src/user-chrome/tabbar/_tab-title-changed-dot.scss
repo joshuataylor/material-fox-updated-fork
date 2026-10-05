@@ -1,0 +1,11 @@
+// Opt-in: hide the dot Firefox draws under an unselected pinned tab (and
+// every unselected vertical tab) when its title changes, e.g. a chat or mail
+// tab with new messages. The dot for a tab waiting on a dialog ([attention])
+// is kept.
+@include moz-pref-media("userChrome.ui-no-tab-title-changed-dot") {
+  .tabbrowser-tab
+    > .tab-stack
+    > .tab-content[titlechanged]:not([selected], [attention]) {
+    background-image: none !important;
+  }
+}

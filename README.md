@@ -229,6 +229,10 @@ To **disable** a preference:
     <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. `false` by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-tab-title-changed-dot</code></td>
+    <td>Hide the dot under an unselected pinned tab when its title changes, for example when a chat or mail tab gets new messages. The dot shown when a tab is waiting on a dialog is kept. `false` by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
     <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. `false` by default.</td>
   </tr>

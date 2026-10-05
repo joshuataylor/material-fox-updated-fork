@@ -51,5 +51,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * speaker icon. Off by default.
 // user_pref("userChrome.ui-no-tab-audio-background", true);
 
+// * Hide the dot under an unselected pinned tab when its title changes (e.g.
+// * new messages in a chat or mail tab). The dot for a tab waiting on a dialog
+// * is kept. Off by default.
+// user_pref("userChrome.ui-no-tab-title-changed-dot", true);
+
 // * Changes the open/focused URL bar and its results dropdown to white, like Chrome's omnibox, instead of the material grey tint. false by default.
 // user_pref("userChrome.ui-white-urlbar-results", true);
