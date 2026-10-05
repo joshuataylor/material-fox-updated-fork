@@ -444,8 +444,10 @@ $-checkbox-selectors: (
   .findbar-container {
     flex-wrap: wrap !important;
   }
-  @media only screen and (max-width: 550px) {
-    // hide checkboxes on extra small window size
+  // Hide the checkboxes once the bar cannot fit them: .findbar-container is
+  // a fixed 32px tall, so a wrapped second row was clipped (or, before the
+  // overflow clip above, sat behind a scrollbar).
+  @media only screen and (max-width: 960px) {
     .findbar-container checkbox {
       display: none !important;
     }
