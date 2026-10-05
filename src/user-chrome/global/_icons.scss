@@ -225,15 +225,6 @@
   list-style-image: get-var("extension-icon") !important;
 }
 
-// when not old-icons and chrome-refresh enabled
-@include moz-pref-media("userChrome.ui-chrome-refresh") {
-  @include moz-pref-media("not userChrome.ui-force-old-icons") {
-    #unified-extensions-button > image {
-      transform: scale(1.25) !important;
-    }
-  }
-}
-
 // when not chrome-refresh and old-icons enabled
 @include moz-pref-media("not userChrome.ui-chrome-refresh") {
   @include moz-pref-media("userChrome.ui-force-old-icons") {

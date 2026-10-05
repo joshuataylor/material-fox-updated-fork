@@ -120,13 +120,14 @@
   transition-timing-function: get-var("fade-in-out") !important;
 }
 
-// make new tab button icon smaller
+// new tab button: the same 28px hover circle as the other toolbar buttons
+// (it was 30px), with the 14px glyph kept
 #tabs-newtab-button,
 #new-tab-button {
   & > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-    width: 30px !important;
-    height: 30px !important;
-    padding: 8px !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 7px !important;
   }
 }
 
@@ -196,5 +197,12 @@
   #tabbrowser-tabs[closebuttons="activetab"][orient="horizontal"]
     &:not([selected]) {
     padding-inline-end: 12px !important;
+  }
+
+  // a pinned tab has no close button, so the extra end padding pushed its
+  // icon 1.5px left of centre
+  .tabbrowser-tab[pinned] > .tab-stack > & {
+    padding-inline: 0 !important;
+    justify-content: center !important;
   }
 }
