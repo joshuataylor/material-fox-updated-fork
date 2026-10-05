@@ -49,4 +49,11 @@
   tab-group[collapsed]
   > .tabbrowser-tab:not([visuallyselected], [multiselected]) {
   overflow: clip !important;
+
+  // Firefox drops the label line as soon as the group collapses, while these
+  // tabs shrink over --tab-width-transition, so their copy of the line lagged
+  // behind it. Drop it at the same moment.
+  > .tab-stack::after {
+    display: none;
+  }
 }
