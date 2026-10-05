@@ -238,6 +238,14 @@ $-checkbox-selectors: (
   }
 }
 
+// The findbar computes `overflow: hidden auto` (an inline clip makes the block
+// axis auto), and its content fills the box exactly. One extra pixel of font
+// metrics, fractional scaling or the top-right inset then shows a vertical
+// scrollbar, reported on Windows for both positions. Clip both axes.
+.browserContainer > findbar {
+  overflow: hidden !important;
+}
+
 // Firefox 155's "Nova" work moved the findbar into the .browserContainer CSS grid
 // (grid-area: findbar) and hides it via visibility:collapse + negative margin-bottom.
 // That relocation is UNGATED -- it ships for every 155 build regardless of
@@ -472,6 +480,10 @@ $-checkbox-selectors: (
     position: absolute !important;
     contain: content !important;
     max-height: 45px !important;
+    // Never wider than the content area, less the inset on both sides;
+    // Firefox's .findbar-container clips its inline overflow, which keeps
+    // the close button visible.
+    max-width: calc(100% - 36px) !important;
     inset: 13px 18px auto auto !important; // top right bottom left
     margin: 4px 0 0 5px !important;
     padding-inline-start: 4px !important;
@@ -501,15 +513,29 @@ $-checkbox-selectors: (
     margin-inline-start: 8px !important;
   }
 
+  // min-width: 0 lets the text box give way on a narrow window instead of
+  // pushing the prev/next arrows out of the clipped container.
   [anonid="findbar-textbox-wrapper"] {
     order: 3;
     height: 100% !important;
+    min-width: 0 !important;
   }
 
   // Checkboxes (Match Case / Diacritics / Whole Words / Highlight All) stay
   // visible by default. Opt in to a more compact bar with
   // userChrome.ui-findbar-hide-checkboxes.
   @include moz-pref-media("userChrome.ui-findbar-hide-checkboxes") {
+    @each $name, $selector in $-checkbox-selectors {
+      #{$selector} {
+        display: none !important;
+      }
+    }
+  }
+
+  // With all four checkboxes and a match count the bar is about 1000px
+  // wide; below that the window cannot fit it, so drop them rather than
+  // clip the text box.
+  @media (max-width: 1100px) {
     @each $name, $selector in $-checkbox-selectors {
       #{$selector} {
         display: none !important;
