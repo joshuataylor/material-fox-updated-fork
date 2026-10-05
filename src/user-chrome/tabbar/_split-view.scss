@@ -1,0 +1,24 @@
+// Split view (two tabs shown side by side in one tab-split-view-wrapper).
+//
+// Firefox sizes the wrapper for its own floating tabs: a --tab-margin-block
+// margin plus --split-view-padding-block padding around tabs that are
+// --split-view-tab-height tall. The theme's tabs are a fixed 34px
+// (--tab-min-height) and sit flush with the toolbar, so on 157 the wrapper
+// grew the tab strip by 16px and pushed the pair and the new-tab button
+// down. 158+ instead pulls each inner tab out by a negative margin-block
+// (--split-view-tab-strip-inset), which with the theme's zero tab padding
+// left a 22px pill behind 34px tabs.
+//
+// Give the wrapper exactly a tab's box: no block margin or padding, the
+// inner tabs keep the theme's height, and the tinted wrapper takes the
+// tab's top-rounded shape.
+#tabbrowser-tabs[orient="horizontal"] tab-split-view-wrapper {
+  margin-block: 0 !important;
+  padding-block: 0 !important;
+  align-items: stretch !important;
+  border-radius: 8px 8px 0 0 !important;
+
+  .tabbrowser-tab {
+    margin-block: 0 !important;
+  }
+}
