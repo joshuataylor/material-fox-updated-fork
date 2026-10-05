@@ -15,6 +15,17 @@ import { existsSync, rmSync } from "node:fs";
 import { findBinary, NOVA_DEFAULT } from "./lib/firefox-bin.mjs";
 import { makeThemedProfile } from "./lib/profile.mjs";
 
+// Local page for the feature probe: a file:// URL, so no network is needed, and
+// it still gives the address bar a valid page with the Trust Panel chip shown.
+const TESTBED_URL = new URL("./input-test.html", import.meta.url).href;
+
+// Scenarios that also run the (slower) feature probe.
+const FEATURE_SCENARIOS = new Set([
+    "themed",
+    "themed-proton",
+    "chrome-refresh",
+]);
+
 const BINARIES = {
     nightly: findBinary("nightly"),
     beta: findBinary("beta"),
@@ -92,6 +103,16 @@ const SCENARIOS = [
         prefs: {
             "userChrome.theme-material": true,
             "userChrome.ui-white-toolbox": true,
+        },
+    },
+    // Chrome-refresh tab strip and toolbar (userChrome.ui-chrome-refresh).
+    {
+        id: "chrome-refresh",
+        themed: true,
+        prefs: {
+            "userChrome.theme-material": true,
+            "userChrome.ui-chrome-refresh": true,
+            "ui.systemUsesDarkTheme": 0,
         },
     },
     { id: "clean", themed: false, prefs: {} },
@@ -299,7 +320,142 @@ function probeScript() {
     };
 }
 
-async function probe({ binary, nova, profileDir, headless, lwt }) {
+// Drives real UI and measures it, for fixes that need a loaded page or an
+// interaction: the results view opened by a click, the find bar, a split view,
+// a tab group and the chrome-refresh icons. Runs after probeScript, in the
+// chrome window, via executeAsyncScript (`done` is the callback).
+function featureProbeScript(url, done) {
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const system = Services.scriptSecurityManager.getSystemPrincipal();
+    const addTab = () =>
+        gBrowser.addTab("about:blank", {
+            triggeringPrincipal: system,
+            skipAnimation: true,
+        });
+    const height = (sel) =>
+        document.querySelector(sel)?.getBoundingClientRect().height ?? null;
+    const width = (sel) =>
+        document.querySelector(sel)?.getBoundingClientRect().width ?? null;
+    (async () => {
+        const out = {};
+        window.resizeTo(1280, 800);
+        openTrustedLinkIn(url, "current");
+        for (
+            let i = 0;
+            i < 50 && gBrowser.selectedBrowser.currentURI.spec !== url;
+            i++
+        )
+            await sleep(100);
+        await sleep(500);
+
+        // A mouse-down focus opens the results (157+); the URL text must not
+        // move, so the leading Trust Panel chip stays shown (fork #15).
+        const urlbar = document.getElementById("urlbar");
+        const input = gURLBar.inputField;
+        const trust = document.getElementById("trust-icon-container");
+        const display = (e) => (e ? getComputedStyle(e).display : null);
+        gBrowser.selectedBrowser.focus();
+        await sleep(200);
+        const x0 = input.getBoundingClientRect().x;
+        const trustClosed = display(trust);
+        gURLBar.focus();
+        gURLBar.startQuery({
+            event: new MouseEvent("mousedown"),
+            searchString: "",
+        });
+        for (let i = 0; i < 30 && !urlbar.hasAttribute("open"); i++)
+            await sleep(100);
+        out.urlbarClick = {
+            open: urlbar.hasAttribute("open"),
+            shift: input.getBoundingClientRect().x - x0,
+            trustClosed,
+            trustOpen: display(trust),
+        };
+        gURLBar.view.close();
+        gBrowser.selectedBrowser.focus();
+        await sleep(200);
+
+        // The find bar clips both axes (no scrollbar), and the top-right bar
+        // stays inside a narrow window (fork #8).
+        const fb = await gBrowser.getFindBar();
+        fb.open();
+        await sleep(400);
+        out.findbar = { overflow: getComputedStyle(fb).overflow };
+        Services.prefs.setBoolPref("userChrome.ui-findbar-top-right", true);
+        window.resizeTo(700, 600);
+        await sleep(800);
+        const fr = fb.getBoundingClientRect();
+        out.findbarTopRight = {
+            position: getComputedStyle(fb).position,
+            overflow: getComputedStyle(fb).overflow,
+            left: fr.left,
+            right: fr.right,
+            windowWidth: window.innerWidth,
+        };
+        Services.prefs.clearUserPref("userChrome.ui-findbar-top-right");
+        fb.close(true);
+        window.resizeTo(1280, 800);
+        await sleep(500);
+
+        // A split view keeps the tab strip height (fork #6).
+        const stripBefore = height("#TabsToolbar");
+        const [s1, s2] = [addTab(), addTab()];
+        gBrowser.addTabSplitView([s1, s2], {});
+        gBrowser.selectedTab = s1;
+        await sleep(700);
+        out.splitView = {
+            stripBefore,
+            stripAfter: height("#TabsToolbar"),
+            wrapper: height("tab-split-view-wrapper"),
+            tab: s1.getBoundingClientRect().height,
+        };
+        gBrowser.removeTabs([s1, s2]);
+        await sleep(300);
+
+        // The group line shows under an unselected grouped tab, the label is a
+        // chip, and a collapsed group clips its hidden tabs (fork #16).
+        const [g1, g2] = [addTab(), addTab()];
+        const group = gBrowser.addTabGroup([g1, g2], { label: "verify" });
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        await sleep(600);
+        out.tabGroup = {
+            line: getComputedStyle(g2.querySelector(".tab-stack"), "::after")
+                .backgroundColor,
+            label:
+                group.querySelector(".tab-group-label")?.getBoundingClientRect()
+                    .height ?? null,
+        };
+        group.collapsed = true;
+        await sleep(600);
+        out.tabGroup.collapsedOverflow = getComputedStyle(g2).overflow;
+        gBrowser.removeTabs([g1, g2]);
+        await sleep(300);
+
+        // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
+        // asserted only in the chrome-refresh scenario (fork #12).
+        const pinned = addTab();
+        gBrowser.pinTab(pinned);
+        await sleep(600);
+        const pb = pinned
+            .querySelector(".tab-background")
+            .getBoundingClientRect();
+        const pi = pinned
+            .querySelector(".tab-icon-stack")
+            .getBoundingClientRect();
+        out.icons = {
+            back: width("#back-button > .toolbarbutton-icon"),
+            extensions: width(
+                "#unified-extensions-button > .toolbarbutton-icon",
+            ),
+            newtab: width("#tabs-newtab-button > .toolbarbutton-icon"),
+            pinnedOffset: pi.x + pi.width / 2 - (pb.x + pb.width / 2),
+        };
+        gBrowser.removeTab(pinned);
+        done(out);
+    })().catch((e) => done({ error: String(e) }));
+}
+
+async function probe({ binary, nova, profileDir, headless, lwt, features }) {
     const options = new firefox.Options();
     options.addArguments("-no-remote", "-new-instance");
     if (headless) options.addArguments("-headless");
@@ -354,7 +510,15 @@ async function probe({ binary, nova, profileDir, headless, lwt }) {
             if (res !== "ok") console.error(`  lwt ${lwt}: ${res}`);
         }
         await new Promise((r) => setTimeout(r, 600)); // let chrome settle
-        return await driver.executeScript(probeScript);
+        const p = await driver.executeScript(probeScript);
+        if (features) {
+            await driver.manage().setTimeouts({ script: 60000 });
+            p.features = await driver.executeAsyncScript(
+                featureProbeScript,
+                TESTBED_URL,
+            );
+        }
+        return p;
     } finally {
         await driver.quit().catch(() => {});
     }
@@ -439,6 +603,96 @@ function contractsFor(scenarioId, p) {
                 tint && !sameColor(parseColor(val), tint),
                 `${val} (tint ${p.accentTint})`,
             );
+    }
+
+    if (scenarioId === "themed" || scenarioId === "themed-proton") {
+        const f = p.features || {};
+        add("feature-probe", !f.error, f.error);
+        // A click into the address bar opens the results without moving the
+        // URL text: the Trust Panel chip stays shown (fork #15).
+        const uc = f.urlbarClick || {};
+        add("urlbar-click-opens-results", uc.open === true, uc.open);
+        add(
+            "urlbar-click-text-still",
+            typeof uc.shift === "number" &&
+                Math.abs(uc.shift) < 1 &&
+                uc.trustClosed !== "none" &&
+                uc.trustOpen !== "none",
+            `shift ${uc.shift}px, chip ${uc.trustClosed} -> ${uc.trustOpen}`,
+        );
+        // The find bar clips both axes, so it never shows a scrollbar, and the
+        // top-right bar fits a 700px window (fork #8).
+        add(
+            "findbar-overflow-hidden",
+            f.findbar?.overflow === "hidden",
+            f.findbar?.overflow,
+        );
+        const tr = f.findbarTopRight || {};
+        add(
+            "findbar-top-right-fits",
+            tr.position === "absolute" &&
+                tr.overflow === "hidden" &&
+                tr.left >= 0 &&
+                tr.right <= tr.windowWidth,
+            `${tr.position}, ${tr.overflow}, ${tr.left}..${tr.right} of ${tr.windowWidth}`,
+        );
+        // A split view keeps the tab strip height and gives the wrapper a
+        // tab's height (fork #6).
+        const sv = f.splitView || {};
+        add(
+            "split-view-keeps-strip",
+            sv.stripAfter !== null &&
+                Math.abs(sv.stripAfter - sv.stripBefore) <= 1 &&
+                Math.abs(sv.wrapper - sv.tab) <= 1,
+            `strip ${sv.stripBefore} -> ${sv.stripAfter}, wrapper ${sv.wrapper} vs tab ${sv.tab}`,
+        );
+        // Tab groups: line under unselected tabs, a chip-sized label, and
+        // collapsed tabs clipped (fork #16, edelvarden/material-fox-updated#129).
+        const tg = f.tabGroup || {};
+        // Nova off resolves the line colour to oklch(), which parseColor leaves
+        // symbolic; any colour that is not transparent counts.
+        const line = parseColor(tg.line);
+        add(
+            "tab-group-line-visible",
+            !!tg.line &&
+                tg.line !== "transparent" &&
+                (line ? line.a > 0 : true),
+            tg.line,
+        );
+        add(
+            "tab-group-label-chip",
+            tg.label !== null && tg.label <= 24,
+            tg.label,
+        );
+        add(
+            "tab-group-collapsed-clipped",
+            tg.collapsedOverflow === "clip",
+            tg.collapsedOverflow,
+        );
+    }
+
+    if (scenarioId === "chrome-refresh") {
+        // Toolbar, extensions and new-tab icon boxes match, and a pinned tab's
+        // icon is centred (fork #12, edelvarden/material-fox-updated#117).
+        const f = p.features || {};
+        const ic = f.icons || {};
+        add("feature-probe", !f.error, f.error);
+        add(
+            "refresh:extensions-icon-matches",
+            ic.back !== null && Math.abs(ic.extensions - ic.back) <= 1,
+            `extensions ${ic.extensions} vs back ${ic.back}`,
+        );
+        add(
+            "refresh:newtab-icon-matches",
+            ic.back !== null && Math.abs(ic.newtab - ic.back) <= 1,
+            `new tab ${ic.newtab} vs back ${ic.back}`,
+        );
+        add(
+            "refresh:pinned-icon-centred",
+            typeof ic.pinnedOffset === "number" &&
+                Math.abs(ic.pinnedOffset) <= 0.5,
+            ic.pinnedOffset,
+        );
     }
 
     if (scenarioId === "themed" || scenarioId === "reduced-motion") {
@@ -558,6 +812,7 @@ async function main() {
                     profileDir,
                     headless,
                     lwt: scenario.lwt,
+                    features: FEATURE_SCENARIOS.has(scenario.id),
                 });
             } catch (err) {
                 rows.push({
