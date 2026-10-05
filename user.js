@@ -47,5 +47,9 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * warnings are always kept. Off by default -- the warning is a safety signal.
 // user_pref("userChrome.ui-no-not-secure-warning", true);
 
+// * Drop the circle behind the audio button on pinned tabs, leaving a plain
+// * speaker icon. Off by default.
+// user_pref("userChrome.ui-no-tab-audio-background", true);
+
 // * Changes the open/focused URL bar and its results dropdown to white, like Chrome's omnibox, instead of the material grey tint. false by default.
 // user_pref("userChrome.ui-white-urlbar-results", true);

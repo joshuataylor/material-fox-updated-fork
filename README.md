@@ -225,6 +225,10 @@ To **disable** a preference:
     <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. `false` by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-tab-audio-background</code></td>
+    <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. `false` by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
     <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. `false` by default.</td>
   </tr>

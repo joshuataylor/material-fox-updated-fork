@@ -186,3 +186,20 @@
 .tab-audio-button {
   display: none !important;
 }
+
+// Opt-in: drop the circle behind the audio button on pinned tabs. Firefox
+// draws the pinned overlay as a badge (`background-color:
+// var(--lwt-accent-color)`, a 1px accent border and a level-1 shadow; the
+// theme rounds it into a circle). The hover background still shows, so it is
+// still visibly a button.
+@include moz-pref-media("userChrome.ui-no-tab-audio-background") {
+  .tabbrowser-tab[pinned]:is([soundplaying], [muted], [activemedia-blocked])
+    .tab-icon-overlay {
+    border-color: transparent !important;
+    box-shadow: none !important;
+
+    &:not(:hover) {
+      background-color: transparent !important;
+    }
+  }
+}
