@@ -28,6 +28,18 @@
   z-index: 3;
 }
 
+// Firefox's lines under the label and under a collapsed group's "+N" counter
+// have no z-index, so the selected tab's corner flares (z-index 2, see
+// _tab.scss) painted over their ends and left a notch next to the tab's line.
+#tabbrowser-tabs[orient="horizontal"]
+  tab-group
+  > :is(
+    .tab-group-label-container,
+    .tab-group-overflow-count-container
+  )::after {
+  z-index: 3;
+}
+
 // Collapsed group (edelvarden/material-fox-updated#129). Firefox collapses
 // the hidden tabs to `max-width: 0` with `overflow-clip-margin: 0` and relies
 // on the tab's clip; the theme sets `overflow: visible` on every tab (for the
