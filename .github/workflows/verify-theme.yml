@@ -1,0 +1,30 @@
+name: verify-theme
+
+on:
+#  push:
+#    branches: [ main ]
+#  pull_request:
+#  schedule:
+#    - cron: "0 6 * * *" # daily -- catch Nightly drift
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-26.04, windows-2025, macos-15, macos-26 ]
+        channel: [ nightly, beta, stable ]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@v4.3.0
+      - name: Download Firefox (${{ matrix.channel }})
+        run: mise run firefox-download --channel ${{ matrix.channel }}
+      - name: Check theme (${{ matrix.channel }})
+        run: mise run verify-theme -- --channels ${{ matrix.channel }}
