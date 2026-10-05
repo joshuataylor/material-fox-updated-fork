@@ -41,11 +41,14 @@
   fill: get-var("icon-color-secondary") !important;
 }
 
+// Hide the trailing icons while the results are open. The leading Trust Panel
+// chip stays: 157+ opens the results on a mouse-down focus, so hiding it moved
+// the URL text 32px left under the cursor. Firefox hides the chip itself once
+// the user edits (pageproxystate="invalid").
 #urlbar {
   &[open] {
     #page-action-buttons,
-    #tracking-protection-icon-container,
-    #trust-icon-container {
+    #tracking-protection-icon-container {
       display: none !important;
     }
   }
