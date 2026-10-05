@@ -413,7 +413,8 @@ function featureProbeScript(url, done) {
         await sleep(300);
 
         // The group line shows under an unselected grouped tab, the label is a
-        // chip, and a collapsed group clips its hidden tabs (fork #16).
+        // chip, the label line is drawn over the selected tab's corners, and a
+        // collapsed group clips its hidden tabs and drops their line (fork #16).
         const [g1, g2] = [addTab(), addTab()];
         const group = gBrowser.addTabGroup([g1, g2], { label: "verify" });
         gBrowser.selectedTab = gBrowser.tabs[0];
@@ -425,9 +426,24 @@ function featureProbeScript(url, done) {
                 group.querySelector(".tab-group-label")?.getBoundingClientRect()
                     .height ?? null,
         };
+        gBrowser.selectedTab = g1;
+        await sleep(300);
+        out.tabGroup.labelLineZ = getComputedStyle(
+            group.querySelector(".tab-group-label-container"),
+            "::after",
+        ).zIndex;
+        out.tabGroup.selectedBackgroundZ = getComputedStyle(
+            g1.querySelector(".tab-background"),
+        ).zIndex;
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        await sleep(300);
         group.collapsed = true;
         await sleep(600);
         out.tabGroup.collapsedOverflow = getComputedStyle(g2).overflow;
+        out.tabGroup.collapsedLine = getComputedStyle(
+            g2.querySelector(".tab-stack"),
+            "::after",
+        ).display;
         gBrowser.removeTabs([g1, g2]);
         await sleep(300);
 
@@ -450,6 +466,30 @@ function featureProbeScript(url, done) {
             newtab: width("#tabs-newtab-button > .toolbarbutton-icon"),
             pinnedOffset: pi.x + pi.width / 2 - (pb.x + pb.width / 2),
         };
+
+        // Opt-in prefs on the (unselected) pinned tab: no title-changed dot,
+        // and the audio button lets clicks through to the tab (fork #16).
+        const content = pinned.querySelector(".tab-content");
+        const overlay = pinned.querySelector(".tab-icon-overlay");
+        content.toggleAttribute("titlechanged", true);
+        await sleep(200);
+        const dotDefault = getComputedStyle(content).backgroundImage;
+        Services.prefs.setBoolPref(
+            "userChrome.ui-no-tab-title-changed-dot",
+            true,
+        );
+        Services.prefs.setBoolPref(
+            "userChrome.ui-no-pinned-tab-mute-click",
+            true,
+        );
+        await sleep(400);
+        out.pinnedPrefs = {
+            dotDefault,
+            dot: getComputedStyle(content).backgroundImage,
+            overlay: getComputedStyle(overlay).pointerEvents,
+        };
+        Services.prefs.clearUserPref("userChrome.ui-no-tab-title-changed-dot");
+        Services.prefs.clearUserPref("userChrome.ui-no-pinned-tab-mute-click");
         gBrowser.removeTab(pinned);
         done(out);
     })().catch((e) => done({ error: String(e) }));
@@ -669,6 +709,24 @@ function contractsFor(scenarioId, p) {
             tg.collapsedOverflow === "clip",
             tg.collapsedOverflow,
         );
+        add(
+            "tab-group-label-line-over-corners",
+            Number(tg.labelLineZ) > Number(tg.selectedBackgroundZ),
+            `label line z ${tg.labelLineZ}, selected tab z ${tg.selectedBackgroundZ}`,
+        );
+        add(
+            "tab-group-collapsed-line-hidden",
+            tg.collapsedLine === "none",
+            tg.collapsedLine,
+        );
+        // Opt-in pinned-tab prefs (fork #16).
+        const pp = f.pinnedPrefs || {};
+        add(
+            "pref:no-tab-title-changed-dot",
+            !!pp.dotDefault && pp.dotDefault !== "none" && pp.dot === "none",
+            `${String(pp.dotDefault).slice(0, 24)} -> ${pp.dot}`,
+        );
+        add("pref:no-pinned-tab-mute-click", pp.overlay === "none", pp.overlay);
     }
 
     if (scenarioId === "chrome-refresh") {
