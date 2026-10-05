@@ -91,6 +91,53 @@ export default {
             ],
         },
         {
+            // Tab groups: an expanded group (line under every tab, chip label)
+            // next to a collapsed one (hidden tabs clipped).
+            name: "tab-groups",
+            url: "https://example.com/",
+            isolate: true,
+            setup: `
+                const sp = Services.scriptSecurityManager.getSystemPrincipal();
+                const add = (u) => gBrowser.addTab(u, { triggeringPrincipal: sp });
+                gBrowser.addTabGroup([add("https://example.org/"), add("https://example.net/")], { label: "Work", color: "blue" });
+                const done = gBrowser.addTabGroup([add("https://example.com/a"), add("https://example.com/b")], { label: "Done", color: "green" });
+                gBrowser.selectedTab = gBrowser.tabs[0];
+                done.collapsed = true;
+            `,
+            window: false,
+            crops: [{ label: "tabs", selector: "#TabsToolbar" }],
+        },
+        {
+            // Pinned tab playing audio: the badge behind the audio button vs
+            // userChrome.ui-no-tab-audio-background. The playing state is set
+            // directly, so no media is needed.
+            name: "pinned-audio",
+            url: "https://example.com/",
+            isolate: true,
+            setup: `
+                const sp = Services.scriptSecurityManager.getSystemPrincipal();
+                const t = gBrowser.addTab("about:blank", { triggeringPrincipal: sp });
+                gBrowser.pinTab(t);
+                // Set after the new tab has settled; Firefox resets the media
+                // attributes while it sets the tab up.
+                setTimeout(() => {
+                    t.toggleAttribute("soundplaying", true);
+                    const o = t.querySelector(".tab-icon-overlay");
+                    o.toggleAttribute("soundplaying", true);
+                    o.toggleAttribute("pinned", true);
+                }, 400);
+            `,
+            window: false,
+            crops: [{ label: "tabs", selector: "#TabsToolbar" }],
+            variants: [
+                { id: "default", prefs: {} },
+                {
+                    id: "no-background",
+                    prefs: { "userChrome.ui-no-tab-audio-background": true },
+                },
+            ],
+        },
+        {
             // Whole top chrome across the framing/layout toggles.
             name: "toolbox",
             url: "https://example.com/",
@@ -296,6 +343,16 @@ export default {
             headful: true, // anchored panel -- needs a real display
             url: "https://example.com/",
             setup: "gUnifiedExtensions.togglePanel(); return true;",
+        },
+        {
+            // The results view opened by a click (157+ opens it on a mouse-down
+            // focus): the URL text and the leading site chip must not move.
+            name: "urlbar-clicked",
+            url: "https://example.com/",
+            setup: `
+                gURLBar.focus();
+                gURLBar.startQuery({ event: new MouseEvent("mousedown"), searchString: "" });
+            `,
         },
         {
             // Open URL bar + results dropdown. Covers ui-white-urlbar-results,
