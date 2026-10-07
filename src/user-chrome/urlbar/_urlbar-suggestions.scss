@@ -1,5 +1,5 @@
 // urlbar suggestions. No width/margin here: from Firefox 157 the view is a
-// popover sized by position-area and --urlbarView-margin-inline, and
+// popover sized by position-area and --urlbarview-margin-inline, and
 // .urlbarView-background derives its outset from that margin.
 .urlbarView {
   border-inline: none !important;
@@ -78,7 +78,12 @@
   padding-inline: 11px !important;
 
   > .urlbarView-row {
-    padding: var(--urlbarView-row-gutter) !important;
+    // Firefox 159 lowercased the urlbarView variables (Bug 2052926); the
+    // fallback keeps 157/158 working. @todo: drop it once Release is 159.
+    padding: var(
+      --urlbarview-row-gutter,
+      var(--urlbarView-row-gutter)
+    ) !important;
     border-inline-width: 0 !important;
   }
 }
