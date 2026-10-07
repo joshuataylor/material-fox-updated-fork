@@ -213,7 +213,12 @@ html {
 
     // Web content area, both models. Scoped to the non-split-view container so
     // split-view panels keep their own separator border.
+    // Firefox 159 (Bug 2061871, macOS) also insets the content scrollbars away
+    // from the rounded corners; the top inset comes from
+    // --content-area-start-radius, so zeroing it keeps the scrollbar flush with
+    // the squared corner. The bottom inset follows the window corner and stays.
     #tabbrowser-tabpanels > :not(.split-view-panel) .browserContainer {
+      --content-area-start-radius: 0 !important;
       border: none !important;
       border-radius: 0 !important;
     }
