@@ -221,8 +221,11 @@
     list-style-image: get-var("search-icon") !important;
   }
 
-  // Manage containers icon
-  .subviewbutton[data-l10n-id="user-context-manage-containers"] {
+  // Manage containers icon. 158 renamed the ID (Bug 2071753).
+  .subviewbutton:is(
+    [data-l10n-id="user-context-manage-containers"],
+    [data-l10n-id="user-context-manage-containers2"]
+  ) {
     list-style-image: get-var("settings-icon") !important;
   }
 
