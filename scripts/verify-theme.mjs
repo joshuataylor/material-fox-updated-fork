@@ -586,6 +586,45 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(hoverTab);
         await sleep(300);
 
+        // Opt-in ui-themed-pages: Settings' canvas on the theme palette
+        // (edelvarden/material-fox-updated#124). about:preferences runs in
+        // the parent process, so its window is readable from here.
+        const prefsTab = gBrowser.addTab("about:preferences", {
+            triggeringPrincipal: system,
+            skipAnimation: true,
+        });
+        gBrowser.selectedTab = prefsTab;
+        for (
+            let i = 0;
+            i < 30 &&
+            prefsTab.linkedBrowser.contentDocument?.readyState !== "complete";
+            i++
+        )
+            await sleep(100);
+        await sleep(500);
+        const pageStyle = () =>
+            prefsTab.linkedBrowser.contentWindow.getComputedStyle(
+                prefsTab.linkedBrowser.contentDocument.documentElement,
+            );
+        const canvasDefault = pageStyle()
+            .getPropertyValue("--background-color-canvas")
+            .trim();
+        Services.prefs.setBoolPref("userChrome.ui-themed-pages", true);
+        await sleep(500);
+        out.themedPages = {
+            default: canvasDefault,
+            pref: pageStyle()
+                .getPropertyValue("--background-color-canvas")
+                .trim(),
+            palette: pageStyle()
+                .getPropertyValue("--md-background-color-50")
+                .trim(),
+        };
+        Services.prefs.clearUserPref("userChrome.ui-themed-pages");
+        gBrowser.removeTab(prefsTab);
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        await sleep(300);
+
         // Opt-in tab counter on the "List all tabs" button
         // (edelvarden/material-fox-updated#86).
         const stack = document.querySelector(
@@ -1078,6 +1117,16 @@ function contractsFor(scenarioId, p) {
                 th.rest === "0.3s" &&
                 th.hover === "0.1s",
             `default ${th.default}, pref ${th.rest} -> hover ${th.hover} (hovered ${th.hovered})`,
+        );
+    }
+
+    if (scenarioId === "themed" || scenarioId === "themed-proton") {
+        // Opt-in themed Firefox pages (edelvarden/material-fox-updated#124).
+        const tp = (p.features || {}).themedPages || {};
+        add(
+            "themed-pages-pref",
+            !!tp.palette && tp.default !== tp.palette && tp.pref === tp.palette,
+            `canvas ${tp.default} -> ${tp.pref} (palette ${tp.palette})`,
         );
     }
 

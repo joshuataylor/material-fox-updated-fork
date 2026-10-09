@@ -55,4 +55,19 @@
     --toggle-background-color-pressed-hover: #{get-var("accent-color")} !important;
     --toggle-background-color-pressed-active: #{get-var("accent-color")} !important;
   }
+
+  // Opt-in: Firefox's other pages (Settings, Add-ons, about:config...) on the
+  // theme's palette, so a preset such as Dracula or GitHub colours them as it
+  // colours the toolbar and the new tab page. Page on background-color-50,
+  // cards on background-color-100 (Firefox derives the card colour and
+  // border from those), text in text-primary
+  // (edelvarden/material-fox-updated#124).
+  @include moz-pref-media("userChrome.ui-themed-pages") {
+    :root {
+      --background-color-canvas: #{get-var("background-color-50")} !important;
+      --background-color-box: #{get-var("background-color-100")} !important;
+      --background-color-box-info: #{get-var("background-color-0")} !important;
+      --text-color: #{get-var("text-primary")} !important;
+    }
+  }
 }

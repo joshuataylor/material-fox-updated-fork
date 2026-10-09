@@ -78,5 +78,9 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * default.
 // user_pref("userChrome.ui-tab-counter", true);
 
+// * Colour Firefox's own pages (Settings, Add-ons...) with the theme's
+// * palette, so colour presets reach them too. Off by default.
+// user_pref("userChrome.ui-themed-pages", true);
+
 // * Changes the open/focused URL bar and its results dropdown to white, like Chrome's omnibox, instead of the material grey tint. false by default.
 // user_pref("userChrome.ui-white-urlbar-results", true);

@@ -257,6 +257,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Show how many tabs are open on the "List all tabs" button, as a number in a rounded outline ("99+" past 99), in place of its icon. Counts the tabs in the horizontal tab strip. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-themed-pages</code></td>
+    <td>Colour Firefox's own pages (Settings, Add-ons, about:config and the rest) with the theme's palette: page and card backgrounds and text follow the toolbar colours, so a preset from <code>custom.css</code> such as Dracula or GitHub reaches them too. The new tab page follows the palette already. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
     <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. Uses <code>--md-background-color-100</code>, so it follows the dark palette in dark mode. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
   </tr>
@@ -431,7 +435,7 @@ Here are some examples of how you can use the `custom.css` file:
 > [!TIP]
 > You can use variables to completely recolour the theme. Here are some preset examples with code:
 
-Each example only applies when its own preference is enabled. Copy the file's contents into `custom.css`, create the preference shown in the table, and leave the built-in `userChrome.theme-*` preferences off.
+Each example only applies when its own preference is enabled. Copy the file's contents into `custom.css`, create the preference shown in the table, and leave the built-in `userChrome.theme-*` preferences off. The colours reach the toolbar and the new tab page. To colour Firefox's other pages (Settings, Add-ons and so on) as well, also turn on `userChrome.ui-themed-pages`.
 
 <table>
   <tr>
