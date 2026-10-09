@@ -310,6 +310,30 @@ function probeScript() {
         accentTint: resolveColor(
             "color-mix(in srgb, var(--md-accent-color) 40%, var(--md-background-color-50))",
         ),
+        // Arrow panels keep a one-length --panel-padding (issue #17, #2): the
+        // theme's two-value menu padding zeroed the bookmark editor and
+        // permission prompts on Windows and Linux. Menus keep the pair.
+        panelPadding: (() => {
+            StarUI.panel;
+            const eb = document.getElementById("editBookmarkPanelContent");
+            const menu = document.getElementById("contentAreaContextMenu");
+            return {
+                editBookmark: eb
+                    ? parseFloat(getComputedStyle(eb).paddingInlineStart)
+                    : null,
+                notification: getComputedStyle(
+                    document.getElementById("notification-popup"),
+                )
+                    .getPropertyValue("--panel-padding")
+                    .trim(),
+                menu: getComputedStyle(menu)
+                    .getPropertyValue("--panel-padding")
+                    .trim(),
+                menuThemed: matchMedia(
+                    "(-moz-platform: windows), (-moz-platform: linux)",
+                ).matches,
+            };
+        })(),
         exists: {
             urlbar: has("#urlbar"),
             navbar: has("#nav-bar"),
@@ -349,7 +373,7 @@ function featureProbeScript(url, done) {
         await sleep(500);
 
         // A mouse-down focus opens the results (157+); the URL text must not
-        // move, so the leading Trust Panel chip stays shown (fork #15).
+        // move, so the leading Trust Panel chip stays shown (issue #15).
         const urlbar = document.getElementById("urlbar");
         const input = gURLBar.inputField;
         const trust = document.getElementById("trust-icon-container");
@@ -376,7 +400,7 @@ function featureProbeScript(url, done) {
         await sleep(200);
 
         // The find bar clips both axes (no scrollbar), and the top-right bar
-        // stays inside a narrow window (fork #8).
+        // stays inside a narrow window (issue #8).
         const fb = await gBrowser.getFindBar();
         fb.open();
         await sleep(400);
@@ -397,7 +421,7 @@ function featureProbeScript(url, done) {
         window.resizeTo(1280, 800);
         await sleep(500);
 
-        // A split view keeps the tab strip height (fork #6).
+        // A split view keeps the tab strip height (issue #6).
         const stripBefore = height("#TabsToolbar");
         const [s1, s2] = [addTab(), addTab()];
         gBrowser.addTabSplitView([s1, s2], {});
@@ -414,7 +438,7 @@ function featureProbeScript(url, done) {
 
         // The group line shows under an unselected grouped tab, the label is a
         // chip, the label line is drawn over the selected tab's corners, and a
-        // collapsed group clips its hidden tabs and drops their line (fork #16).
+        // collapsed group clips its hidden tabs and drops their line (issue #16).
         const [g1, g2] = [addTab(), addTab()];
         const group = gBrowser.addTabGroup([g1, g2], { label: "verify" });
         gBrowser.selectedTab = gBrowser.tabs[0];
@@ -448,7 +472,7 @@ function featureProbeScript(url, done) {
         await sleep(300);
 
         // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
-        // asserted only in the chrome-refresh scenario (fork #12).
+        // asserted only in the chrome-refresh scenario (issue #12).
         const pinned = addTab();
         gBrowser.pinTab(pinned);
         await sleep(600);
@@ -468,7 +492,7 @@ function featureProbeScript(url, done) {
         };
 
         // Opt-in prefs on the (unselected) pinned tab: no title-changed dot,
-        // and the audio button lets clicks through to the tab (fork #16).
+        // and the audio button lets clicks through to the tab (issue #16).
         const content = pinned.querySelector(".tab-content");
         const overlay = pinned.querySelector(".tab-icon-overlay");
         content.toggleAttribute("titlechanged", true);
@@ -491,6 +515,21 @@ function featureProbeScript(url, done) {
         Services.prefs.clearUserPref("userChrome.ui-no-tab-title-changed-dot");
         Services.prefs.clearUserPref("userChrome.ui-no-pinned-tab-mute-click");
         gBrowser.removeTab(pinned);
+
+        // The nav bar's start corner is square while the first tab is selected and rounded otherwise.
+        const nav = document.getElementById("nav-bar");
+        const other = addTab();
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        await sleep(300);
+        const cornerFirst = getComputedStyle(nav).borderStartStartRadius;
+        gBrowser.selectedTab = other;
+        await sleep(300);
+        out.navCorner = {
+            first: cornerFirst,
+            other: getComputedStyle(nav).borderStartStartRadius,
+        };
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        gBrowser.removeTab(other);
         done(out);
     })().catch((e) => done({ error: String(e) }));
 }
@@ -649,7 +688,7 @@ function contractsFor(scenarioId, p) {
         const f = p.features || {};
         add("feature-probe", !f.error, f.error);
         // A click into the address bar opens the results without moving the
-        // URL text: the Trust Panel chip stays shown (fork #15).
+        // URL text: the Trust Panel chip stays shown (issue #15).
         const uc = f.urlbarClick || {};
         add("urlbar-click-opens-results", uc.open === true, uc.open);
         add(
@@ -661,7 +700,7 @@ function contractsFor(scenarioId, p) {
             `shift ${uc.shift}px, chip ${uc.trustClosed} -> ${uc.trustOpen}`,
         );
         // The find bar clips both axes, so it never shows a scrollbar, and the
-        // top-right bar fits a 700px window (fork #8).
+        // top-right bar fits a 700px window (issue #8).
         add(
             "findbar-overflow-hidden",
             f.findbar?.overflow === "hidden",
@@ -677,7 +716,7 @@ function contractsFor(scenarioId, p) {
             `${tr.position}, ${tr.overflow}, ${tr.left}..${tr.right} of ${tr.windowWidth}`,
         );
         // A split view keeps the tab strip height and gives the wrapper a
-        // tab's height (fork #6).
+        // tab's height (issue #6).
         const sv = f.splitView || {};
         add(
             "split-view-keeps-strip",
@@ -687,7 +726,7 @@ function contractsFor(scenarioId, p) {
             `strip ${sv.stripBefore} -> ${sv.stripAfter}, wrapper ${sv.wrapper} vs tab ${sv.tab}`,
         );
         // Tab groups: line under unselected tabs, a chip-sized label, and
-        // collapsed tabs clipped (fork #16, edelvarden/material-fox-updated#129).
+        // collapsed tabs clipped (issue #16, edelvarden/material-fox-updated#129).
         const tg = f.tabGroup || {};
         // Nova off resolves the line colour to oklch(), which parseColor leaves
         // symbolic; any colour that is not transparent counts.
@@ -719,7 +758,7 @@ function contractsFor(scenarioId, p) {
             tg.collapsedLine === "none",
             tg.collapsedLine,
         );
-        // Opt-in pinned-tab prefs (fork #16).
+        // Opt-in pinned-tab prefs (issue #16).
         const pp = f.pinnedPrefs || {};
         add(
             "pref:no-tab-title-changed-dot",
@@ -727,11 +766,28 @@ function contractsFor(scenarioId, p) {
             `${String(pp.dotDefault).slice(0, 24)} -> ${pp.dot}`,
         );
         add("pref:no-pinned-tab-mute-click", pp.overlay === "none", pp.overlay);
+        // Panel padding (issue #17 and #2).
+        const pad = p.panelPadding || {};
+        add(
+            "panel:bookmark-editor-padded",
+            pad.editBookmark > 0,
+            pad.editBookmark,
+        );
+        add(
+            "panel:notification-single-padding",
+            !!pad.notification && !/\s/.test(pad.notification),
+            pad.notification,
+        );
+        add(
+            "panel:menu-padding-pair",
+            !pad.menuThemed || pad.menu === "8px 0",
+            pad.menu,
+        );
     }
 
     if (scenarioId === "chrome-refresh") {
         // Toolbar, extensions and new-tab icon boxes match, and a pinned tab's
-        // icon is centred (fork #12, edelvarden/material-fox-updated#117).
+        // icon is centred (issue #12, edelvarden/material-fox-updated#117).
         const f = p.features || {};
         const ic = f.icons || {};
         add("feature-probe", !f.error, f.error);
@@ -750,6 +806,12 @@ function contractsFor(scenarioId, p) {
             typeof ic.pinnedOffset === "number" &&
                 Math.abs(ic.pinnedOffset) <= 0.5,
             ic.pinnedOffset,
+        );
+        const nc = f.navCorner || {};
+        add(
+            "refresh:navbar-corner-square-on-first-tab",
+            nc.first === "0px" && !!nc.other && nc.other !== "0px",
+            `first ${nc.first}, other ${nc.other}`,
         );
     }
 

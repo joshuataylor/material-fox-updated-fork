@@ -3,6 +3,16 @@
   border-radius: 7px 7px 0 0 !important;
 }
 
+// Square the start corner while the first tab is selected: with nothing
+// before the tabs (List all tabs and the spacer removed) that tab sits over
+// the corner, and the rounding leaves a notch of tab strip colour under it.
+#TabsToolbar:has(
+    #tabbrowser-arrowscrollbox > .tabbrowser-tab:first-child[selected]
+  )
+  ~ #nav-bar {
+  border-start-start-radius: 0 !important;
+}
+
 // remove rounded corners for popup windows
 #main-window[chromehidden="menubar toolbar directories extrachrome "] {
   #nav-bar {

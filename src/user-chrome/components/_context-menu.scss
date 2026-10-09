@@ -24,6 +24,13 @@ $menu-side-paddings: 4px;
 
     // menu container inner padding
     --panel-padding-block: 8px !important;
+  }
+
+  // Only menus take the two-value form, as in Firefox's popup.css. Arrow
+  // panels (permission prompts, the bookmark editor) use --panel-padding as
+  // one length in padding shorthands and calc(), which a pair breaks.
+  menupopup,
+  panel:not(#autoscroller, [type="arrow"]) {
     --panel-padding: var(--panel-padding-block) 0 !important;
   }
 
