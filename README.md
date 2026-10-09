@@ -253,6 +253,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Keep the titlebar and tab strip in their active colours when the window loses focus, instead of turning grey. Useful when each profile has its own theme colour. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-tab-counter</code></td>
+    <td>Show how many tabs are open on the "List all tabs" button, as a number in a rounded outline ("99+" past 99), in place of its icon. Counts the tabs in the horizontal tab strip. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
     <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. Uses <code>--md-background-color-100</code>, so it follows the dark palette in dark mode. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
   </tr>

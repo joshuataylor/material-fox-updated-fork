@@ -74,5 +74,9 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * default.
 // user_pref("userChrome.ui-no-inactive-titlebar", true);
 
+// * Show the number of open tabs on the "List all tabs" button. Off by
+// * default.
+// user_pref("userChrome.ui-tab-counter", true);
+
 // * Changes the open/focused URL bar and its results dropdown to white, like Chrome's omnibox, instead of the material grey tint. false by default.
 // user_pref("userChrome.ui-white-urlbar-results", true);

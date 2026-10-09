@@ -1,0 +1,55 @@
+// Opt-in tab counter: the "List all tabs" button shows how many tabs are open
+// in a rounded outline, as the mobile browsers do, and "99+" past 99
+// (edelvarden/material-fox-updated#86). A CSS counter does the counting: the
+// tabs come before the button in the document, so it is reset on the root.
+// Tabs that are display: none (hidden tabs) are not counted.
+@counter-style mfox-tab-count-many {
+  system: cyclic;
+  symbols: "99+";
+}
+
+@counter-style mfox-tab-count {
+  system: extends decimal;
+  range: 0 99;
+  fallback: mfox-tab-count-many;
+}
+
+@include moz-pref-media("userChrome.ui-tab-counter") {
+  :root {
+    counter-reset: mfox-tabs;
+  }
+
+  .tabbrowser-tab {
+    counter-increment: mfox-tabs;
+  }
+
+  #alltabs-button > .toolbarbutton-badge-stack {
+    position: relative !important;
+
+    > .toolbarbutton-icon {
+      opacity: 0 !important;
+    }
+
+    &::after {
+      content: counter(mfox-tabs, mfox-tab-count);
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: fit-content;
+      min-width: 16px;
+      height: 16px;
+      box-sizing: border-box;
+      padding-inline: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid currentColor;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+  }
+}

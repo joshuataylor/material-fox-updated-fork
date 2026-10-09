@@ -586,6 +586,23 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(hoverTab);
         await sleep(300);
 
+        // Opt-in tab counter on the "List all tabs" button
+        // (edelvarden/material-fox-updated#86).
+        const stack = document.querySelector(
+            "#alltabs-button > .toolbarbutton-badge-stack",
+        );
+        const counter = () => ({
+            content: getComputedStyle(stack, "::after").content,
+            icon: getComputedStyle(stack.querySelector(".toolbarbutton-icon"))
+                .opacity,
+        });
+        const counterDefault = counter();
+        Services.prefs.setBoolPref("userChrome.ui-tab-counter", true);
+        await sleep(400);
+        out.tabCounter = { default: counterDefault, pref: counter() };
+        Services.prefs.clearUserPref("userChrome.ui-tab-counter");
+        await sleep(200);
+
         // Opt-in ui-no-inactive-titlebar: with another window in front, the
         // toolbox keeps its active colour instead of the theme's grey
         // (edelvarden/material-fox-updated#140).
@@ -1061,6 +1078,19 @@ function contractsFor(scenarioId, p) {
                 th.rest === "0.3s" &&
                 th.hover === "0.1s",
             `default ${th.default}, pref ${th.rest} -> hover ${th.hover} (hovered ${th.hovered})`,
+        );
+    }
+
+    if (scenarioId === "themed" || scenarioId === "themed-proton") {
+        // Opt-in tab counter (edelvarden/material-fox-updated#86).
+        const tc = (p.features || {}).tabCounter || {};
+        add(
+            "tab-counter-pref",
+            tc.default?.icon === "1" &&
+                !String(tc.default?.content).includes("counter(") &&
+                String(tc.pref?.content).includes("counter(mfox-tabs") &&
+                tc.pref?.icon === "0",
+            `default ${tc.default?.content} icon ${tc.default?.icon}, pref ${tc.pref?.content} icon ${tc.pref?.icon}`,
         );
     }
 
