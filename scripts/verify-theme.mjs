@@ -556,6 +556,116 @@ function featureProbeScript(url, done) {
         Services.prefs.clearUserPref("userChrome.ui-no-urlbar-history-badge");
         row.remove();
 
+        // Menus, opened by a synthesised right-click and measured row by row
+        // (edelvarden/material-fox-updated#150, #145, #135). Windows and Linux
+        // only: macOS menus are native and the theme leaves them alone.
+        if (AppConstants.platform !== "macosx") {
+            const mouse = (type, x, y) =>
+                window.synthesizeMouseEvent(type, x, y, {
+                    button: 2,
+                    buttons: 2,
+                    clickCount: 1,
+                });
+            const openMenu = async (popupId, el, dx, dy) => {
+                const popup = document.getElementById(popupId);
+                const r = el.getBoundingClientRect();
+                const x = r.left + (dx ?? r.width / 2);
+                const y = r.top + (dy ?? r.height / 2);
+                for (const type of ["mousedown", "contextmenu", "mouseup"])
+                    mouse(type, x, y);
+                for (let i = 0; i < 30 && popup.state !== "open"; i++)
+                    await sleep(100);
+                await sleep(200);
+                const pr = popup.getBoundingClientRect();
+                // Firefox's row padding, resolved in this popup.
+                const pad = document.createElement("div");
+                pad.style.paddingInlineStart = "var(--menuitem-padding-inline)";
+                popup.append(pad);
+                const fxPadding = parseFloat(
+                    getComputedStyle(pad).paddingInlineStart,
+                );
+                pad.remove();
+                const rows = [
+                    ...popup.querySelectorAll(
+                        ":scope > menuitem, :scope > menu, :scope > menugroup > menuitem",
+                    ),
+                ]
+                    .filter((i) => !i.hidden && i.getBoundingClientRect().width)
+                    .map((item) => {
+                        const icon = item.querySelector(":scope > .menu-icon");
+                        const text = item.querySelector(":scope > .menu-text");
+                        const ir = icon?.getBoundingClientRect();
+                        const tr = text?.getBoundingClientRect();
+                        const ics = icon && getComputedStyle(icon);
+                        const column =
+                            ics && ics.display !== "none"
+                                ? ir.width + parseFloat(ics.marginInlineEnd)
+                                : 0;
+                        // Text start past Firefox's row padding and icon
+                        // column: 0 when the text sits where Firefox puts it.
+                        const inset = tr?.width
+                            ? Math.round(
+                                  tr.left -
+                                      item.getBoundingClientRect().left -
+                                      fxPadding -
+                                      column,
+                              )
+                            : null;
+                        return {
+                            inset,
+                            id: item.id,
+                            h: Math.round(item.getBoundingClientRect().height),
+                            icon:
+                                !!ir?.width &&
+                                getComputedStyle(icon).visibility !== "hidden",
+                            bgIcon:
+                                getComputedStyle(item).backgroundImage !==
+                                "none",
+                            textX: tr?.width
+                                ? Math.round(tr.left - pr.left)
+                                : null,
+                        };
+                    });
+                popup.hidePopup();
+                await sleep(300);
+                return { gutter: popup.hasAttribute("needsgutter"), rows };
+            };
+            const page = gBrowser.selectedBrowser;
+            const pageWidth = page.getBoundingClientRect().width;
+            out.menus = {
+                page: await openMenu(
+                    "contentAreaContextMenu",
+                    page,
+                    pageWidth - 20,
+                ),
+                tab: await openMenu("tabContextMenu", gBrowser.selectedTab),
+            };
+            // A checked item (Menu Bar) makes Firefox add the gutter.
+            CustomizableUI.setToolbarVisibility("toolbar-menubar", true);
+            await sleep(400);
+            out.menus.toolbar = await openMenu(
+                "toolbar-context-menu",
+                document.getElementById("reload-button"),
+            );
+            CustomizableUI.setToolbarVisibility("toolbar-menubar", false);
+            Services.prefs.setBoolPref(
+                "userChrome.ui-context-menu-icons",
+                true,
+            );
+            await sleep(400);
+            out.menus.tabIcons = await openMenu(
+                "tabContextMenu",
+                gBrowser.selectedTab,
+            );
+            out.menus.pageIcons = await openMenu(
+                "contentAreaContextMenu",
+                page,
+                pageWidth - 20,
+            );
+            Services.prefs.clearUserPref("userChrome.ui-context-menu-icons");
+            await sleep(300);
+        }
+
         // Vertical tabs: no corner flares, all corners rounded
         // (edelvarden/material-fox-updated#141).
         Services.prefs.setBoolPref("sidebar.revamp", true);
@@ -834,6 +944,73 @@ function contractsFor(scenarioId, p) {
                 hb.mask === "none" &&
                 hb.badge === "none",
             `${String(hb.maskDefault).slice(0, 28)} -> ${hb.mask}, badge ${hb.badge}`,
+        );
+    }
+
+    // Menus (Windows/Linux only, the probe skips them on macOS): one text
+    // column and one row height per popup, one icon per nav item, and the
+    // icons pref uses Firefox's gutter instead of adding its own
+    // (edelvarden/material-fox-updated#150, #145, #135).
+    const menus = (p.features || {}).menus;
+    if ((scenarioId === "themed" || scenarioId === "themed-proton") && menus) {
+        const textX = (m) => [
+            ...new Set(m.rows.map((r) => r.textX).filter((x) => x !== null)),
+        ];
+        const heights = (m) => [...new Set(m.rows.map((r) => r.h))];
+        for (const [name, m] of Object.entries(menus)) {
+            add(
+                `menu-${name}-aligned`,
+                m.rows.length > 0 &&
+                    textX(m).length === 1 &&
+                    heights(m).length === 1,
+                `${m.rows.length} rows, text x ${textX(m)}, heights ${heights(m)}`,
+            );
+        }
+        // One row height across popups, with or without the icon column.
+        const allHeights = [
+            ...new Set(Object.values(menus).flatMap((m) => heights(m))),
+        ];
+        add("menu-rows-one-height", allHeights.length === 1, allHeights);
+        // Text starts at Firefox's padding, plus its icon column when the
+        // popup has one: no extra indent of the theme's own.
+        for (const [name, m] of Object.entries(menus)) {
+            const insets = [
+                ...new Set(
+                    m.rows.map((r) => r.inset).filter((x) => x !== null),
+                ),
+            ];
+            add(
+                `menu-${name}-firefox-inset`,
+                insets.length === 1 && insets[0] === 0,
+                `extra indent ${insets}`,
+            );
+        }
+        for (const name of ["page", "pageIcons"]) {
+            const nav = menus[name].rows.filter((r) =>
+                /^context-(back|forward|reload)/.test(r.id),
+            );
+            add(
+                `menu-${name}-nav-one-icon`,
+                nav.length === 3 && nav.every((r) => r.icon && !r.bgIcon),
+                nav
+                    .map((r) => `${r.id} icon ${r.icon} bg ${r.bgIcon}`)
+                    .join(", "),
+            );
+        }
+        const [plain] = textX(menus.tab);
+        const [gutter] = textX(menus.toolbar);
+        const [icons] = textX(menus.tabIcons);
+        add(
+            "menu-gutter-when-checked",
+            menus.toolbar.gutter && gutter > plain,
+            `needsgutter ${menus.toolbar.gutter}, text ${plain} -> ${gutter}`,
+        );
+        add(
+            "menu-icons-pref-uses-gutter",
+            icons === gutter &&
+                menus.tabIcons.rows.some((r) => r.icon) &&
+                menus.tabIcons.rows.every((r) => !r.bgIcon),
+            `text ${icons} (gutter ${gutter}), icons ${menus.tabIcons.rows.filter((r) => r.icon).length}`,
         );
     }
 

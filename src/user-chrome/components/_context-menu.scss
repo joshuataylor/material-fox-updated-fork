@@ -35,6 +35,15 @@ $menu-side-paddings: 4px;
     --menuitem-border-radius: 4px !important;
   }
 
+  // Firefox sizes a row by the taller of its text and its icon box. The
+  // theme's Roboto line box is shorter than the system font's, so rows in a
+  // popup without the icon column came out 2px shorter than rows with one.
+  // Hold every row to Firefox's own --menuitem-height.
+  menupopup > menu,
+  menupopup > menuitem {
+    min-height: var(--menuitem-height) !important;
+  }
+
   // context menu background-color & drop shadow
   .menupopup-arrowscrollbox {
     background-color: var(--arrowpanel-background) !important;
