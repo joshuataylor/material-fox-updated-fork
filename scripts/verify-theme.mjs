@@ -586,6 +586,29 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(hoverTab);
         await sleep(300);
 
+        // Opt-in ui-no-inactive-titlebar: with another window in front, the
+        // toolbox keeps its active colour instead of the theme's grey
+        // (edelvarden/material-fox-updated#140).
+        const toolboxBg = () =>
+            getComputedStyle(document.getElementById("navigator-toolbox"))
+                .backgroundColor;
+        const activeToolbox = toolboxBg();
+        const otherWindow = OpenBrowserWindow();
+        await sleep(2500);
+        const inactiveDefault = toolboxBg();
+        Services.prefs.setBoolPref("userChrome.ui-no-inactive-titlebar", true);
+        await sleep(400);
+        out.inactiveTitlebar = {
+            inactive: document.documentElement.matches(":-moz-window-inactive"),
+            active: activeToolbox,
+            default: inactiveDefault,
+            pref: toolboxBg(),
+        };
+        Services.prefs.clearUserPref("userChrome.ui-no-inactive-titlebar");
+        otherWindow.close();
+        window.focus();
+        await sleep(1000);
+
         // Menus, opened by a synthesised right-click and measured row by row
         // (edelvarden/material-fox-updated#150, #145, #135). Windows and Linux
         // only: macOS menus are native and the theme leaves them alone.
@@ -987,6 +1010,16 @@ function contractsFor(scenarioId, p) {
                 th.rest === "0.3s" &&
                 th.hover === "0.1s",
             `default ${th.default}, pref ${th.rest} -> hover ${th.hover} (hovered ${th.hovered})`,
+        );
+    }
+
+    if (scenarioId === "themed" || scenarioId === "themed-proton") {
+        // Opt-in inactive titlebar colour (edelvarden/material-fox-updated#140).
+        const it = (p.features || {}).inactiveTitlebar || {};
+        add(
+            "inactive-titlebar-pref-keeps-colour",
+            it.inactive && it.default !== it.active && it.pref === it.active,
+            `active ${it.active}, inactive ${it.default} -> pref ${it.pref}`,
         );
     }
 

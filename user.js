@@ -69,5 +69,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * and fades out slowly (300ms). Off by default.
 // user_pref("userChrome.ui-chromium-tab-hover", true);
 
+// * Keep the titlebar's colours when the window loses focus, instead of
+// * turning grey (handy with a different theme colour per profile). Off by
+// * default.
+// user_pref("userChrome.ui-no-inactive-titlebar", true);
+
 // * Changes the open/focused URL bar and its results dropdown to white, like Chrome's omnibox, instead of the material grey tint. false by default.
 // user_pref("userChrome.ui-white-urlbar-results", true);

@@ -249,6 +249,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Use Chromium's tab hover timing: the hover colour comes in over 100ms and fades back out over 300ms, instead of the theme's quick 83ms both ways. Follows the reduce-motion settings like the theme's other animations. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-inactive-titlebar</code></td>
+    <td>Keep the titlebar and tab strip in their active colours when the window loses focus, instead of turning grey. Useful when each profile has its own theme colour. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
     <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. Uses <code>--md-background-color-100</code>, so it follows the dark palette in dark mode. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
   </tr>

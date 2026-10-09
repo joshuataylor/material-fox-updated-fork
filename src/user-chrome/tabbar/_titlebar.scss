@@ -62,30 +62,49 @@
   }
 }
 
-// inactive titlebar background color
+// inactive titlebar background color, unless ui-no-inactive-titlebar keeps
+// the active one
 @include moz-pref-media("not userChrome.theme-default") {
-  :root:-moz-window-inactive {
-    #navigator-toolbox,
-    #toolbar-menubar,
-    #TabsToolbar,
-    #titlebar {
-      background-color: get-var("background-color-50") !important;
-      background-image: none !important;
+  @include moz-pref-media("not userChrome.ui-no-inactive-titlebar") {
+    :root:-moz-window-inactive {
+      #navigator-toolbox,
+      #toolbar-menubar,
+      #TabsToolbar,
+      #titlebar {
+        background-color: get-var("background-color-50") !important;
+        background-image: none !important;
+      }
     }
-  }
 
-  // special unfocused background color for chrome refresh
-  @include moz-pref-media("userChrome.theme-chrome-refresh") {
-    @media (prefers-color-scheme: dark) {
-      :root:-moz-window-inactive {
-        #navigator-toolbox,
-        #toolbar-menubar,
-        #TabsToolbar,
-        #titlebar {
-          background-color: #2b2b2b !important;
+    // special unfocused background color for chrome refresh
+    @include moz-pref-media("userChrome.theme-chrome-refresh") {
+      @media (prefers-color-scheme: dark) {
+        :root:-moz-window-inactive {
+          #navigator-toolbox,
+          #toolbar-menubar,
+          #TabsToolbar,
+          #titlebar {
+            background-color: #2b2b2b !important;
+          }
         }
       }
     }
+  }
+}
+
+// Keep the titlebar's active colours when the window loses focus, so a
+// per-profile theme colour stays visible behind other windows
+// (edelvarden/material-fox-updated#140). Firefox switches to its own
+// inactive colours as well (the system's inactive caption, or the
+// lightweight theme's frame_inactive), so point those at the active ones,
+// as Firefox itself does on macOS.
+@include moz-pref-media("userChrome.ui-no-inactive-titlebar") {
+  :root {
+    --toolbox-background-color-inactive: var(
+      --toolbox-background-color
+    ) !important;
+    --toolbox-text-color-inactive: var(--toolbox-text-color) !important;
+    --lwt-accent-color-inactive: var(--lwt-accent-color) !important;
   }
 }
 
