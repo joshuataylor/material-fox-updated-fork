@@ -29,6 +29,15 @@
   }
 }
 
+// Vertical tabs are rows, not a strip: no separators between them
+// (edelvarden/material-fox-updated#134).
+#tabbrowser-tabs[orient="vertical"] .tab-content {
+  &::before,
+  &::after {
+    display: none !important;
+  }
+}
+
 // hide tab separators if hover or selected
 // ::before/::after sit at inline-start/end, so one block covers LTR and RTL.
 .tabbrowser-tab:not([visuallyselected], [selected], :hover, [multiselected])

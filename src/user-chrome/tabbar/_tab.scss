@@ -192,6 +192,73 @@ html {
   }
 }
 
+// The rest of the vertical strip (edelvarden/material-fox-updated#134).
+#tabbrowser-tabs[orient="vertical"] {
+  // Pinned tabs are a grid of tiles above the list: let them fill their
+  // cells (the horizontal strip's 40px is for a row of icons) and show each
+  // tile at rest in Firefox's colour, or the icons float in empty cells.
+  .tabbrowser-tab[pinned] {
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .tabbrowser-tab[pinned]:not(
+      [visuallyselected],
+      [selected],
+      :hover,
+      [multiselected]
+    )
+    .tab-background {
+    --tab-background-color: color-mix(
+      in srgb,
+      currentColor 7%,
+      transparent
+    ) !important;
+    --tab-opacity: 1 !important;
+  }
+
+  // Collapsed, a tab is one icon wide: no close button over the favicon,
+  // and the favicon centred in the strip instead of after the 12px padding.
+  &:not([expanded]) {
+    .tab-close-button {
+      display: none !important;
+    }
+
+    .tabbrowser-tab:not([pinned]) .tab-content {
+      padding-inline: calc(
+        (var(--tab-collapsed-width) - var(--icon-size)) / 2
+      ) !important;
+    }
+
+    #tabs-newtab-button {
+      margin-inline: calc((var(--tab-collapsed-width) - 40px) / 2) !important;
+    }
+  }
+
+  // Expanded, the new tab button is a row like the tabs, with its label.
+  &[expanded] #tabs-newtab-button {
+    max-width: none !important;
+    width: 100% !important;
+    margin-inline: 0 !important;
+    justify-content: flex-start !important;
+    padding-inline: 12px !important;
+    border-radius: 8px !important;
+
+    // 16px like a favicon, so the label lines up with the tab titles
+    // (Chrome Refresh draws a larger icon in the horizontal strip).
+    > .toolbarbutton-icon {
+      width: var(--icon-size) !important;
+      height: var(--icon-size) !important;
+      padding: 0 !important;
+    }
+
+    > .toolbarbutton-text {
+      display: flex !important;
+      padding-inline-start: 8px !important;
+    }
+  }
+}
+
 @include moz-pref-media("not userChrome.theme-default") {
   html {
     --tab-background-color: #{get-var("background-color-100")} !important;
@@ -253,7 +320,7 @@ html {
   margin-inline-end: 2px !important;
 }
 
-#tabbrowser-tabs[overflow] {
+#tabbrowser-tabs[overflow]:not([orient="vertical"]) {
   .tabbrowser-tab[last-visible-unpinned-tab] {
     margin-inline-end: 8px !important;
   }
@@ -275,8 +342,11 @@ html {
   padding: 0 12px !important;
 }
 
-// fix first tab margin
-#tabbrowser-arrowscrollbox .tabbrowser-tab:is(:first-child) {
+// fix first tab margin (the horizontal strip only: vertical tabs line up
+// with each other, edelvarden/material-fox-updated#134)
+#tabbrowser-tabs:not([orient="vertical"])
+  #tabbrowser-arrowscrollbox
+  .tabbrowser-tab:is(:first-child) {
   margin-left: 8px !important;
 }
 
@@ -288,7 +358,7 @@ html {
 }
 
 // fix for prev style, if no pinned tabs - restore margin to prevent left tab corner cropping
-#tabbrowser-tabs:not([haspinnedtabs]) {
+#tabbrowser-tabs:not([haspinnedtabs], [orient="vertical"]) {
   .tabbrowser-tab[first-visible-unpinned-tab] {
     margin-inline-start: 8px !important;
   }

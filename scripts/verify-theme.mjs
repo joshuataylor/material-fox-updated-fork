@@ -732,6 +732,57 @@ function featureProbeScript(url, done) {
             flare: getComputedStyle(vbg, "::before").display,
             bottomRadius: getComputedStyle(vbg).borderBottomLeftRadius,
         };
+        // The rest of the strip (edelvarden/material-fox-updated#134):
+        // expanded rows share one text start with no separators, and pinned
+        // tabs fill their grid cells; collapsed favicons are centred with no
+        // close button.
+        const [v1, v2] = [addTab(), addTab()];
+        const vpin = addTab();
+        gBrowser.pinTab(vpin);
+        gBrowser.selectedTab = gBrowser.tabs[1];
+        await sleep(800);
+        const unpinned = gBrowser.tabs.filter((t) => !t.pinned);
+        const centre = (e) => {
+            const r = e.getBoundingClientRect();
+            return r.left + r.width / 2;
+        };
+        const strip = document.getElementById("vertical-tabs");
+        // Tab titles and the New Tab label.
+        out.verticalTab.labelX = [
+            ...new Set(
+                [
+                    ...unpinned.map((t) =>
+                        t.querySelector(".tab-label-container"),
+                    ),
+                    document.querySelector(
+                        "#tabs-newtab-button > .toolbarbutton-text",
+                    ),
+                ].map((e) => Math.round(e.getBoundingClientRect().left)),
+            ),
+        ];
+        out.verticalTab.separator = getComputedStyle(
+            v2.querySelector(".tab-content"),
+            "::before",
+        ).display;
+        out.verticalTab.pinnedWidth = vpin.getBoundingClientRect().width;
+        SidebarController._state.launcherExpanded = false;
+        await sleep(1000);
+        out.verticalTab.collapsed = {
+            expanded: document
+                .getElementById("tabbrowser-tabs")
+                .hasAttribute("expanded"),
+            iconOffsets: unpinned.map((t) =>
+                Math.round(
+                    centre(t.querySelector(".tab-icon-stack")) - centre(strip),
+                ),
+            ),
+            close: getComputedStyle(
+                unpinned[0].querySelector(".tab-close-button"),
+            ).display,
+        };
+        SidebarController._state.launcherExpanded = true;
+        gBrowser.removeTabs([v1, v2, vpin]);
+        await sleep(500);
         Services.prefs.clearUserPref("sidebar.verticalTabs");
         Services.prefs.clearUserPref("sidebar.revamp");
         await sleep(800);
@@ -1099,6 +1150,25 @@ function contractsFor(scenarioId, p) {
                 vt.flare === "none" &&
                 vt.bottomRadius !== "0px",
             `${vt.orient} flare ${vt.flare} radius ${vt.bottomRadius}`,
+        );
+        // The rest of the vertical strip (upstream #134).
+        add(
+            "vertical-tab-rows-aligned",
+            vt.labelX?.length === 1 && vt.separator === "none",
+            `label x ${vt.labelX}, separator ${vt.separator}`,
+        );
+        add(
+            "vertical-pinned-fills-cell",
+            vt.pinnedWidth > 40,
+            `pinned tab ${vt.pinnedWidth}px`,
+        );
+        const vc = vt.collapsed || {};
+        add(
+            "vertical-collapsed-icons-centred",
+            vc.expanded === false &&
+                vc.iconOffsets?.every((o) => Math.abs(o) <= 1) &&
+                vc.close === "none",
+            `expanded ${vc.expanded}, offsets ${vc.iconOffsets}, close ${vc.close}`,
         );
     }
 
