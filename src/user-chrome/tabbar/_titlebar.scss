@@ -174,10 +174,16 @@ scrollbox:is([orient="horizontal"], [smoothscroll="true"], [flex="1"]) {
   z-index: 999 !important;
 }
 
-spacer:is([part="overflow-start-indicator"]) {
+// Horizontal strips only: in vertical tabs the margins narrow the
+// full-width fades and push Firefox's 160 corner mask off-centre.
+// ::part() and :host() from userChrome don't match here, so key off the
+// shadow tree's <scrollbox>, which inherits the host's orient.
+spacer[part="overflow-start-indicator"]:has(
+    + scrollbox:not([orient="vertical"])
+  ) {
   margin-inline: 0px 6px !important;
 }
 
-spacer:is([part="overflow-end-indicator"]) {
+scrollbox:not([orient="vertical"]) + spacer[part="overflow-end-indicator"] {
   margin-inline: 6px 0px !important;
 }
