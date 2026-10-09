@@ -123,30 +123,41 @@ html {
   transition-duration: get-var("shortest-duration") !important;
   transition-timing-function: get-var("fade-in-out") !important;
 
+  // Corner flares joining the tab to the toolbar, drawn as a gradient in a
+  // box that overlaps the tab by 1px. The old box-shadow version left a seam
+  // inside the tab at fractional scales such as 175%
+  // (edelvarden/material-fox-updated#102). The background also replaces any
+  // tab image (Waterfox).
   &::before,
   &::after {
     content: "" !important;
     display: block !important;
     position: absolute !important;
-    min-width: 8px !important;
-    max-width: 8px !important;
+    min-width: 9px !important;
+    max-width: 9px !important;
     min-height: 8px !important;
     max-height: 8px !important;
     bottom: 0 !important;
     pointer-events: none !important;
-    background-image: none !important; // remove tab image for waterfox
+    box-shadow: none !important;
   }
 
   &::before {
-    border-bottom-right-radius: 8px !important;
     left: -8px !important;
-    box-shadow: 4px 4px 0 4px var(--tab-background-color) !important;
+    background: radial-gradient(
+      circle 8px at 0 0,
+      transparent 7.4px,
+      var(--tab-background-color) 8px
+    ) !important;
   }
 
   &::after {
-    border-bottom-left-radius: 8px !important;
     right: -8px !important;
-    box-shadow: -4px 4px 0 4px var(--tab-background-color) !important;
+    background: radial-gradient(
+      circle 8px at 100% 0,
+      transparent 7.4px,
+      var(--tab-background-color) 8px
+    ) !important;
   }
 }
 
@@ -169,14 +180,6 @@ html {
   // general tab background styles with tab corners
   .tab-background {
     background: var(--tab-background-color) !important;
-
-    &::before {
-      box-shadow: 4px 4px 0 4px var(--tab-background-color) !important;
-    }
-
-    &::after {
-      box-shadow: -4px 4px 0 4px var(--tab-background-color) !important;
-    }
   }
 
   .tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {

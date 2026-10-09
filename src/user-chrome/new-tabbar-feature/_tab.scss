@@ -22,25 +22,23 @@ html {
   ) !important;
 }
 
+// 12px flares, shown on the selected tab only (see below)
 .tab-background {
   &::before,
   &::after {
-    min-width: 12px !important;
-    max-width: 12px !important;
+    min-width: 13px !important;
+    max-width: 13px !important;
     min-height: 12px !important;
     max-height: 12px !important;
+    background: none !important;
   }
 
   &::before {
-    border-bottom-right-radius: 12px !important;
     left: -12px !important;
-    box-shadow: none !important;
   }
 
   &::after {
-    border-bottom-left-radius: 12px !important;
     right: -12px !important;
-    box-shadow: none !important;
   }
 }
 
@@ -81,7 +79,7 @@ html {
 
     &::before,
     &::after {
-      box-shadow: none !important;
+      background: none !important;
     }
   }
 }
@@ -122,11 +120,19 @@ html {
   border-bottom-right-radius: 0px !important;
 
   &::before {
-    box-shadow: 4px 4px 0 4px var(--tab-background-color) !important;
+    background: radial-gradient(
+      circle 12px at 0 0,
+      transparent 11.4px,
+      var(--tab-background-color) 12px
+    ) !important;
   }
 
   &::after {
-    box-shadow: -4px 4px 0 4px var(--tab-background-color) !important;
+    background: radial-gradient(
+      circle 12px at 100% 0,
+      transparent 11.4px,
+      var(--tab-background-color) 12px
+    ) !important;
   }
 }
 
@@ -138,15 +144,5 @@ html {
     )
     .tab-background {
     --tab-background-color: #{get-var("tab-background-color-hover")} !important;
-  }
-
-  // selected tab style
-  .tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {
-    &::before {
-      box-shadow: 4px 4px 0 4px var(--tab-background-color) !important;
-    }
-    &::after {
-      box-shadow: -4px 4px 0 4px var(--tab-background-color) !important;
-    }
   }
 }
