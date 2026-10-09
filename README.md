@@ -155,32 +155,31 @@ To **disable** a preference:
     <th>Preference</th>
     <th>Description</th>
   </tr>
-    <tr>
+  <tr>
     <td><code>userChrome.ui-chrome-refresh</code></td>
-    <td>Enable the new Chrome design named "Chrome Refresh".<img src="docs/assets/preview-chrome-refresh.png" alt="preview-chrome-refresh"></img></td>
+    <td>Enable the new Chrome design named "Chrome Refresh".<img src="docs/assets/preview-chrome-refresh.png" alt="preview-chrome-refresh" /></td>
   </tr>
   <tr>
     <td><code>userChrome.theme-chrome-refresh</code></td>
-    <td>Enable a new color scheme like in "Chrome Refresh".</img></td>
+    <td>Enable a new color scheme like in "Chrome Refresh".</td>
   </tr>
   <tr>
     <td><code>userChrome.theme-material</code></td>
-    <td>Enable Material color schemes. <a href="#material-theme" _blank>Read more</a>.</img></td>
+    <td>Enable Material color schemes. <a href="#material-theme">Read more</a>.</td>
   </tr>
   <tr>
     <td><code>userChrome.theme-default</code></td>
-    <td>Enable the default color scheme. This can be useful if you want to use it with <a href="https://addons.mozilla.org/firefox/addon/adaptive-tab-bar-colour/" _blank>Adaptive Tab Bar Color</a> or native Firefox themes</td>
+    <td>Enable the default color scheme. This can be useful if you want to use it with <a href="https://addons.mozilla.org/firefox/addon/adaptive-tab-bar-colour/">Adaptive Tab Bar Color</a> or native Firefox themes</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-compact-url-bar</code></td>
     <td>Make the URL bar more compact by reducing its height.</td>
   </tr>
-    <tr>
+  <tr>
     <td><code>userChrome.ui-context-menu-icons</code></td>
     <td>Display context menu icons.</td>
   </tr>
-  </tr>
-    <tr>
+  <tr>
     <td><code>userChrome.ui-no-menu-icons</code></td>
     <td>Hide the menu icons</td>
   </tr>
@@ -210,7 +209,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-white-toolbox</code></td>
-    <td>Changes the whole toolbox to be white instead of the default light-grey tint, so the tab strip and the framing around the toolbars match the white URL-bar and bookmarks rows for an all-white top chrome. The tab strip loses its grey, so unselected tabs rely on the active tab and separators for distinction. `false` by default.</td>
+    <td>Changes the whole toolbox to be white instead of the default light-grey tint, so the tab strip and the framing around the toolbars match the white URL-bar and bookmarks rows for an all-white top chrome. The tab strip loses its grey, so unselected tabs rely on the active tab and separators for distinction. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-findbar-top-right</code></td>
@@ -222,23 +221,23 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-no-not-secure-warning</code></td>
-    <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. `false` by default.</td>
+    <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-tab-audio-background</code></td>
-    <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. `false` by default.</td>
+    <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-pinned-tab-mute-click</code></td>
-    <td>Clicking the audio button on a pinned tab selects the tab instead of muting it. Mute from the tab's context menu or with <kbd>Ctrl</kbd>+<kbd>M</kbd> instead. Regular tabs keep their clickable audio button. `false` by default.</td>
+    <td>Clicking the audio button on a pinned tab selects the tab instead of muting it. Mute from the tab's context menu or with <kbd>Ctrl</kbd>+<kbd>M</kbd> instead. Regular tabs keep their clickable audio button. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-tab-title-changed-dot</code></td>
-    <td>Hide the dot under an unselected pinned tab when its title changes, for example when a chat or mail tab gets new messages. The dot shown when a tab is waiting on a dialog is kept. `false` by default.</td>
+    <td>Hide the dot under an unselected pinned tab when its title changes, for example when a chat or mail tab gets new messages. The dot shown when a tab is waiting on a dialog is kept. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
-    <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. `false` by default.</td>
+    <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. <code>false</code> by default.</td>
   </tr>
 </table>
 
@@ -420,22 +419,22 @@ Here are some examples of how you can use the `custom.css` file:
   </tr>
   <tr>
     <td>
-      <h2>System accent colors</h6>
-      Source code: <br><a href="examples/theme-system-accent.css" _blank>theme-system-accent.css</a>
+      <h2>System accent colors</h2>
+      Source code: <br><a href="examples/theme-system-accent.css">theme-system-accent.css</a>
     </td>
     <td><img src="docs/assets/preview-accent-1.png" alt=""/><img src="docs/assets/preview-accent-2.png" alt=""/><img src="docs/assets/preview-accent-3.png" alt=""/></td>
   </tr>
   <tr>
     <td>
-      <h2>Github theme</h6>
-      Source code: <br><a href="examples/theme-github.css" _blank>theme-github.css</a>
+      <h2>Github theme</h2>
+      Source code: <br><a href="examples/theme-github.css">theme-github.css</a>
     </td>
-    <td><img src="docs/assets/preview-github.png" alt="preview-github"></img></td>
+    <td><img src="docs/assets/preview-github.png" alt="preview-github" /></td>
   </tr>
   <tr>
     <td>
-      <h2>Dracula theme</h6>
-      Source code: <br><a href="examples/theme-dracula.css" _blank>theme-dracula.css</a>
+      <h2>Dracula theme</h2>
+      Source code: <br><a href="examples/theme-dracula.css">theme-dracula.css</a>
     </td>
     <td><img src="docs/assets/preview-dracula.png" alt="preview-dracula"/></td>
   </tr>
