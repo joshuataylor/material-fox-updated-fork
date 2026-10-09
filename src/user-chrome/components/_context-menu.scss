@@ -5,14 +5,6 @@ $menu-side-paddings: 4px;
 //   (-moz-platform: linux),
 //   (-moz-platform: macos) {
 @media (-moz-platform: windows), (-moz-platform: linux) {
-  #context-back,
-  #context-forward,
-  #context-reload,
-  #context-stop,
-  #context-bookmarkpage {
-    list-style-image: none !important;
-  }
-
   menupopup,
   panel:not(#autoscroller) {
     // menu container min width
@@ -84,11 +76,6 @@ $menu-side-paddings: 4px;
         height: 100%;
       }
     }
-
-    // hide back/forward/reload/bookmark icons
-    .menu-iconic-icon {
-      visibility: hidden !important;
-    }
   }
 
   // (RTL) string style for back/forward/reload/bookmark menu items
@@ -103,18 +90,6 @@ $menu-side-paddings: 4px;
         }
       }
     }
-  }
-
-  // #context-navigation menu items
-  #context-navigation
-    > .menuitem-iconic
-    > .menu-iconic-left
-    > .menu-iconic-icon {
-    width: 100% !important;
-    height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    // padding-block: 0.4em !important;
   }
 
   // other menu items
@@ -164,26 +139,6 @@ $image-padding-end: 8px;
         padding-inline-start: get-var("menuitem-padding-with-icon") !important;
       }
     }
-
-    menuitem[checked="true"] {
-      padding-inline-start: get-var("menuitem-padding-with-icon") !important;
-    }
-
-    menuitem[type="checkbox"] > .menu-iconic-left {
-      margin-inline-end: 0 !important;
-    }
-
-    menuitem[type="checkbox"]:is([checked="true"]) > .menu-iconic-left {
-      margin-inline-end: $image-padding-end !important;
-    }
-
-    menuitem[checked="true"]
-      > .menu-iconic-left
-      .menu-iconic
-      > .menu-iconic-left,
-    .menuitem-iconic > .menu-iconic-left {
-      margin-inline-end: $image-padding-end !important;
-    }
   }
 
   #tabContextMenu {
@@ -217,11 +172,6 @@ $image-padding-end: 8px;
       }
     }
   }
-
-  // sub menu arrow icon margin
-  .menu-right {
-    margin-inline-end: 12px !important;
-  }
 }
 
 @media (-moz-platform: windows), (-moz-platform: linux) {
@@ -232,13 +182,13 @@ $image-padding-end: 8px;
     margin-inline-end: $menu-side-paddings !important;
     border-radius: 4px !important;
 
-    &[disabled="true"] {
+    &[disabled] {
       background-color: transparent !important;
       color: get-var("text-disabled") !important;
     }
 
     // on hover
-    &:where([_moz-menuactive="true"]):not([disabled="true"]) {
+    &:where([_moz-menuactive]):not([disabled]) {
       color: inherit !important;
     }
   }
@@ -246,12 +196,6 @@ $image-padding-end: 8px;
   // hide "Bookmark Page/Link.."
   #context-bookmarkpage,
   #context-bookmarklink {
-    display: none !important;
-  }
-
-  // hide "Save Page/Link to Pocket"
-  #context-pocket,
-  #context-savelinktopocket {
     display: none !important;
   }
 
@@ -276,10 +220,6 @@ $image-padding-end: 8px;
   $menu-item-height: 27px;
 
   // other menu items
-  #context-navigation
-    > .menuitem-iconic
-    > .menu-iconic-left
-    > .menu-iconic-icon,
   menupopup > menu,
   menupopup > menuitem,
   menupopup > menucaption {
@@ -316,17 +256,17 @@ arrowscrollbox {
       background: transparent !important;
     }
 
-    &[_moz-menuactive]:is([disabled="true"]) {
+    &[_moz-menuactive]:is([disabled]) {
       background: transparent !important;
     }
 
-    &[_moz-menuactive]:not([disabled="true"]) {
+    &[_moz-menuactive]:not([disabled]) {
       background: get-var("menu-background-color-hover") !important;
     }
   }
 
   menuitem {
-    &[_moz-menuactive]:not([disabled="true"]):active {
+    &[_moz-menuactive]:not([disabled]):active {
       background-color: cm(
         transparent,
         get-var("menu-background-color-hover"),
@@ -347,13 +287,13 @@ arrowscrollbox {
   padding-inline-end: 12px !important;
   border-radius: 4px !important;
 
-  &[disabled="true"] {
+  &[disabled] {
     background-color: transparent !important;
     color: get-var("text-disabled") !important;
   }
 
   // on hover
-  &:where([_moz-menuactive="true"]):not([disabled="true"]) {
+  &:where([_moz-menuactive]):not([disabled]) {
     background-color: get-var("menu-border-color") !important;
     color: inherit !important;
   }

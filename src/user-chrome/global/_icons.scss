@@ -10,14 +10,16 @@
 
 .bookmark-item {
   list-style-image: get-var("no-src-icon") !important;
-  // fill: get-var("grey-600") !important;
+  // Bookmark menus draw their icon from --bookmark-item-icon (.menu-icon)
+  --bookmark-item-icon: #{get-var("no-src-icon")} !important;
 }
 
+// Back/forward history menu: Firefox sets each entry's icon inline as
+// --menuitem-icon, so these need !important to replace it.
 .unified-nav-forward,
 .unified-nav-back {
   &:not([_moz-menuactive])[uri*="about:"] {
-    list-style-image: get-var("no-src-icon") !important;
-    // fill: get-var("grey-600") !important;
+    --menuitem-icon: #{get-var("no-src-icon")} !important;
     fill: get-var("icon-color-secondary") !important;
   }
 }
@@ -58,17 +60,16 @@
 // forward icon
 .unified-nav-forward[_moz-menuactive]:-moz-locale-dir(ltr),
 .unified-nav-back[_moz-menuactive]:-moz-locale-dir(rtl) {
-  list-style-image: get-var("arrow-forward-icon") !important;
+  --menuitem-icon: #{get-var("arrow-forward-icon")} !important;
 }
 
 // back icon
 .unified-nav-back[_moz-menuactive]:-moz-locale-dir(ltr),
 .unified-nav-forward[_moz-menuactive]:-moz-locale-dir(rtl) {
-  list-style-image: get-var("arrow-back-icon") !important;
+  --menuitem-icon: #{get-var("arrow-back-icon")} !important;
 }
 
-.toolbarbutton-1#forward-button .toolbarbutton-icon,
-#context-forward .menu-iconic-icon {
+.toolbarbutton-1#forward-button .toolbarbutton-icon {
   transform: scaleX(-1) !important;
 }
 
@@ -266,15 +267,20 @@ treechildren::-moz-tree-image(title, open) {
   list-style-image: get-var("folder-icon") !important;
 }
 
+.bookmark-item[container] {
+  --bookmark-item-icon: #{get-var("folder-icon")} !important;
+}
+
 .downloadIconShow .button-icon,
 .folder-icon {
   list-style-image: get-var("folder-icon") !important;
 }
 
-// checked icon
+// checked icon: Windows draws the check as the .menu-icon content
+// (Linux uses native checkboxes)
 @media (-moz-platform: windows) {
-  menuitem[checked="true"] > .menu-iconic-left {
-    list-style-image: get-var("check-icon") !important;
+  menuitem[checked] > .menu-icon {
+    content: get-var("check-icon") !important;
   }
 }
 
@@ -387,21 +393,16 @@ treechildren::-moz-tree-image(title, open) {
     transform: scaleX(-1);
   }
 
-  .menu-right {
+  menupopup > menu::after {
     transform: scaleX(-1);
   }
 }
 
-// context menu drop down arrow right icon
-.menu-right {
-  list-style-image: get-var("arrow-right-icon") !important;
+// submenu arrow, drawn by Firefox as menupopup > menu::after since Fx139
+menupopup > menu::after {
+  background-image: get-var("arrow-right-icon") !important;
+  -moz-context-properties: fill !important;
   fill: get-var("icon-color-secondary") !important;
-}
-
-@media (-moz-platform: windows) {
-  .menu-right {
-    margin-inline-end: 0px !important;
-  }
 }
 
 // nav bar account avatar icon

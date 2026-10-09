@@ -29,7 +29,7 @@ input[type="radio"]:not(.wallpaper-input),
 }
 
 input[type="radio"]:enabled:hover,
-radio:not([disabled="true"]):hover > .radio-check {
+radio:not([disabled]):hover > .radio-check {
   &:not([selected], :checked) {
     background-color: get-var("background-color-50") !important;
   }
@@ -70,7 +70,7 @@ radio {
   }
 }
 
-radio:not([disabled="true"]) {
+radio:not([disabled]) {
   &:hover::after {
     background-color: get-var("accent-color-transparent");
 
@@ -87,7 +87,7 @@ radio:not([disabled="true"]) {
 }
 
 // hand cursor on hover
-radio:not([disabled="true"]) {
+radio:not([disabled]) {
   cursor: pointer !important;
 
   // also for label, because it doesn't inherit

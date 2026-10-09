@@ -30,28 +30,24 @@
 
 // also for #toolbar-menubar
 menuitem:not([disabled]) {
-  .menu-accel,
-  .menu-iconic-accel {
+  .menu-accel {
     color: get-var("text-secondary") !important;
   }
 
   &:hover {
-    .menu-accel,
-    .menu-iconic-accel {
+    .menu-accel {
       color: inherit !important;
     }
   }
 }
 
 menuitem[disabled] {
-  .menu-accel,
-  .menu-iconic-accel {
+  .menu-accel {
     color: get-var("text-secondary") !important;
   }
 
   &:hover {
-    .menu-accel,
-    .menu-iconic-accel {
+    .menu-accel {
       color: get-var("text-secondary") !important;
     }
   }
@@ -78,17 +74,13 @@ toolbarbutton menupopup[placespopup] menuseparator::before {
   border-color: get-var("menu-border-color") !important;
 }
 
-// popup drop shadow
+// popup drop shadow room (Firefox's name since Bug 2019097; the shadow
+// itself is --panel-box-shadow in _variables-local.scss)
 @media (-moz-platform: windows) {
   menupopup,
   panel:not(#autoscroller) {
-    --panel-shadow-margin: 12px !important;
+    --panel-box-shadow-margin: 12px !important;
   }
-}
-
-menupopup,
-panel:not(#autoscroller) {
-  --panel-shadow: #{get-var("elevation-2")} !important;
 }
 
 dialog,

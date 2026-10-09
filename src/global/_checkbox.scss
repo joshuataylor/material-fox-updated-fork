@@ -18,8 +18,8 @@ input[type="checkbox"],
   }
 }
 
-input[type="checkbox"]:not(:disabled, [disabled="true"]):hover,
-checkbox:not([disabled="true"]):hover > .checkbox-check {
+input[type="checkbox"]:not(:disabled, [disabled]):hover,
+checkbox:not([disabled]):hover > .checkbox-check {
   &:not([checked], :checked) {
     background-color: get-var("background-color-50") !important;
   }
@@ -67,7 +67,7 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   }
 }
 
-:not(.findbar-container) > checkbox:not([disabled="true"]) {
+:not(.findbar-container) > checkbox:not([disabled]) {
   &:hover::after {
     background-color: get-var("accent-color-transparent");
 
@@ -84,7 +84,7 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
 }
 
 // hand cursor on hover
-checkbox:not([disabled="true"]) {
+checkbox:not([disabled]) {
   cursor: pointer !important;
 
   // also for label, because it doesn't inherit
