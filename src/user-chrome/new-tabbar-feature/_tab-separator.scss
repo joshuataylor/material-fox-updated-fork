@@ -1,8 +1,21 @@
-// new tab separator style
+// new tab separator style: 2px, centred on the boundary between two tabs
+// (edelvarden/material-fox-updated#132). overflow: clip with a 1px margin
+// lets it reach 1px past the tab's edge, which overflow: hidden cut off.
 .tab-content {
+  overflow: clip !important;
+  overflow-clip-margin: 1px !important;
+
   &::before,
   &::after {
     width: 2px !important;
     height: 16px !important;
+  }
+
+  &::before {
+    inset-inline-start: -1px !important;
+  }
+
+  &::after {
+    inset-inline-end: -1px !important;
   }
 }

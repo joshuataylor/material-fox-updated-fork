@@ -190,9 +190,11 @@
   }
 }
 
-// increase close button padding when visible
+// increase close button padding when visible; 16px puts the close button's
+// centre as far from the tab's edge as the favicon's
+// (edelvarden/material-fox-updated#132)
 .tab-content {
-  padding-inline-end: 15px !important;
+  padding-inline-end: 16px !important;
 
   #tabbrowser-tabs[closebuttons="activetab"][orient="horizontal"]
     &:not([selected]) {
