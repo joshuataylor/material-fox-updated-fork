@@ -330,6 +330,82 @@ function writePng(base64, outPath) {
     writeFileSync(outPath, Buffer.from(base64, "base64"));
 }
 
+// Cut one element out of a full-display grab: its screen rectangle comes from
+// Firefox (getOuterScreenRect() on popups and panels, which are their own OS
+// windows), and a chrome-privileged canvas does the cropping, so the harness
+// needs no image library. The grab's pixel size over the screen's CSS width
+// gives the scale, which covers HiDPI displays.
+async function cropFromScreen(driver, screenPng, crop, outPath) {
+    const res = await driver.executeAsyncScript(
+        (fileUrl, selector, pad, done) => {
+            /* global document, screen, mozInnerScreenX, mozInnerScreenY, Image */
+            const el = document.querySelector(selector);
+            if (!el) return done({ error: `no element for ${selector}` });
+            let rect;
+            if (typeof el.getOuterScreenRect === "function") {
+                rect = el.getOuterScreenRect();
+            } else {
+                const r = el.getBoundingClientRect();
+                rect = {
+                    x: mozInnerScreenX + r.left,
+                    y: mozInnerScreenY + r.top,
+                    width: r.width,
+                    height: r.height,
+                };
+            }
+            if (!rect.width || !rect.height)
+                return done({ error: `${selector} is not showing` });
+            const img = new Image();
+            img.onload = () => {
+                const scale = img.naturalWidth / screen.width;
+                const x = Math.max(0, (rect.x - screen.left - pad) * scale);
+                const y = Math.max(0, (rect.y - screen.top - pad) * scale);
+                const w = Math.min(
+                    img.naturalWidth - x,
+                    (rect.width + 2 * pad) * scale,
+                );
+                const h = Math.min(
+                    img.naturalHeight - y,
+                    (rect.height + 2 * pad) * scale,
+                );
+                const canvas = document.createElementNS(
+                    "http://www.w3.org/1999/xhtml",
+                    "canvas",
+                );
+                canvas.width = Math.round(w);
+                canvas.height = Math.round(h);
+                canvas
+                    .getContext("2d")
+                    .drawImage(
+                        img,
+                        x,
+                        y,
+                        w,
+                        h,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
+                    );
+                done({ png: canvas.toDataURL("image/png").split(",")[1] });
+            };
+            img.onerror = () => done({ error: `could not load ${fileUrl}` });
+            img.src = fileUrl;
+        },
+        pathToFileURL(screenPng).href,
+        crop.selector,
+        crop.pad ?? 16,
+    );
+    if (res?.error) {
+        console.warn(
+            `  ! crop "${crop.label}" from the screen failed: ${res.error}`,
+        );
+        return false;
+    }
+    writePng(res.png, outPath);
+    return true;
+}
+
 // Grab the whole OS display via the platform's screen-capture tool. Needed for
 // content-anchored popups (#PopupAutoComplete) that render as separate native
 // windows and are therefore invisible to geckodriver's window/element
@@ -488,8 +564,22 @@ async function resetState(driver) {
 // Return the written files as { aspect, file }.
 // WebDriver window and element screenshot APIs:
 // https://www.selenium.dev/documentation/webdriver/interactions/windows/#takescreenshot
-async function captureScreenshot(driver, screenshot, nameFor, settleMs) {
+async function captureScreenshot(
+    driver,
+    screenshot,
+    nameFor,
+    settleMs,
+    headless,
+) {
     const written = [];
+    // A full-display grab of a headless run would capture whatever is on the
+    // desktop instead of Firefox (on a workstation, the user's own screen).
+    if (screenshot.fullScreen && headless) {
+        console.warn(
+            `  ! "${screenshot.name}" needs a real display: run with --headful-only or --no-headless`,
+        );
+        return written;
+    }
     await resetState(driver);
     await setPrefs(driver, screenshot.prefs);
     await navigate(driver, screenshot.url, settleMs);
@@ -508,6 +598,11 @@ async function captureScreenshot(driver, screenshot, nameFor, settleMs) {
         const out = nameFor("fullscreen");
         if (osFullScreenShot(out)) {
             written.push({ aspect: "fullscreen", file: out });
+            for (const crop of screenshot.crops || []) {
+                const cropOut = nameFor(crop.label);
+                if (await cropFromScreen(driver, out, crop, cropOut))
+                    written.push({ aspect: crop.label, file: cropOut });
+            }
         }
         await clearPrefs(driver, screenshot.prefs);
         return written;
@@ -675,6 +770,7 @@ async function main() {
                                     s,
                                     nameFor,
                                     settleMs,
+                                    headless,
                                 );
                                 console.log(`${written.length} file(s)`);
                                 for (const w of written)

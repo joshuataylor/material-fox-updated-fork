@@ -204,9 +204,12 @@ export default {
         },
         {
             // Tab context menu: icons off (default) vs userChrome.ui-context-menu-icons.
-            // Also keep the full window in case the menupopup renders in an OS window (macOS) where the element crop comes back empty.
+            // Menus and panels are their own OS windows, which WebDriver
+            // screenshots never include, so these popup shots grab the display
+            // (`fullScreen`) and cut the popup out of it (the crops).
             name: "context-menu",
             headful: true, // native menu / anchored -- needs a real display
+            fullScreen: true,
             url: "https://example.com/",
             setup:
                 'const m = document.getElementById("tabContextMenu"); ' +
@@ -225,6 +228,7 @@ export default {
             // App ("hamburger") menu: icons shown (default) vs userChrome.ui-no-menu-icons.
             name: "app-menu",
             headful: true, // anchored panel -- needs a real display
+            fullScreen: true,
             url: "https://example.com/",
             setup: "PanelUI.show(); return true;",
             crops: [{ label: "menu", selector: "#appMenu-popup" }],
@@ -256,6 +260,7 @@ export default {
             headful: true,
             isolate: true,
             fullScreen: true,
+            crops: [{ label: "popup", selector: "#PopupAutoComplete" }],
             url: TESTBED_URL,
             contentTrigger: {
                 selector: 'input[list="group-tags"]',
@@ -301,21 +306,22 @@ export default {
             crops: [{ label: "toolbar", selector: "#PersonalToolbar" }],
         },
         {
-            // Downloads panel.
-            // Anchored toolbar-button panels do not reliably paint under headless (they open off-screen / lose focus..),
-            // so this is a full-window screenshot, run with `--no-headless` to actually see the panel.
-            // @todo figure out
+            // Downloads panel (anchored panel: display grab plus a crop, see context-menu).
             name: "downloads-panel",
             headful: true, // anchored panel -- needs a real display
+            fullScreen: true,
             url: "https://example.com/",
             setup: "DownloadsPanel.showPanel(); return true;",
+            crops: [{ label: "panel", selector: "#downloadsPanel" }],
         },
         {
             // Trust / site-information panel from the urlbar (Nova trust panel, 156+;
             // browser.urlbar.trustPanel.featureGate).
-            // Anchored panel. headless issue, run with --no-headless for the open panel.
+            // Anchored panel: display grab plus a crop, see context-menu.
             name: "trust-panel",
             headful: true, // anchored panel -- needs a real display
+            fullScreen: true,
+            crops: [{ label: "panel", selector: "#trustpanel-popup" }],
             url: "https://example.com/",
             setup:
                 'document.getElementById("trust-icon-container")?.click() ?? ' +
@@ -338,9 +344,11 @@ export default {
         },
         {
             // Unified extensions panel (the puzzle-piece button, 111+).
-            // Anchored panel, so full-window only (headless issues). `--no-headless` shows the panel.
+            // Anchored panel: display grab plus a crop, see context-menu.
             name: "unified-extensions",
             headful: true, // anchored panel -- needs a real display
+            fullScreen: true,
+            crops: [{ label: "panel", selector: "#unified-extensions-panel" }],
             url: "https://example.com/",
             setup: "gUnifiedExtensions.togglePanel(); return true;",
         },
@@ -403,10 +411,11 @@ export default {
         },
         {
             // Star -> Edit Bookmark panel (#editBookmarkPanel). Isolated (adds a
-            // bookmark). Anchored panel: full-window only under headless (opens
-            // off-screen); --no-headless shows the panel.
+            // bookmark). Anchored panel: display grab plus a crop, see context-menu.
             name: "edit-bookmark",
             headful: true, // anchored panel -- needs a real display
+            fullScreen: true,
+            crops: [{ label: "panel", selector: "#editBookmarkPanel" }],
             url: "https://example.com/",
             isolate: true,
             setup:
