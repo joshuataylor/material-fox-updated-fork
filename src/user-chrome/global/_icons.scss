@@ -30,7 +30,7 @@
   }
 }
 
-// set no src icon for "List all tabs"
+// set no src icon for tab rows in "Search and manage tabs" ("List all tabs" before 160)
 .all-tabs-button:not([src]) {
   list-style-image: get-var("no-src-icon") !important;
   // fill: get-var("grey-600") !important;

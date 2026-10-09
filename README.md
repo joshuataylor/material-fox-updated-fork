@@ -21,7 +21,7 @@ Only the current Firefox **Release**, **Beta** and **Nightly** are supported. Ni
 > [!TIP]
 > See https://whattrainisitnow.com for the latest Firefox releases.
 
-As of 2026-09-30 (this will get quickly out of date, so check above...)
+As of 2026-10-09 (this will get quickly out of date, so check above...)
 
 <table>
   <tr>
@@ -31,17 +31,17 @@ As of 2026-09-30 (this will get quickly out of date, so check above...)
   </tr>
   <tr>
     <td>Release</td>
-    <td>Firefox 157</td>
-    <td>Supported</td>
-  </tr>
-  <tr>
-    <td>Beta</td>
     <td>Firefox 158</td>
     <td>Supported</td>
   </tr>
   <tr>
-    <td>Nightly</td>
+    <td>Beta</td>
     <td>Firefox 159</td>
+    <td>Supported</td>
+  </tr>
+  <tr>
+    <td>Nightly</td>
+    <td>Firefox 160</td>
     <td>Best effort</td>
   </tr>
 </table>
@@ -92,7 +92,7 @@ Firefox 155 introduced a large visual redesign codenamed Project Nova, behind `b
 
 It was Nightly-only at first, and has been on by default in every channel since Firefox 157 (Bug 2056186), so Release users get it too. You can still turn it off with `browser.nova.enabled` set to `false`; the theme supports both.
 
-Firefox 156 to 159 continue Nova rather than redesign it again. Firefox 157 also rebuilt the address bar (the results list is now its own popover below the input).
+Firefox 156 to 160 continue Nova rather than redesign it again. Firefox 157 also rebuilt the address bar (the results list is now its own popover below the input).
 
 Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and draws borders and rounded corners around the toolbar, sidebar and web content.
 
