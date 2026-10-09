@@ -220,7 +220,15 @@ export default {
                 'for (const type of ["mousedown", "contextmenu", "mouseup"]) ' +
                 "window.synthesizeMouseEvent(type, x, y, { button: 2, buttons: 2, clickCount: 1 }); " +
                 "return true;",
-            crops: [{ label: "menu", selector: "#tabContextMenu" }],
+            // macOS draws context menus natively (and the theme leaves them
+            // alone), so there is no menu to cut out there: the full grab only.
+            crops: [
+                {
+                    label: "menu",
+                    selector: "#tabContextMenu",
+                    skipPlatforms: ["darwin"],
+                },
+            ],
             variants: [
                 {
                     id: "default",

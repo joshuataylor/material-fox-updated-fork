@@ -585,7 +585,20 @@ async function captureScreenshot(
     // A display grab only sees what is on the screen: at the harness's 2x scale
     // the default window is wider than a 1920px display, so popups near its
     // right edge were cut off. Fit the window to the screen first.
+    let restoreScale = null;
     if (screenshot.fullScreen) {
+        // At 2x a 1080p display is only 540 CSS px tall, shorter than the app
+        // menu, and Firefox squeezes a popup to fit the screen. Below 800 CSS
+        // px of height, render this shot at the display's own scale instead.
+        restoreScale = await driver.executeScript(() => {
+            /* global screen */
+            const pref = "layout.css.devPixelsPerPx";
+            if (screen.availHeight >= 800) return null;
+            const previous = Services.prefs.getCharPref(pref, "");
+            Services.prefs.setCharPref(pref, "-1");
+            return previous;
+        });
+        if (restoreScale !== null) await sleep(500);
         await driver.executeScript(() => {
             /* global window, screen */
             window.moveTo(screen.availLeft, screen.availTop);
@@ -620,16 +633,22 @@ async function captureScreenshot(
         if (osFullScreenShot(out)) {
             written.push({ aspect: "fullscreen", file: out });
             for (const crop of screenshot.crops || []) {
+                if (crop.skipPlatforms?.includes(process.platform)) continue;
                 const cropOut = nameFor(crop.label);
                 if (await cropFromScreen(driver, out, crop, cropOut))
                     written.push({ aspect: crop.label, file: cropOut });
             }
         }
         await clearPrefs(driver, screenshot.prefs);
-        await driver.executeScript(() => {
+        await driver.executeScript((previous) => {
             Services.prefs.clearUserPref("ui.popup.disable_autohide");
+            if (previous !== null)
+                Services.prefs.setCharPref(
+                    "layout.css.devPixelsPerPx",
+                    previous,
+                );
             return true;
-        });
+        }, restoreScale);
         return written;
     }
 
@@ -708,6 +727,17 @@ async function main() {
     let screenshots = adhoc ? [buildAdhocScreenshot(args)] : config.screenshots;
     if (only) screenshots = screenshots.filter((s) => only.has(s.name));
     if (headfulOnly) screenshots = screenshots.filter((s) => s.headful);
+    // Display grabs need a real display: leave them out of a headless run
+    // with one note rather than a warning per shot.
+    if (headless) {
+        const grabs = screenshots.filter((s) => s.fullScreen);
+        if (grabs.length) {
+            screenshots = screenshots.filter((s) => !s.fullScreen);
+            console.log(
+                `Skipping ${grabs.length} display-grab shot(s) on a headless run (${grabs.map((s) => s.name).join(", ")}); use --headful-only or --no-headless for them.`,
+            );
+        }
+    }
 
     if (!screenshots.length) {
         console.error("No screenshots selected.");
