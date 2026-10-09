@@ -245,6 +245,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Hide the dot under an unselected pinned tab when its title changes, for example when a chat or mail tab gets new messages. The dot shown when a tab is waiting on a dialog is kept. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-chromium-tab-hover</code></td>
+    <td>Use Chromium's tab hover timing: the hover colour comes in over 100ms and fades back out over 300ms, instead of the theme's quick 83ms both ways. Follows the reduce-motion settings like the theme's other animations. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
     <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. Uses <code>--md-background-color-100</code>, so it follows the dark palette in dark mode. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
   </tr>

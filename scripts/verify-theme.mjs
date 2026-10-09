@@ -556,6 +556,36 @@ function featureProbeScript(url, done) {
         Services.prefs.clearUserPref("userChrome.ui-no-urlbar-history-badge");
         row.remove();
 
+        // Opt-in Chromium tab hover timing on an unselected tab: 300ms out,
+        // 100ms in (edelvarden/material-fox-updated#147).
+        const hoverTab = addTab();
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        const hoverBg = hoverTab.querySelector(".tab-background");
+        const duration = () => getComputedStyle(hoverBg).transitionDuration;
+        await sleep(300);
+        const hoverDefault = duration();
+        Services.prefs.setBoolPref("userChrome.ui-chromium-tab-hover", true);
+        await sleep(400);
+        const hoverRest = duration();
+        const hr = hoverTab.getBoundingClientRect();
+        window.synthesizeMouseEvent(
+            "mousemove",
+            hr.left + hr.width / 2,
+            hr.top + hr.height / 2,
+            {},
+        );
+        await sleep(300);
+        out.tabHover = {
+            hovered: hoverTab.matches(":hover"),
+            default: hoverDefault,
+            rest: hoverRest,
+            hover: duration(),
+        };
+        window.synthesizeMouseEvent("mousemove", 5, window.innerHeight - 5, {});
+        Services.prefs.clearUserPref("userChrome.ui-chromium-tab-hover");
+        gBrowser.removeTab(hoverTab);
+        await sleep(300);
+
         // Menus, opened by a synthesised right-click and measured row by row
         // (edelvarden/material-fox-updated#150, #145, #135). Windows and Linux
         // only: macOS menus are native and the theme leaves them alone.
@@ -944,6 +974,19 @@ function contractsFor(scenarioId, p) {
                 hb.mask === "none" &&
                 hb.badge === "none",
             `${String(hb.maskDefault).slice(0, 28)} -> ${hb.mask}, badge ${hb.badge}`,
+        );
+    }
+
+    if (scenarioId === "themed" || scenarioId === "themed-proton") {
+        // Opt-in Chromium tab hover timing (edelvarden/material-fox-updated#147).
+        const th = (p.features || {}).tabHover || {};
+        add(
+            "tab-hover-chromium-timing",
+            th.hovered &&
+                th.default !== "0.3s" &&
+                th.rest === "0.3s" &&
+                th.hover === "0.1s",
+            `default ${th.default}, pref ${th.rest} -> hover ${th.hover} (hovered ${th.hovered})`,
         );
     }
 

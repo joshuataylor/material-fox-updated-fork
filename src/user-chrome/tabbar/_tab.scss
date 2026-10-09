@@ -161,6 +161,26 @@ html {
   }
 }
 
+// Opt-in Chromium hover timing: the hover colour comes in over 100ms and
+// fades out over 300ms, where the theme's default is a quick 83ms both ways
+// (edelvarden/material-fox-updated#147).
+@include moz-pref-media("userChrome.ui-chromium-tab-hover") {
+  @include motion-allowed {
+    .tabbrowser-tab:not([selected], [multiselected])
+      > .tab-stack
+      > .tab-background {
+      transition-duration: 300ms !important;
+      transition-timing-function: ease-in-out !important;
+    }
+
+    .tabbrowser-tab:hover:not([selected], [multiselected])
+      > .tab-stack
+      > .tab-background {
+      transition-duration: 100ms !important;
+    }
+  }
+}
+
 // Vertical tabs have no toolbar to flow into: round all four corners and
 // drop the corner flares (edelvarden/material-fox-updated#141).
 #tabbrowser-tabs[orient="vertical"] .tab-background {
