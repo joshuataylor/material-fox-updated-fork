@@ -530,6 +530,28 @@ To subsequently start the development mode, just use the following command:
 npm run dev
 ```
 
+### Testing
+
+Firefox only loads user styles at startup, so restart it after a build. With mise you can test in a separate profile instead of your everyday one:
+
+```bash
+mise run build
+mise run firefox -- --channel stable
+```
+
+The launcher downloads the chosen Firefox channel if needed and keeps its profile under `tmp/profiles/`. Use `--channel beta` or `--channel nightly` for the other builds, and `--nova off` to check the theme with Nova disabled.
+
+Other checks:
+
+```bash
+npm run lint
+mise run firefox-download
+mise run verify-theme
+mise run screenshots -- --channels stable --schemes light,dark --only findbar
+```
+
+`verify-theme` checks the rendered browser on each channel, and screenshots go to `tmp/screenshots/`.
+
 ## Credits
 
 - [MaterialFox UPDATED](https://github.com/edelvarden/material-fox-updated) by [edelvarden](https://github.com/edelvarden) (this project - [material-fox-updated-fork](https://github.com/joshuataylor/material-fox-updated-fork), is a continuation of their, and everyone else's, fantastic work). Thank you.
