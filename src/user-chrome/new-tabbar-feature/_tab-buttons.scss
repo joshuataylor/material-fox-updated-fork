@@ -39,20 +39,23 @@
 
 // all tabs button redesign
 #alltabs-button {
-  // 40px - 3px horizontal margin = 37px
+  // As tall as a tab's background and, like it, at the bottom of the strip, so the
+  // 28px circle is centred on the tab without a sub-pixel nudge (fork #12)
   min-width: 34px !important;
   max-width: 34px !important;
-  min-height: 37px !important;
-  max-height: 100% !important;
+  min-height: calc(
+    var(--tab-min-height) - var(--tab-vertical-padding)
+  ) !important;
+  max-height: calc(
+    var(--tab-min-height) - var(--tab-vertical-padding)
+  ) !important;
+  align-self: flex-end !important;
 
   // move to the top left corner
   justify-content: center !important;
   align-content: center !important;
 
   .toolbarbutton-badge-stack {
-    // make the position pixel perfect, this is the top and left margin
-    transform: translate(0px, 1px) !important;
-
     min-width: 28px !important;
     max-width: 28px !important;
     min-height: 28px !important;
@@ -76,13 +79,6 @@
       width: 18px !important;
       height: 18px !important;
     }
-  }
-}
-
-[dir="rtl"] {
-  #alltabs-button .toolbarbutton-badge-stack {
-    // make the position pixel perfect, this is the top and left margin
-    transform: translate(0px, 1px) !important;
   }
 }
 

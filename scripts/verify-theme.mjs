@@ -842,6 +842,84 @@ function featureProbeScript(url, done) {
         Services.prefs.clearUserPref("sidebar.verticalTabs");
         Services.prefs.clearUserPref("sidebar.revamp");
         await sleep(800);
+
+        // Toolbar spacing (fork issue #12), last because it rearranges the
+        // nav bar: the all-tabs circle is centred on the selected tab, the
+        // first and last buttons and the URL bar sit as far from their
+        // neighbours as the buttons sit from the top of the bar, and grouped
+        // buttons (zoom, cut/copy/paste) keep the 4px gap of single ones.
+        const circle = (b) =>
+            (
+                b.querySelector(":scope > .toolbarbutton-badge-stack") ||
+                b.querySelector(":scope > .toolbarbutton-icon")
+            ).getBoundingClientRect();
+        const allTabs = document.querySelector(
+            "#alltabs-button > .toolbarbutton-badge-stack",
+        );
+        const selBg = gBrowser.selectedTab
+            .querySelector(".tab-background")
+            .getBoundingClientRect();
+        const atr = allTabs?.getBoundingClientRect();
+        for (const id of CustomizableUI.getWidgetIdsInArea("nav-bar"))
+            if (id.includes("spring")) CustomizableUI.removeWidgetFromArea(id);
+        CustomizableUI.addWidgetToArea(
+            "zoom-controls",
+            "nav-bar",
+            CustomizableUI.getWidgetIdsInArea("nav-bar").indexOf(
+                "urlbar-container",
+            ) + 1,
+        );
+        CustomizableUI.addWidgetToArea("edit-controls", "nav-bar");
+        await sleep(800);
+        const navR = document.getElementById("nav-bar").getBoundingClientRect();
+        const urlR = document.getElementById("urlbar").getBoundingClientRect();
+        const buttons = [
+            ...document.querySelectorAll(
+                "#nav-bar toolbarbutton.toolbarbutton-1",
+            ),
+        ]
+            .filter((b) => b.getBoundingClientRect().width)
+            .map(circle);
+        const round = (v) => Math.round(v * 10) / 10;
+        const id = (x) => circle(document.getElementById(x));
+        // On Windows without Chrome Refresh the button is drawn like a
+        // caption button, the full height of the strip, so it centres on the
+        // strip rather than on the tab.
+        const stripR = document
+            .getElementById("TabsToolbar")
+            .getBoundingClientRect();
+        const captionStyle = atr && atr.height >= stripR.height - 1;
+        const target = captionStyle ? stripR : selBg;
+        out.toolbarSpacing = {
+            allTabsCaption: captionStyle,
+            allTabsOffset: atr
+                ? round(
+                      atr.top +
+                          atr.height / 2 -
+                          (target.top + target.height / 2),
+                  )
+                : null,
+            top: round(id("back-button").top - navR.top),
+            first: round(buttons[0].left - navR.left),
+            last: round(navR.right - buttons.at(-1).right),
+            beforeUrlbar: round(urlR.left - id("reload-button").right),
+            afterUrlbar: round(id("zoom-out-button").left - urlR.right),
+            between: round(id("forward-button").left - id("back-button").right),
+            afterZoom: round(
+                buttons.find((r) => r.left > id("zoom-in-button").right).left -
+                    id("zoom-in-button").right,
+            ),
+            afterEdit: round(
+                buttons.find((r) => r.left > id("paste-button").right).left -
+                    id("paste-button").right,
+            ),
+        };
+        await PlacesUIUtils.maybeAddImportButton();
+        await sleep(300);
+        const importButton = document.getElementById("import-button");
+        out.toolbarSpacing.importTransition = importButton
+            ? getComputedStyle(importButton).transitionProperty
+            : null;
         done(out);
     })().catch((e) => done({ error: String(e) }));
 }
@@ -1248,6 +1326,39 @@ function contractsFor(scenarioId, p) {
                 vc.iconOffsets?.every((o) => Math.abs(o) <= 1) &&
                 vc.close === "none",
             `expanded ${vc.expanded}, offsets ${vc.iconOffsets}, close ${vc.close}`,
+        );
+    }
+
+    if (["themed", "themed-proton", "chrome-refresh"].includes(scenarioId)) {
+        // Toolbar spacing (fork issue #12).
+        const ts = (p.features || {}).toolbarSpacing || {};
+        add(
+            "alltabs-centred-on-tab",
+            typeof ts.allTabsOffset === "number" &&
+                Math.abs(ts.allTabsOffset) <= 0.25,
+            `${ts.allTabsOffset}${ts.allTabsCaption ? " (caption style, against the strip)" : ""}`,
+        );
+        add(
+            "toolbar-edges-match-top",
+            ts.top > 0 && ts.first === ts.top && ts.last === ts.top,
+            `top ${ts.top}, first ${ts.first}, last ${ts.last}`,
+        );
+        add(
+            "urlbar-gaps-match-top",
+            ts.beforeUrlbar === ts.top && ts.afterUrlbar === ts.top,
+            `top ${ts.top}, before ${ts.beforeUrlbar}, after ${ts.afterUrlbar}`,
+        );
+        add(
+            "button-groups-keep-gap",
+            ts.between > 0 &&
+                ts.afterZoom === ts.between &&
+                ts.afterEdit === ts.between,
+            `between ${ts.between}, after zoom ${ts.afterZoom}, after edit ${ts.afterEdit}`,
+        );
+        add(
+            "import-button-transition",
+            String(ts.importTransition).includes("background-color"),
+            ts.importTransition,
         );
     }
 

@@ -67,7 +67,10 @@ html {
   // #PlacesChevron:not([collapsed]),
   // A plain selector list rather than `:is(...)`, so each rule is keyed on its
   // own id/class instead of being tested against every element.
-  #PlacesToolbarItems > .bookmark-item {
+  // The Import bookmarks button sits in #PersonalToolbar itself, outside
+  // #PlacesToolbarItems, so it had no hover transition (fork #12).
+  #PlacesToolbarItems > .bookmark-item,
+  #import-button {
     @include ripple-effect-for-button();
   }
 

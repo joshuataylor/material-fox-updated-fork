@@ -4,12 +4,37 @@
 // 38px nav bar instead of Firefox's 42px, tightening the band between the tab
 // strip and the URL bar (and the URL bar to bookmarks). Compact mode's 28px
 // bar keeps Firefox's 4px padding, giving the 36px it always had.
+// --urlbar-margin-inline: the URL bar sits as far from the button circles
+// beside it as they sit from the top of the bar (fork #12). Each button adds
+// 2px of its own padding, so 3px gives 5px (2px gives 4px in compact mode);
+// Firefox's 5px gave 7px. Proton also grows the open bar by this much.
 #urlbar-container {
   --urlbar-container-padding-block: 2px !important;
+  --urlbar-margin-inline: 3px !important;
 
   @include moz-pref-media("userChrome.ui-compact-url-bar") {
     --urlbar-container-padding-block: 4px !important;
+    --urlbar-margin-inline: 2px !important;
   }
+}
+
+// The first and last toolbar buttons as far from the window edge as from the
+// top of the bar: (38px - 28px) / 2, or (36px - 28px) / 2 in compact mode.
+// Firefox's 6px (Nova) left them a pixel or two further in (fork #12).
+#nav-bar {
+  --toolbar-padding-inline: 5px !important;
+
+  @include moz-pref-media("userChrome.ui-compact-url-bar") {
+    --toolbar-padding-inline: 4px !important;
+  }
+}
+
+// Grouped buttons (zoom, cut/copy/paste) in a toolbar: the menu panel's
+// `margin-inline-end: var(--space-small)` also matches there, which left 7.5px
+// after the group instead of the 4px between other buttons (fork #12).
+// Firefox's toolbar rule is 2px on both sides.
+toolbar .toolbaritem-combined-buttons {
+  margin-inline-end: 2px !important;
 }
 
 // Just URL bar without top and bottom paddings
