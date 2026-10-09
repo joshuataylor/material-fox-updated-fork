@@ -150,6 +150,17 @@ html {
   }
 }
 
+// Vertical tabs have no toolbar to flow into: round all four corners and
+// drop the corner flares (edelvarden/material-fox-updated#141).
+#tabbrowser-tabs[orient="vertical"] .tab-background {
+  border-radius: 8px !important;
+
+  &::before,
+  &::after {
+    display: none !important;
+  }
+}
+
 @include moz-pref-media("not userChrome.theme-default") {
   html {
     --tab-background-color: #{get-var("background-color-100")} !important;

@@ -530,6 +530,23 @@ function featureProbeScript(url, done) {
         };
         gBrowser.selectedTab = gBrowser.tabs[0];
         gBrowser.removeTab(other);
+
+        // Vertical tabs: no corner flares, all corners rounded
+        // (edelvarden/material-fox-updated#141).
+        Services.prefs.setBoolPref("sidebar.revamp", true);
+        Services.prefs.setBoolPref("sidebar.verticalTabs", true);
+        await sleep(1000);
+        const vbg = gBrowser.selectedTab.querySelector(".tab-background");
+        out.verticalTab = {
+            orient: document
+                .getElementById("tabbrowser-tabs")
+                .getAttribute("orient"),
+            flare: getComputedStyle(vbg, "::before").display,
+            bottomRadius: getComputedStyle(vbg).borderBottomLeftRadius,
+        };
+        Services.prefs.clearUserPref("sidebar.verticalTabs");
+        Services.prefs.clearUserPref("sidebar.revamp");
+        await sleep(800);
         done(out);
     })().catch((e) => done({ error: String(e) }));
 }
@@ -782,6 +799,18 @@ function contractsFor(scenarioId, p) {
             "panel:menu-padding-pair",
             !pad.menuThemed || pad.menu === "8px 0",
             pad.menu,
+        );
+    }
+
+    if (["themed", "themed-proton", "chrome-refresh"].includes(scenarioId)) {
+        // Vertical tabs drop the corner flares (upstream #141).
+        const vt = (p.features || {}).verticalTab || {};
+        add(
+            "vertical-tab-no-flares",
+            vt.orient === "vertical" &&
+                vt.flare === "none" &&
+                vt.bottomRadius !== "0px",
+            `${vt.orient} flare ${vt.flare} radius ${vt.bottomRadius}`,
         );
     }
 
