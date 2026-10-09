@@ -26,19 +26,19 @@ $menu-side-paddings: 4px;
     --panel-padding: var(--panel-padding-block) 0 !important;
   }
 
-  // menu items border radius
-  menu,
-  menuitem,
-  menucaption {
-    border-radius: 0 !important;
+  // Item spacing through Firefox's own variables (Bug 2069604) rather than
+  // per-item padding, so the icon gutter Firefox adds to a popup with a
+  // checked item (menupopup[needsgutter]) moves every row's text by the same
+  // amount (edelvarden/material-fox-updated#135, #145).
+  menupopup {
+    --menuitem-margin: 0 #{$menu-side-paddings} !important;
+    --menuitem-border-radius: 4px !important;
   }
 
   // context menu background-color & drop shadow
   .menupopup-arrowscrollbox {
     background-color: var(--arrowpanel-background) !important;
     border: none !important;
-    // border: 1px solid !important;
-    // border-color: get-var("menu-border-color") !important;
     box-shadow: get-var("elevation-2") !important;
   }
 
@@ -53,135 +53,61 @@ $menu-side-paddings: 4px;
     padding-inline: 0 !important;
   }
 
-  // string style for back/forward/reload/bookmark menu items
+  // Back / forward / reload as a labelled list, Chrome-style: Firefox lays
+  // them out as a centred row of icons, so undo that, keep the icon in the
+  // gutter and add the label from aria-label after it
+  // (edelvarden/material-fox-updated#150).
   #context-navigation:not([hidden]) {
     min-width: $menu-min-width !important;
-    background-color: inherit;
-    // padding-bottom: 0.4em !important;
-    display: flex !important;
     flex-direction: column !important;
 
-    .menuitem-iconic {
-      position: relative !important;
+    > .menuitem-iconic {
+      flex: none !important;
+      justify-content: flex-start !important;
+      padding: var(--menuitem-padding-block) var(--menuitem-padding-inline) !important;
+      margin: var(--menuitem-margin) !important;
+
+      > .menu-icon {
+        width: var(--icon-size) !important;
+        height: var(--icon-size) !important;
+        padding: 0 !important;
+        margin-block: var(--menuitem-icon-margin-block) !important;
+        margin-inline: 0 var(--space-small) !important;
+      }
 
       &::after {
-        display: grid;
-        place-items: start;
-        align-items: center;
         content: attr(aria-label);
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
       }
     }
-  }
 
-  // (RTL) string style for back/forward/reload/bookmark menu items
-  [dir="rtl"] {
-    #context-navigation:not([hidden]) {
-      .menuitem-iconic {
-        &::after {
-          place-items: end;
-          align-items: center !important;
-          left: unset;
-          right: calc(-1 * get-var("menuitem-padding-without-icon")) !important;
-        }
+    // Firefox mirrors the whole item in RTL, which would mirror the label
+    // too; mirror only the icon.
+    > :is(#context-back, #context-forward, #context-reload):-moz-locale-dir(
+        rtl
+      ) {
+      transform: none !important;
+
+      > .menu-icon {
+        transform: scaleX(-1) !important;
       }
     }
-  }
-
-  // other menu items
-  #context-navigation > menuitem,
-  menupopup > menu,
-  menupopup > menuitem,
-  menupopup > menucaption {
-    $menu-item-height: 24px;
-    min-height: $menu-item-height !important;
-    max-height: $menu-item-height !important;
   }
 }
-
-// left margin for menu item without icon
-$default-padding: 1em;
-$image-width: 16px;
-$image-padding-end: 8px;
 
 @media (-moz-platform: windows) {
   menupopup {
     @media (-moz-windows-mica-popups) {
       appearance: none !important;
     }
-  }
 
-  :root {
-    --#{$prefix}-menuitem-padding-with-icon: #{$default-padding};
-    --#{$prefix}-menuitem-padding-without-icon: calc(
-      #{$default-padding} + #{$image-width} + #{$image-padding-end}
-    );
-  }
-
-  #contentAreaContextMenu {
-    // :is(menuitem, menu):not([type="checkbox"]) {
-    //   padding-inline-start: get-var("menuitem-padding-without-icon") !important;
-    // }
-
-    menuitem,
-    menu {
-      &:not([image], .menu-iconic, .menuitem-iconic, [type="checkbox"]) {
-        padding-inline-start: get-var(
-          "menuitem-padding-without-icon"
-        ) !important;
-      }
-
-      &:is([image], .menu-iconic, .menuitem-iconic) {
-        padding-inline-start: get-var("menuitem-padding-with-icon") !important;
-      }
-    }
-  }
-
-  #tabContextMenu {
-    menuitem:not([image], .menu-iconic, .menuitem-iconic),
-    menu:not([image], .menu-iconic, .menuitem-iconic) {
-      padding-inline-start: get-var("menuitem-padding-without-icon") !important;
-    }
-  }
-
-  // string style for back/forward/reload/bookmark menu items
-  #context-navigation:not([hidden]) {
-    .menuitem-iconic {
-      position: relative !important;
-
-      &::after {
-        padding-inline-start: get-var(
-          "menuitem-padding-without-icon"
-        ) !important;
-      }
-    }
-  }
-
-  [dir="rtl"] {
-    // string style for back/forward/reload/bookmark menu items
-    #context-navigation:not([hidden]) {
-      .menuitem-iconic {
-        &::after {
-          padding-inline-start: unset !important;
-          padding-inline-end: get-var("menuitem-padding-with-icon") !important;
-        }
-      }
-    }
+    // 24px rows; Firefox's default 0.5em block padding makes them 30px
+    --menuitem-padding-block: 3px !important;
   }
 }
 
 @media (-moz-platform: windows), (-moz-platform: linux) {
-  // menu item hover bg color
   menu,
   menuitem {
-    margin-inline-start: $menu-side-paddings !important;
-    margin-inline-end: $menu-side-paddings !important;
-    border-radius: 4px !important;
-
     &[disabled] {
       background-color: transparent !important;
       color: get-var("text-disabled") !important;
@@ -212,32 +138,6 @@ $image-padding-end: 8px;
   // hide "Email Video…"
   #context-sendvideo {
     display: none !important;
-  }
-}
-
-// fixes for linux
-@media (-moz-platform: linux) {
-  $menu-item-height: 27px;
-
-  // other menu items
-  menupopup > menu,
-  menupopup > menuitem,
-  menupopup > menucaption {
-    min-height: $menu-item-height !important;
-    max-height: $menu-item-height !important;
-    // padding: 4px 6px !important;
-  }
-
-  #context-navigation > :is(menu, menuitem, menucaption) {
-    min-height: $menu-item-height !important;
-    max-height: $menu-item-height !important;
-  }
-
-  // back/forward/reload buttons left margin
-  .menuitem-iconic {
-    &::after {
-      padding: 0 0 0 27px !important;
-    }
   }
 }
 

@@ -1,42 +1,18 @@
-// Menu item icon painted as a background from --menuitem-image.
-@mixin context-menu-background-icon($mirror-rtl: true) {
-  -moz-context-properties: fill, fill-opacity, stroke !important;
-  fill: currentColor !important;
-  stroke: currentColor;
-  background-size: 16px !important;
-  background-repeat: no-repeat !important;
-  background-image: var(--menuitem-image) !important;
-
-  background-position: left center !important;
-  background-position-x: 12px !important;
-
-  @media (-moz-platform: linux) {
-    background-position-x: 6px !important;
-  }
-
-  @if $mirror-rtl {
-    &:-moz-locale-dir(rtl) {
-      background-position-x: calc(100% - 12px) !important;
-
-      @media (-moz-platform: linux) {
-        background-position-x: calc(100% - 6px) !important;
-      }
-    }
-  }
-}
-
 @include moz-pref-media("userChrome.ui-context-menu-icons") {
   #context-back {
-    --menuitem-image: #{get-var("arrow-back-icon")};
+    --menuitem-icon: #{get-var("arrow-back-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-forward {
-    --menuitem-image: #{get-var("arrow-forward-icon")};
+    --menuitem-icon: #{get-var("arrow-forward-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-reload,
   #context_reloadTab {
-    --menuitem-image: #{get-var("refresh-icon")};
+    --menuitem-icon: #{get-var("refresh-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-reload {
@@ -45,121 +21,147 @@
   }
 
   #context-stop {
-    --menuitem-image: #{get-var("close-icon")};
+    --menuitem-icon: #{get-var("close-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_openANewTab {
-    --menuitem-image: #{get-var("new-tab-icon")};
+    --menuitem-icon: #{get-var("new-tab-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // open link in new tab
   #context-openlinkintab {
-    --menuitem-image: #{get-var("open-in-icon")};
+    --menuitem-icon: #{get-var("open-in-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_bookmarkTab {
-    --menuitem-image: #{get-var("star-icon")};
+    --menuitem-icon: #{get-var("star-icon")} !important;
+    --md-menu-icon-visibility: visible;
     -moz-context-properties: fill, fill-opacity !important;
     fill-opacity: 0 !important;
   }
 
   #context-savepage {
-    --menuitem-image: #{get-var("file-save-icon")};
+    --menuitem-icon: #{get-var("file-save-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_selectAllTabs,
   [data-l10n-id="text-action-select-all"],
   #context-selectall {
-    --menuitem-image: #{get-var("select-all-icon")};
+    --menuitem-icon: #{get-var("select-all-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-video-saveimage,
   #context-take-screenshot {
-    --menuitem-image: #{get-var("screenshot-icon")};
+    --menuitem-icon: #{get-var("screenshot-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-viewsource {
-    --menuitem-image: #{get-var("code-icon")};
+    --menuitem-icon: #{get-var("code-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-inspect {
-    --menuitem-image: #{get-var("toolbar-icon")};
+    --menuitem-icon: #{get-var("toolbar-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_closeTab,
   #context_closeTabOptions {
-    --menuitem-image: #{get-var("close-icon")};
+    --menuitem-icon: #{get-var("close-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // close duplicate tabs
   #context_closeDuplicateTabs {
-    --menuitem-image: #{get-var("tab-close-icon")};
+    --menuitem-icon: #{get-var("tab-close-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_undoCloseTab {
-    --menuitem-image: #{get-var("reply-icon")};
+    --menuitem-icon: #{get-var("reply-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-openlinkinusercontext-menu,
   [id="placesContext_open:newcontainertab"],
   #context_reopenInContainer {
-    --menuitem-image: #{get-var("multiaccountcontainer-icon")};
+    --menuitem-icon: #{get-var("multiaccountcontainer-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   [id="placesContext_open:newtab"] {
-    --menuitem-image: #{get-var("new-tab-icon")};
+    --menuitem-icon: #{get-var("new-tab-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-openlink,
   [id="placesContext_open:newwindow"] {
-    --menuitem-image: #{get-var("new-window-icon")};
+    --menuitem-icon: #{get-var("new-window-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context-openlinkprivate,
   [id="placesContext_open:newprivatewindow"] {
-    --menuitem-image: #{get-var("incognito-icon")};
+    --menuitem-icon: #{get-var("incognito-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_toggleMuteTab:not([muted="true"]) {
-    --menuitem-image: #{get-var("audio-muted-icon")};
+    --menuitem-icon: #{get-var("audio-muted-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_toggleMuteTab[muted="true"] {
-    --menuitem-image: #{get-var("audio-icon")};
+    --menuitem-icon: #{get-var("audio-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_pinTab {
-    --menuitem-image: #{get-var("pin-icon")};
+    --menuitem-icon: #{get-var("pin-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_unpinTab {
-    --menuitem-image: #{get-var("unpin-icon")};
+    --menuitem-icon: #{get-var("unpin-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // move tab
   #context_moveTabOptions {
-    --menuitem-image: #{get-var("swap-icon")};
+    --menuitem-icon: #{get-var("swap-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_openTabInWindow {
-    --menuitem-image: #{get-var("new-window-icon")};
+    --menuitem-icon: #{get-var("new-window-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_moveToStart {
-    --menuitem-image: #{get-var("arrow-back-icon")};
+    --menuitem-icon: #{get-var("arrow-back-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #context_moveToEnd {
-    --menuitem-image: #{get-var("arrow-forward-icon")};
+    --menuitem-icon: #{get-var("arrow-forward-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   [dir="rtl"] {
     #context_moveToStart {
-      --menuitem-image: #{get-var("arrow-forward-icon")};
+      --menuitem-icon: #{get-var("arrow-forward-icon")} !important;
+      --md-menu-icon-visibility: visible;
     }
 
     #context_moveToEnd {
-      --menuitem-image: #{get-var("arrow-back-icon")};
+      --menuitem-icon: #{get-var("arrow-back-icon")} !important;
+      --md-menu-icon-visibility: visible;
     }
   }
 
@@ -167,63 +169,74 @@
   // Text context menu
   [data-l10n-id="text-action-undo"],
   #context-undo {
-    --menuitem-image: #{get-var("undo-icon")};
+    --menuitem-icon: #{get-var("undo-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   [data-l10n-id="text-action-redo"],
   #context-redo {
-    --menuitem-image: #{get-var("redo-icon")};
+    --menuitem-icon: #{get-var("redo-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #placesContext_cut,
   [data-l10n-id="text-action-cut"],
   #context-cut {
-    --menuitem-image: #{get-var("cut-icon")};
+    --menuitem-icon: #{get-var("cut-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #placesContext_copy,
   [data-l10n-id="text-action-copy"],
   #context-copy {
-    --menuitem-image: #{get-var("copy-icon")};
+    --menuitem-icon: #{get-var("copy-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #placesContext_paste_group,
   [data-l10n-id="text-action-paste"],
   #context-paste {
-    --menuitem-image: #{get-var("paste-icon")};
+    --menuitem-icon: #{get-var("paste-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   #placesContext_deleteFolder,
   #placesContext_deleteBookmark,
   [data-l10n-id="text-action-delete"],
   #context-delete {
-    --menuitem-image: #{get-var("trash-icon")};
+    --menuitem-icon: #{get-var("trash-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // Edit bookmark
   [id="placesContext_show_folder:info"],
   [id="placesContext_show_bookmark:info"] {
-    --menuitem-image: #{get-var("edit-icon")};
+    --menuitem-icon: #{get-var("edit-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // copy link
   #context-copylink {
-    --menuitem-image: #{get-var("link-icon")};
+    --menuitem-icon: #{get-var("link-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // copy link without site tracking
   #context-stripOnShareLink {
-    --menuitem-image: #{get-var("link-off-icon")};
+    --menuitem-icon: #{get-var("link-off-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // save link
   #context-savelink {
-    --menuitem-image: #{get-var("file-save-icon")};
+    --menuitem-icon: #{get-var("file-save-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // share tab
   [data-l10n-id="tab-context-share-url"] {
-    --menuitem-image: #{get-var("share-icon")};
+    --menuitem-icon: #{get-var("share-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // --------------------------
@@ -231,49 +244,58 @@
 
   // Open Image in New Tab
   #context-viewimage {
-    --menuitem-image: #{get-var("open-in-icon")};
+    --menuitem-icon: #{get-var("open-in-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // Copy Image
   #context-copyimage-contents {
-    --menuitem-image: #{get-var("copy-icon")};
+    --menuitem-icon: #{get-var("copy-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // Copy Image Link
   #context-copyimage {
-    --menuitem-image: #{get-var("link-icon")};
+    --menuitem-icon: #{get-var("link-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // View Image Info
   #context-viewimageinfo {
-    --menuitem-image: #{get-var("help-icon")};
+    --menuitem-icon: #{get-var("help-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // close tabs left
   #context_closeTabsToTheStart {
-    --menuitem-image: #{get-var("arrow-back-icon")};
+    --menuitem-icon: #{get-var("arrow-back-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // close tabs right
   #context_closeTabsToTheEnd {
-    --menuitem-image: #{get-var("arrow-forward-icon")};
+    --menuitem-icon: #{get-var("arrow-forward-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   [dir="rtl"] {
     // close tabs left
     #context_closeTabsToTheStart {
-      --menuitem-image: #{get-var("arrow-forward-icon")};
+      --menuitem-icon: #{get-var("arrow-forward-icon")} !important;
+      --md-menu-icon-visibility: visible;
     }
 
     // close tabs right
     #context_closeTabsToTheEnd {
-      --menuitem-image: #{get-var("arrow-back-icon")};
+      --menuitem-icon: #{get-var("arrow-back-icon")} !important;
+      --md-menu-icon-visibility: visible;
     }
   }
 
   // duplicate tab
   #context_duplicateTab {
-    --menuitem-image: #{get-var("tab-duplicate-icon")};
+    --menuitem-icon: #{get-var("tab-duplicate-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // --------------------------
@@ -281,54 +303,55 @@
 
   // Play
   // #context-media-play {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // // Mute
   // #context-media-mute {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // // Speed
   // #context-media-playbackrate {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // // Loop
   // #context-media-loop {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // // Full Screen
   // #context-video-fullscreen {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // // Hide Controls
   // #context-media-hidecontrols {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // // Watch in Picture-in-Picture
   // #context-video-pictureinpicture {
-  //   --menuitem-image: #{get-var("help-icon")};
+  //   --menuitem-icon: #{get-var("help-icon")} !important;
   // }
 
   // Save Video As…
   #context-savevideo,
   #context-saveimage {
-    --menuitem-image: #{get-var("file-save-icon")};
+    --menuitem-icon: #{get-var("file-save-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
   // Copy Video Link
   #context-copyvideourl {
-    --menuitem-image: #{get-var("copy-icon")};
+    --menuitem-icon: #{get-var("copy-icon")} !important;
+    --md-menu-icon-visibility: visible;
   }
 
-  // Allowing set icons as background
-  // Tag-keyed selectors (menuitem / menu) rather than `:is(menuitem, menu)`, and
-  // :-moz-locale-dir(rtl) rather than a [dir="rtl"] ancestor, so each menu item
-  // is matched without an extra walk to the root.
+  // Show each themed icon in Firefox's own icon column (.menu-icon), and
+  // give every row that column so labels line up. Checkbox and radio rows
+  // keep Firefox's check mark there (edelvarden/material-fox-updated#150).
   .textbox-contextmenu,
   #contentAreaContextMenu,
   #toolbar-context-menu,
@@ -336,25 +359,32 @@
   #tabContextMenu {
     menuitem,
     menu {
+      > .menu-icon {
+        display: revert !important;
+      }
+
+      // Rows with a themed icon set --md-menu-icon-visibility; the rest keep
+      // an empty column. Firefox's own iconic items (extensions, the nav
+      // row) already draw --menuitem-icon.
       &:not(
-        [image],
-        .menu-iconic,
-        .menuitem-iconic,
-        [type="radio"],
-        [type="checkbox"],
-        [checked]
-      ) {
-        @include context-menu-background-icon;
+          [type="radio"],
+          [type="checkbox"],
+          [checked],
+          [image],
+          .menuitem-iconic,
+          .menu-iconic
+        )
+        > .menu-icon {
+        visibility: var(--md-menu-icon-visibility, hidden) !important;
+        content: var(--menuitem-icon) !important;
       }
     }
 
-    #context-back,
-    #context-forward,
-    #context-reload,
-    #context-stop,
-    #context-bookmarkpage {
-      // not mirrored: these were never flipped for RTL
-      @include context-menu-background-icon($mirror-rtl: false);
+    // The nav row items are Firefox iconic items, drawn by Firefox's own
+    // content rule; a relative icon url() substituted there resolves against
+    // Firefox's stylesheet, so repeat the rule from this one.
+    #context-navigation > .menuitem-iconic > .menu-icon {
+      content: var(--menuitem-icon) !important;
     }
   }
 }
