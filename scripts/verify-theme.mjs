@@ -178,6 +178,31 @@ const opaqueWhite = (c) => opaque(c) && nearWhite(c);
 
 // Runs in the chrome window (selenium serialises the source), so Services and document are the chrome globals.
 // Returns only serialisable data.
+// Whether the profile's userChrome.css is applied to the browser window. Now and
+// then a launch comes up with no theme at all, and without this every contract in
+// the scenario fails on Firefox's defaults. The chrome dir listing is for the log.
+function themeSheetScript() {
+    const dir = Services.dirsvc.get("UChrm", Ci.nsIFile);
+    const files = [];
+    try {
+        const entries = dir.directoryEntries;
+        while (entries.hasMoreElements()) files.push(entries.nextFile.leafName);
+    } catch (e) {
+        files.push(`(unreadable: ${e})`);
+    }
+    return {
+        loaded: InspectorUtils.getAllStyleSheets(document, false).some((s) =>
+            /\/chrome\/userChrome\.css$/i.test(s.href || ""),
+        ),
+        chromeDir: dir.path,
+        files: files.join(", "),
+        stylesheetsPref: Services.prefs.getBoolPref(
+            "toolkit.legacyUserProfileCustomizations.stylesheets",
+            false,
+        ),
+    };
+}
+
 function probeScript() {
     const root = getComputedStyle(document.documentElement);
     const v = (n) => root.getPropertyValue(n).trim();
@@ -933,7 +958,15 @@ function featureProbeScript(url, done) {
     })().catch((e) => done({ error: String(e) }));
 }
 
-async function probe({ binary, nova, profileDir, headless, lwt, features }) {
+async function probe({
+    binary,
+    nova,
+    profileDir,
+    headless,
+    lwt,
+    features,
+    themed,
+}) {
     const options = new firefox.Options();
     options.addArguments("-no-remote", "-new-instance");
     if (headless) options.addArguments("-headless");
@@ -988,6 +1021,10 @@ async function probe({ binary, nova, profileDir, headless, lwt, features }) {
             if (res !== "ok") console.error(`  lwt ${lwt}: ${res}`);
         }
         await new Promise((r) => setTimeout(r, 600)); // let chrome settle
+        if (themed) {
+            const sheet = await driver.executeScript(themeSheetScript);
+            if (!sheet.loaded) return { themeMissing: sheet };
+        }
         const p = await driver.executeScript(probeScript);
         if (features) {
             await driver.manage().setTimeouts({ script: 60000 });
@@ -1508,36 +1545,76 @@ async function main() {
         }
         for (const scenario of scenarios) {
             const nova = scenario.nova ?? NOVA_DEFAULT[channel];
+            const themed = scenario.themed !== false;
+            // A launch that comes up without the theme is retried once with a
+            // fresh profile, so it reports as a launch problem rather than as
+            // every contract in the scenario failing.
             let p;
-            const profileDir = makeThemedProfile({
-                themed: scenario.themed,
-                prefs: scenario.prefs,
-                label: "verify",
-            });
-            try {
-                console.error(
-                    `\n[${channel}/${scenario.id}] launching (nova=${nova})...`,
-                );
-                p = await probe({
-                    binary,
-                    nova,
-                    profileDir,
-                    headless,
-                    lwt: scenario.lwt,
-                    features: FEATURE_SCENARIOS.has(scenario.id),
+            let launchError;
+            const missing = [];
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                const profileDir = makeThemedProfile({
+                    themed,
+                    prefs: scenario.prefs,
+                    label: "verify",
                 });
-            } catch (err) {
+                try {
+                    console.error(
+                        `\n[${channel}/${scenario.id}] launching (nova=${nova})${attempt > 1 ? `, attempt ${attempt}` : ""}...`,
+                    );
+                    p = await probe({
+                        binary,
+                        nova,
+                        profileDir,
+                        headless,
+                        lwt: scenario.lwt,
+                        features: FEATURE_SCENARIOS.has(scenario.id),
+                        themed,
+                    });
+                } catch (err) {
+                    launchError = err;
+                    break;
+                } finally {
+                    rmSync(profileDir, {
+                        recursive: true,
+                        force: true,
+                        maxRetries: 5,
+                    });
+                }
+                if (!p.themeMissing) break;
+                missing.push(p.themeMissing);
+                console.error(
+                    `  userChrome.css not applied: ${JSON.stringify(p.themeMissing)}`,
+                );
+            }
+            if (launchError) {
                 rows.push({
                     channel,
                     scenario: scenario.id,
                     name: "launch",
                     pass: false,
-                    got: err.message,
+                    got: launchError.message,
                 });
                 failed++;
                 continue;
-            } finally {
-                rmSync(profileDir, { recursive: true, force: true });
+            }
+            if (themed) {
+                const loaded = !p.themeMissing;
+                rows.push({
+                    channel,
+                    scenario: scenario.id,
+                    name: "theme-loaded",
+                    pass: loaded,
+                    got: `not applied in ${missing.length} launch(es), chrome dir: ${missing.at(-1)?.files || "(empty)"}`,
+                });
+                if (missing.length && loaded)
+                    console.error(
+                        `  [${channel}/${scenario.id}] theme applied on retry`,
+                    );
+                if (!loaded) {
+                    failed++;
+                    continue;
+                }
             }
             for (const ct of contractsFor(scenario.id, p)) {
                 rows.push({ channel, scenario: scenario.id, ...ct });
