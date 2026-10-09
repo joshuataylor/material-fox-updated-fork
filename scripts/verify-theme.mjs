@@ -816,6 +816,15 @@ function featureProbeScript(url, done) {
                 ].map((e) => Math.round(e.getBoundingClientRect().left)),
             ),
         ];
+        // The New Tab label at the tab titles' size.
+        out.verticalTab.fontSizes = [
+            getComputedStyle(unpinned[0].querySelector(".tab-label")).fontSize,
+            getComputedStyle(
+                document.querySelector(
+                    "#tabs-newtab-button > .toolbarbutton-text",
+                ),
+            ).fontSize,
+        ];
         out.verticalTab.separator = getComputedStyle(
             v2.querySelector(".tab-content"),
             "::before",
@@ -1311,8 +1320,10 @@ function contractsFor(scenarioId, p) {
         // The rest of the vertical strip (upstream #134).
         add(
             "vertical-tab-rows-aligned",
-            vt.labelX?.length === 1 && vt.separator === "none",
-            `label x ${vt.labelX}, separator ${vt.separator}`,
+            vt.labelX?.length === 1 &&
+                vt.separator === "none" &&
+                vt.fontSizes?.[0] === vt.fontSizes?.[1],
+            `label x ${vt.labelX}, separator ${vt.separator}, title / New Tab ${vt.fontSizes}`,
         );
         add(
             "vertical-pinned-fills-cell",

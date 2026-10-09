@@ -252,9 +252,16 @@ html {
       padding: 0 !important;
     }
 
+    // The tab titles' size (12px, 13px on macOS) rather than the system
+    // font size, which is larger on Linux.
     > .toolbarbutton-text {
       display: flex !important;
       padding-inline-start: 8px !important;
+      font-size: 12px !important;
+
+      @media (-moz-platform: macos) {
+        font-size: 13px !important;
+      }
     }
   }
 }
