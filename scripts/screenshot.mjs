@@ -582,9 +582,8 @@ async function captureScreenshot(
     }
     await resetState(driver);
     await setPrefs(driver, screenshot.prefs);
-    // A display grab only sees what is on the screen: at the harness's 2x scale
-    // the default window is wider than a 1920px display, so popups near its
-    // right edge were cut off. Fit the window to the screen first.
+    // A display grab only sees what is on the screen, so fill it with the
+    // window first (popups near the edge of a too-big window were cut off).
     let restoreScale = null;
     if (screenshot.fullScreen) {
         // At 2x a 1080p display is only 540 CSS px tall, shorter than the app
@@ -601,11 +600,18 @@ async function captureScreenshot(
         if (restoreScale !== null) await sleep(500);
         await driver.executeScript(() => {
             /* global window, screen */
-            window.moveTo(screen.availLeft, screen.availTop);
+            // Fill the screen's available area (below the macOS menu bar, above
+            // the Windows taskbar), like macOS's Window > Fill. Not maximise:
+            // that changes the window's sizemode, which the theme styles
+            // differently (the tab strip's top margin). macOS reports a window
+            // within about 4px of the visible frame as zoomed, so leave an 8px
+            // margin, the same as Fill with "Tiled windows have margins".
+            const inset = 8;
             window.resizeTo(
-                Math.min(window.outerWidth, screen.availWidth),
-                Math.min(window.outerHeight, screen.availHeight),
+                screen.availWidth - 2 * inset,
+                screen.availHeight - 2 * inset,
             );
+            window.moveTo(screen.availLeft + inset, screen.availTop + inset);
             window.focus();
             // Keep popups open when focus moves: with no window manager
             // (Xvfb) focusing a field inside a panel moves X focus to the
@@ -615,6 +621,13 @@ async function captureScreenshot(
             return true;
         });
         await sleep(300);
+        const sizemode = await driver.executeScript(() =>
+            document.documentElement.getAttribute("sizemode"),
+        );
+        if (sizemode !== "normal")
+            console.warn(
+                `  ! window is ${sizemode} after the fill, not normal: the tab strip will not match a normal window`,
+            );
     }
     await navigate(driver, screenshot.url, settleMs);
     await runSetup(driver, screenshot.setup, settleMs);
