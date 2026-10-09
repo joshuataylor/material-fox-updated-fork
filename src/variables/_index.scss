@@ -24,13 +24,12 @@
     --#{$prefix}-#{$key}: #{$value};
   }
 
-  // when not chrome-refresh or when old-icons enabled
-  @include moz-pref-media("not userChrome.ui-chrome-refresh") {
-    @include moz-pref-media("userChrome.ui-force-old-icons") {
-      // old icons
-      @each $key, $value in $icons-old {
-        --#{$prefix}-#{$key}: #{$value};
-      }
+  // old icons when userChrome.ui-force-old-icons is on, with or without
+  // ui-chrome-refresh (edelvarden/material-fox-updated#144)
+  @include moz-pref-media("userChrome.ui-force-old-icons") {
+    // old icons
+    @each $key, $value in $icons-old {
+      --#{$prefix}-#{$key}: #{$value};
     }
   }
 
