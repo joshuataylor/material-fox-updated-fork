@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 // `npm install` with npm's stdout sent to stderr, for mise's [deps.npm] provider.
 // mise passes a provider's stdout through to its own, and the raw tasks need a
-// clean stdout (firefox-download prints the binary path for BIN=$(...),
-// firefox-css-theme-mcp speaks JSON-RPC over stdio). A shell redirect
-// (`1>&2`) works in sh and cmd but PowerShell rejects it, so the redirect
-// happens here instead and the command is shell-agnostic.
+// clean stdout (firefox-download prints the binary path for BIN=$(...).
 
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
