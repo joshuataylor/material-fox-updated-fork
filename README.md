@@ -31,12 +31,12 @@ As of 2026-10-09 (this will get quickly out of date, so check above...)
   </tr>
   <tr>
     <td>Release</td>
-    <td>Firefox 158</td>
+    <td>Firefox 157</td>
     <td>Supported</td>
   </tr>
   <tr>
     <td>Beta</td>
-    <td>Firefox 159</td>
+    <td>Firefox 158</td>
     <td>Supported</td>
   </tr>
   <tr>
