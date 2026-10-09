@@ -174,7 +174,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.theme-default</code></td>
-    <td>Enable the default color scheme. This can be useful if you want to use it with <a href="https://addons.mozilla.org/firefox/addon/adaptive-tab-bar-colour/">Adaptive Tab Bar Color</a> or native Firefox themes</td>
+    <td>Enable the default color scheme. This can be useful if you want to use it with <a href="https://addons.mozilla.org/firefox/addon/adaptive-tab-bar-colour/">Adaptive Tab Bar Color</a> or native Firefox themes. Firefox's own pages (new tab, settings) keep Firefox's colours too.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-compact-url-bar</code></td>
@@ -202,7 +202,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.ui-force-old-icons</code></td>
-    <td>Use the theme's older icon set. Only applies while <code>userChrome.ui-chrome-refresh</code> is off.</td>
+    <td>Use the theme's older icon set, with or without <code>userChrome.ui-chrome-refresh</code>.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-ripple</code></td>
