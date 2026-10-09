@@ -582,6 +582,27 @@ async function captureScreenshot(
     }
     await resetState(driver);
     await setPrefs(driver, screenshot.prefs);
+    // A display grab only sees what is on the screen: at the harness's 2x scale
+    // the default window is wider than a 1920px display, so popups near its
+    // right edge were cut off. Fit the window to the screen first.
+    if (screenshot.fullScreen) {
+        await driver.executeScript(() => {
+            /* global window, screen */
+            window.moveTo(screen.availLeft, screen.availTop);
+            window.resizeTo(
+                Math.min(window.outerWidth, screen.availWidth),
+                Math.min(window.outerHeight, screen.availHeight),
+            );
+            window.focus();
+            // Keep popups open when focus moves: with no window manager
+            // (Xvfb) focusing a field inside a panel moves X focus to the
+            // popup window, and Firefox rolls the panel up as its window
+            // deactivates (the bookmark editor closed 1ms after opening).
+            Services.prefs.setBoolPref("ui.popup.disable_autohide", true);
+            return true;
+        });
+        await sleep(300);
+    }
     await navigate(driver, screenshot.url, settleMs);
     await runSetup(driver, screenshot.setup, settleMs);
     await runContentTrigger(driver, screenshot.contentTrigger, settleMs);
@@ -605,6 +626,10 @@ async function captureScreenshot(
             }
         }
         await clearPrefs(driver, screenshot.prefs);
+        await driver.executeScript(() => {
+            Services.prefs.clearUserPref("ui.popup.disable_autohide");
+            return true;
+        });
         return written;
     }
 

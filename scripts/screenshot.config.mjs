@@ -211,16 +211,30 @@ export default {
             headful: true, // native menu / anchored -- needs a real display
             fullScreen: true,
             url: "https://example.com/",
+            // A synthesised right-click on the tab, not openPopup(): without a
+            // contextmenu event the menu has no tab to act on, and its
+            // popupshowing handler leaves most rows without labels.
             setup:
-                'const m = document.getElementById("tabContextMenu"); ' +
-                'm.openPopup(gBrowser.selectedTab, "after_start", 0, 0, true, false); ' +
+                "const r = gBrowser.selectedTab.getBoundingClientRect(); " +
+                "const x = r.left + r.width / 2, y = r.top + r.height / 2; " +
+                'for (const type of ["mousedown", "contextmenu", "mouseup"]) ' +
+                "window.synthesizeMouseEvent(type, x, y, { button: 2, buttons: 2, clickCount: 1 }); " +
                 "return true;",
             crops: [{ label: "menu", selector: "#tabContextMenu" }],
             variants: [
-                { id: "default", prefs: {} },
+                {
+                    id: "default",
+                    // The synthesised click on the tab would also open its hover
+                    // preview over the menu. Still the baseline, so name it so.
+                    state: "disabled",
+                    prefs: { "browser.tabs.hoverPreview.enabled": false },
+                },
                 {
                     id: "icons",
-                    prefs: { "userChrome.ui-context-menu-icons": true },
+                    prefs: {
+                        "userChrome.ui-context-menu-icons": true,
+                        "browser.tabs.hoverPreview.enabled": false,
+                    },
                 },
             ],
         },
@@ -418,7 +432,10 @@ export default {
             crops: [{ label: "panel", selector: "#editBookmarkPanel" }],
             url: "https://example.com/",
             isolate: true,
+            // A new bookmark's editor closes itself after 3.5s without
+            // interaction (StarUI._autoCloseTimeout), before a slow grab lands.
             setup:
+                "StarUI._autoCloseTimeout = 600000; " +
                 'document.getElementById("star-button-box")?.click() ?? ' +
                 'document.getElementById("star-button").click(); ' +
                 "return true;",
