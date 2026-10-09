@@ -48,7 +48,7 @@ As of 2026-10-09 (this will get quickly out of date, so check above...)
 
 Firefox moved to a two-week release cycle with Firefox 155, so these numbers move quickly; the theme tracks whatever the latest three are. If something breaks after a Firefox update, please [open an issue](https://github.com/joshuataylor/material-fox-updated-fork/issues) with the exact Firefox version and channel.
 
-> For Firefox 119 or below, the pinned `v1.0.7` release still works -- see the install-script note below.!
+> Firefox 120-154 is not supported. For Firefox 119 or below, the pinned `v1.0.7` release still works -- see the install-script note below.
 
 ## 🚀 Getting Started
 
@@ -63,16 +63,19 @@ To start using MaterialFox UPDATED, follow these steps:
 
 4. **Type** `about:support` in the address bar and press <kbd>Enter</kbd>.
 5. **Scroll down** to the `Profile Folder` section and **click** `Open Folder`.
-6. **Download** the `chrome.zip` file from the [**latest release**](https://github.com/joshuataylor/material-fox-updated-fork/releases/latest).
-7. **Extract** the contents of `chrome.zip` into your Firefox profile directory.
+6. **Download** the `chrome.zip` file from the [**latest release**](https://github.com/joshuataylor/material-fox-updated-fork/releases/latest). Use the `chrome.zip` release asset, not GitHub's "Source code" ZIP.
+7. **Extract** the contents of `chrome.zip` into your Firefox profile directory, so that you end up with `[profile]/chrome/userChrome.css` and `[profile]/chrome/userContent.css`.
 8. **Restart** Firefox to apply the changes.
+
+> [!TIP]
+> To update, back up `chrome/custom.css` (and anything else you've changed), replace the rest of the `chrome` folder with the new release, then restart Firefox. Keeping your own rules in `custom.css` makes this painless.
 
 ### Installation Script (for Advanced Users)
 
 As an alternative to manual installation, you can use a PowerShell script.
 
 > [!NOTE]
-> The install script and release download links pull from this fork's GitHub Releases. If no release has been published yet, use the manual installation steps above.
+> The script asks which Firefox profile to use, then installs `chrome.zip` and the example `user.js` from the same release of this fork. It asks before overwriting an existing `chrome` folder or `user.js`. Older pinned tags that were only published upstream (such as `tags/v1.0.7`) are fetched from [edelvarden/material-fox-updated](https://github.com/edelvarden/material-fox-updated).
 
 For **Windows**, run the following PowerShell command:
 
@@ -100,7 +103,7 @@ Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an
 
 To account for these changes, material-fox-updated tries to work around these new quirks.
 
-- Window / content border - Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove the borders, corners and gap on either version so the chrome sits flush. Off by default, so it does nothing on non-Nova Firefox.
+- Window / content border - Firefox 155 wraps the toolbar, sidebar and content in a floating "island" -- a 1px border with rounded corners, plus a gap inset from the window edges. Firefox 156+ drops the gap and only borders the content area and sidebar on the edges that face other chrome. Enable the `userChrome.ui-no-nova-border` preference (see [Available preferences](#available-preferences)) to remove those borders and rounded corners so the content and sidebar sit flush. The separator under the toolbars and the dividers between split-view panels stay. Off by default, and it only acts while Nova is enabled.
 - Find bar - Firefox 155+ moved the find bar into a CSS grid at the bottom of the content area on every channel (not just Nova). The theme handles this automatically -- no action needed.
 > Prefer the old top-right floating find bar? Enable the `userChrome.ui-findbar-top-right` preference (see [Available preferences](#available-preferences)). (Thanks to [zerix on Reddit](https://www.reddit.com/r/FirefoxCSS/comments/1w50dgs/comment/p7de6ug) and [SKDemon820's tweaks](https://github.com/edelvarden/material-fox-updated/issues/152#issuecomment-5544742129))!
 - New-tab search box - Firefox Nightly (158+) replaces the new-tab search box with the address bar component (`<moz-urlbar>`); Release and Beta still use the old box. The theme styles both.
@@ -129,7 +132,7 @@ If you enjoy this project and want to help [@edelvarden](https://github.com/edel
 > This fork, [material-fox-updated-fork](https://github.com/joshuataylor/material-fox-updated-fork), is maintained by [@joshuataylor](https://github.com/joshuataylor), and I'm fortunate to be able to maintain
 > this project in my spare time. If you do enjoy this project, please buy [@edelvarden a coffee](https://ko-fi.com/edelvarden), and not me 🙌.
 
-Your **suggestions** and **bug reports** are also welcome on [GitHub Issues](https://github.com/joshuataylor/material-fox-updated-fork/issues).
+Your **suggestions** and **bug reports** are also welcome on [GitHub Issues](https://github.com/joshuataylor/material-fox-updated-fork/issues). For a bug, include your Firefox version and channel, the theme version, your operating system, the `userChrome.*` preferences you have enabled, and a screenshot.
 
 ## 🎨 Manual Customization
 
@@ -148,6 +151,8 @@ To **disable** a preference:
 > [!WARNING]  
 > Use only one preference with the prefix `theme`.
 
+Leave all the `userChrome.theme-*` preferences off to use the theme's bundled palette. `userChrome.theme-chrome-refresh` only changes the colours and `userChrome.ui-chrome-refresh` only changes the layout (shapes and spacing), so you can enable both.
+
 ### Available preferences
 
 <table>
@@ -165,7 +170,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.theme-material</code></td>
-    <td>Enable Material color schemes. <a href="#material-theme">Read more</a>.</td>
+    <td>Enable Material colour schemes. The blue palette is bundled, so this works on its own; red, yellow, green or your own palette need one more step. <a href="#material-theme">Read more</a>.</td>
   </tr>
   <tr>
     <td><code>userChrome.theme-default</code></td>
@@ -177,15 +182,15 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-context-menu-icons</code></td>
-    <td>Display context menu icons.</td>
+    <td>Display icons beside right-click menu commands, such as Copy, Paste, Pin Tab and Mute Tab. Independent of <code>userChrome.ui-no-menu-icons</code>.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-menu-icons</code></td>
-    <td>Hide the menu icons</td>
+    <td>Hide the theme's icons in the main menu and its panels (New Tab, Downloads, Settings and so on). Firefox's own icons can still appear, and context menu icons from <code>userChrome.ui-context-menu-icons</code> are not affected.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-force-animation</code></td>
-    <td>Force enable control animation, because it respects the user's animation disable preference by default. <em>(Not required if you do not disable animation)</em></td>
+    <td>Keep the theme's animations, including the tab loading spinner, even when your OS asks for reduced motion or <code>userChrome.ui-no-animation</code> is on. <em>(Not required if you do not disable animation)</em></td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-animation</code></td>
@@ -197,7 +202,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-force-old-icons</code></td>
-    <td>Force the old icons to be used even if the <code>userChrome.ui-chrome-refresh</code> preference is enabled.</td>
+    <td>Use the theme's older icon set. Only applies while <code>userChrome.ui-chrome-refresh</code> is off.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-ripple</code></td>
@@ -205,11 +210,11 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-no-nova-border</code></td>
-    <td>Remove the border, rounded corners and surrounding gap the Firefox 155+ "Nova" redesign draws around the window and web content area, so the chrome sits flush to the window edges (<code>browser.nova.enabled</code>, on by default in Nightly only).</td>
+    <td>Remove the borders and rounded corners the Firefox "Nova" redesign draws around the web content and sidebar, so they sit flush. The separator under the toolbars and the dividers between split-view panels stay. Only acts while <code>browser.nova.enabled</code> is on, the default in every channel since Firefox 157.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-white-toolbox</code></td>
-    <td>Changes the whole toolbox to be white instead of the default light-grey tint, so the tab strip and the framing around the toolbars match the white URL-bar and bookmarks rows for an all-white top chrome. The tab strip loses its grey, so unselected tabs rely on the active tab and separators for distinction. <code>false</code> by default.</td>
+    <td>Changes the whole toolbox to be white instead of the default light-grey tint, so the tab strip and the framing around the toolbars match the white URL-bar and bookmarks rows for an all-white top chrome. The tab strip loses its grey, so unselected tabs rely on the active tab and separators for distinction. Uses <code>--md-background-color-100</code>, so it follows the dark palette in dark mode. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-findbar-top-right</code></td>
@@ -217,7 +222,7 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-findbar-hide-checkboxes</code></td>
-    <td>With <code>userChrome.ui-findbar-top-right</code> enabled, hide the find bar's four toggle checkboxes (Match Case, Match Diacritics, Whole Words, Highlight All) for a more compact bar. Shown by default.</td>
+    <td>With <code>userChrome.ui-findbar-top-right</code> enabled, hide the find bar's four toggle checkboxes (Match Case, Match Diacritics, Whole Words, Highlight All) for a more compact bar at every window width. Below about 1100px wide the theme hides them anyway so the search box fits, and their settings still apply while hidden. Shown by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-not-secure-warning</code></td>
@@ -237,9 +242,22 @@ To **disable** a preference:
   </tr>
   <tr>
     <td><code>userChrome.ui-white-urlbar-results</code></td>
-    <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. <code>false</code> by default.</td>
+    <td>Changes the open/focused URL bar and its search-results dropdown to white, like Chrome's omnibox, instead of the material grey tint. Uses <code>--md-background-color-100</code>, so it follows the dark palette in dark mode. No effect with <code>userChrome.theme-default</code>. <code>false</code> by default.</td>
   </tr>
 </table>
+
+### Setting preferences with user.js
+
+Instead of creating each preference by hand, you can put them in a `user.js` file in your profile directory, next to the `chrome` folder. The repository's [user.js](user.js) lists them all. For example:
+
+```javascript
+// Compact floating find bar and a plain speaker icon on pinned tabs.
+user_pref("userChrome.ui-findbar-top-right", true);
+user_pref("userChrome.ui-findbar-hide-checkboxes", true);
+user_pref("userChrome.ui-no-tab-audio-background", true);
+```
+
+Firefox reapplies `user.js` at every startup, so if you later change one of these in `about:config`, update or remove its line in `user.js` too.
 
 ## Custom CSS rules
 
@@ -250,14 +268,13 @@ Follow these steps:
 1. **Find and rename** the `custom_example.css` file in the root folder to `custom.css`.
 2. **Open** `custom.css` in a text editor.
 3. **Find** the desired variable.
-4. **Add your values**. For example, set the accent color to red:
+4. **Add your values**. For example, set the accent colour to red:
 
 ```css
-:root,
-html,
-body {
-  /* add your css variables below */
-  --md-accent-color: #ea4335 !important;
+@-moz-document url-prefix("chrome:"), regexp("about:(?!blank|srcdoc|devtools).*") {
+  :root {
+    --md-accent-color: #ea4335 !important;
+  }
 }
 ```
 
@@ -267,15 +284,7 @@ body {
 > Using this `custom.css` file can separate your changes from the source project. You can easily back up your file and not worry about overwriting your changes when updating or reinstalling the main files.
 
 > [!TIP]
-> `custom.css` is imported by both `userChrome.css` and `userContent.css`, so its rules also reach every web page you visit. Wrap anything you only want in the browser UI and Firefox's own pages in the same scope `chrome/theme-material-blue.css` uses:
->
-> ```css
-> @-moz-document url-prefix("chrome:"), regexp("about:(?!blank|srcdoc|devtools).*") {
->   :root {
->     --md-accent-color: #ea4335 !important;
->   }
-> }
-> ```
+> `custom.css` is imported by both `userChrome.css` and `userContent.css`, so an unscoped rule also reaches every web page you visit. That's why the example above is wrapped in the same `@-moz-document` scope `chrome/theme-material-blue.css` uses.
 >
 > The two halves cover different things:
 >
@@ -382,35 +391,31 @@ Here are some examples of how you can use the `custom.css` file:
 - **Replacing** the font with your own. **Change** `"YourFontName"` to the name of your font:
 
   ```css
-  :root,
-  html,
-  body {
-    /* add your css variables below */
-  }
-
-  /* add your user css below */
-  *,
-  *::before,
-  *::after {
-    font-family: "YourFontName" !important;
+  @-moz-document url-prefix("chrome:"), regexp("about:(?!blank|srcdoc|devtools).*") {
+    :root,
+    html,
+    body {
+      --md-font-family: "YourFontName", sans-serif !important;
+    }
   }
   ```
 
 - **Removing** the separator line between the browser and content:
 
   ```css
-  :root,
-  html,
-  body {
-    /* add your css variables below */
-    --md-content-separator-color: transparent !important;
+  @-moz-document url-prefix("chrome:") {
+    :root {
+      --md-content-separator-color: transparent !important;
+    }
   }
   ```
 
 ### Custom css use cases for creating your own color themes
 
 > [!TIP]
-> You can use variables to completely recolor the theme. Here are some preset examples with code:
+> You can use variables to completely recolour the theme. Here are some preset examples with code:
+
+Each example only applies when its own preference is enabled. Copy the file's contents into `custom.css`, create the preference shown in the table, and leave the built-in `userChrome.theme-*` preferences off.
 
 <table>
   <tr>
@@ -420,21 +425,21 @@ Here are some examples of how you can use the `custom.css` file:
   <tr>
     <td>
       <h2>System accent colors</h2>
-      Source code: <br><a href="examples/theme-system-accent.css">theme-system-accent.css</a>
+      Source code: <br><a href="examples/theme-system-accent.css">theme-system-accent.css</a><br>Preference: <code>userChrome.theme-system-accent</code>
     </td>
     <td><img src="docs/assets/preview-accent-1.png" alt=""/><img src="docs/assets/preview-accent-2.png" alt=""/><img src="docs/assets/preview-accent-3.png" alt=""/></td>
   </tr>
   <tr>
     <td>
       <h2>Github theme</h2>
-      Source code: <br><a href="examples/theme-github.css">theme-github.css</a>
+      Source code: <br><a href="examples/theme-github.css">theme-github.css</a><br>Preference: <code>userChrome.theme-github</code>
     </td>
     <td><img src="docs/assets/preview-github.png" alt="preview-github" /></td>
   </tr>
   <tr>
     <td>
       <h2>Dracula theme</h2>
-      Source code: <br><a href="examples/theme-dracula.css">theme-dracula.css</a>
+      Source code: <br><a href="examples/theme-dracula.css">theme-dracula.css</a><br>Preference: <code>userChrome.theme-dracula</code>
     </td>
     <td><img src="docs/assets/preview-dracula.png" alt="preview-dracula"/></td>
   </tr>
@@ -443,7 +448,9 @@ Here are some examples of how you can use the `custom.css` file:
 
 ## Material Theme
 
-You can use the [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) to create a color theme from an image.
+Enabling `userChrome.theme-material` uses the bundled blue palette, with no download needed. The red, yellow and green examples below also need their own preference (for example `userChrome.theme-material-red`) alongside `userChrome.theme-material`; copy the file's contents into `custom.css` as with the other colour themes.
+
+You can also use the [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) to create a colour theme from an image.
 
 1. **Create** the `userChrome.theme-material` preference in the `about:config` page.
 2. **Go to** the [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/) website.
@@ -454,22 +461,37 @@ You can use the [Material Theme Builder](https://material-foundation.github.io/m
 
    ![material-theme-tutorial](docs/assets/material-theme-tutorial.png)
 
-This will download an archive of CSS files. You only need two files: `light.css` and `dark.css`. Open these in a text editor and extract the variables to your `custom.css` file. Wrap the variables in the appropriate media rule for light and dark themes.
+This will download an archive of CSS files. You only need two files: `light.css` and `dark.css`. Open these in a text editor and copy the `--md-sys-color-*` declarations into your `custom.css` file, keeping `userChrome.theme-material` enabled:
+
+```css
+@-moz-document url-prefix("chrome:"), regexp("about:(?!blank|srcdoc|devtools).*") {
+  :root {
+    /* Paste the colour declarations from light.css here. */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* Paste the colour declarations from dark.css here. */
+    }
+  }
+}
+```
+
+`custom.css` loads after the bundled blue palette, so your declarations replace it.
 
 Examples with previews
-| Example | Preview |
-| --- | --- |
-| [theme-material-blue.css](chrome/theme-material-blue.css) | ![material-blue-preview](docs/assets/material-blue-preview.png) |
-| [theme-material-red.css](examples/theme-material-red.css) | ![material-red-preview](docs/assets/material-red-preview.png) |
-| [theme-material-yellow.css](examples/theme-material-yellow.css) | ![material-yellow-preview](docs/assets/material-yellow-preview.png) |
-| [theme-material-green.css](examples/theme-material-green.css) | ![material-green-preview](docs/assets/material-green-preview.png) |
+| Example | Extra preference | Preview |
+| --- | --- | --- |
+| [theme-material-blue.css](chrome/theme-material-blue.css) (bundled) | None | ![material-blue-preview](docs/assets/material-blue-preview.png) |
+| [theme-material-red.css](examples/theme-material-red.css) | `userChrome.theme-material-red` | ![material-red-preview](docs/assets/material-red-preview.png) |
+| [theme-material-yellow.css](examples/theme-material-yellow.css) | `userChrome.theme-material-yellow` | ![material-yellow-preview](docs/assets/material-yellow-preview.png) |
+| [theme-material-green.css](examples/theme-material-green.css) | `userChrome.theme-material-green` | ![material-green-preview](docs/assets/material-green-preview.png) |
 
 ## 🔧 Build & Development (for developers)
 
 ### Prerequisites
 
-- [Visual Studio Code](https://code.visualstudio.com/) (development environment)
-- [NodeJS](https://nodejs.org/en/download) (for npm)
+- [Node.js](https://nodejs.org/en/download) and npm. The Node version is pinned in [mise.toml](mise.toml), and [mise](https://mise.jdx.dev/) can install and select it for you.
 
 ### Installation
 
