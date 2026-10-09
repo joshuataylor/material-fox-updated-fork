@@ -204,6 +204,7 @@ function probeScript() {
     };
     return {
         version: Services.appinfo.version,
+        os: Services.appinfo.OS,
         nova: Services.prefs.getBoolPref("browser.nova.enabled", false),
         // Firefox CSS variables the theme overrides / relies on (drift guard).
         vars: {
@@ -943,6 +944,10 @@ function contractsFor(scenarioId, p) {
         for (const [k, val] of Object.entries(p.vars)) {
             if (k.startsWith("legacy"))
                 add(`token-removed:${k}`, val === "", val || "(unset)");
+            // Linux's native-theme tokens set --toolbar-field-text-color to
+            // `inherit` on :root, which leaves it unset by design there.
+            else if (k === "toolbarFieldText" && p.os === "Linux")
+                add(`token-resolves:${k}`, true, val || "(unset, Linux)");
             else add(`token-resolves:${k}`, !!val, val || "(unset)");
         }
     }
