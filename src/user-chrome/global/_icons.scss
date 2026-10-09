@@ -57,13 +57,13 @@
 
 // forward icon
 .unified-nav-forward[_moz-menuactive]:-moz-locale-dir(ltr),
-.unidied-nav-back[_moz-menuactive]:-moz-locale-dir(rtl) {
+.unified-nav-back[_moz-menuactive]:-moz-locale-dir(rtl) {
   list-style-image: get-var("arrow-forward-icon") !important;
 }
 
 // back icon
 .unified-nav-back[_moz-menuactive]:-moz-locale-dir(ltr),
-.unidied-nav-forward[_moz-menuactive]:-moz-locale-dir(rtl) {
+.unified-nav-forward[_moz-menuactive]:-moz-locale-dir(rtl) {
   list-style-image: get-var("arrow-back-icon") !important;
 }
 
