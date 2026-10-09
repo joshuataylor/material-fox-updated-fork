@@ -47,6 +47,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * warnings are always kept. Off by default -- the warning is a safety signal.
 // user_pref("userChrome.ui-no-not-secure-warning", true);
 
+// * Hide the clock badge on history results in the address bar dropdown, so
+// * their site icons show in full. Off by default.
+// user_pref("userChrome.ui-no-urlbar-history-badge", true);
+
 // * Drop the circle behind the audio button on pinned tabs, leaving a plain
 // * speaker icon. Off by default.
 // user_pref("userChrome.ui-no-tab-audio-background", true);

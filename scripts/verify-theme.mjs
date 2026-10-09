@@ -531,6 +531,30 @@ function featureProbeScript(url, done) {
         gBrowser.selectedTab = gBrowser.tabs[0];
         gBrowser.removeTab(other);
 
+        // Opt-in history badge pref on a stand-in result row: Firefox's
+        // badge-history rule keys on the row type only (issue #18).
+        const row = document.createElement("div");
+        row.className = "urlbarView-row";
+        row.setAttribute("type", "history");
+        row.innerHTML =
+            '<div class="urlbarView-row-inner"><img class="urlbarView-favicon"/><span class="urlbarView-type-icon"></span></div>';
+        document.documentElement.append(row);
+        const fav = row.querySelector(".urlbarView-favicon");
+        const badge = row.querySelector(".urlbarView-type-icon");
+        const maskDefault = getComputedStyle(fav).maskImage;
+        Services.prefs.setBoolPref(
+            "userChrome.ui-no-urlbar-history-badge",
+            true,
+        );
+        await sleep(400);
+        out.historyBadge = {
+            maskDefault,
+            mask: getComputedStyle(fav).maskImage,
+            badge: getComputedStyle(badge).display,
+        };
+        Services.prefs.clearUserPref("userChrome.ui-no-urlbar-history-badge");
+        row.remove();
+
         // Vertical tabs: no corner flares, all corners rounded
         // (edelvarden/material-fox-updated#141).
         Services.prefs.setBoolPref("sidebar.revamp", true);
@@ -799,6 +823,16 @@ function contractsFor(scenarioId, p) {
             "panel:menu-padding-pair",
             !pad.menuThemed || pad.menu === "8px 0",
             pad.menu,
+        );
+        // Opt-in history badge pref (issue #18).
+        const hb = f.historyBadge || {};
+        add(
+            "pref:no-urlbar-history-badge",
+            // The badge is Nova-only; Proton has no mask to remove.
+            (!p.nova || (!!hb.maskDefault && hb.maskDefault !== "none")) &&
+                hb.mask === "none" &&
+                hb.badge === "none",
+            `${String(hb.maskDefault).slice(0, 28)} -> ${hb.mask}, badge ${hb.badge}`,
         );
     }
 

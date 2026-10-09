@@ -229,6 +229,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-urlbar-history-badge</code></td>
+    <td>Hide the small clock badge Firefox draws over the site icon of history suggestions in the address bar dropdown, so the icon shows in full. Bookmark and open-tab badges are kept. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-no-tab-audio-background</code></td>
     <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. <code>false</code> by default.</td>
   </tr>

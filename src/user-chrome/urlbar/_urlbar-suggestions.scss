@@ -162,3 +162,24 @@
 #urlbar-search-mode-indicator {
   height: 100% !important;
 }
+
+// Opt-in: hide the clock badge Nova draws over the favicon of history results,
+// and the matching cut-out in the favicon (issue #18). Same row types as
+// Firefox's badge-history.svg rule in view-nova.css.
+@include moz-pref-media("userChrome.ui-no-urlbar-history-badge") {
+  .urlbarView-row:is(
+      [type="adaptive-history"],
+      [type="history"],
+      [type^="history_"],
+      [type="semantic-history"]
+    )
+    > .urlbarView-row-inner {
+    > .urlbarView-favicon {
+      mask-image: none !important;
+    }
+
+    > .urlbarView-type-icon {
+      display: none !important;
+    }
+  }
+}
