@@ -439,6 +439,14 @@ function featureProbeScript(url, done) {
                 rowInset: row ? row.left - s.left : null,
             };
         };
+        // Open the results directly if the click did not, so a slow click
+        // only fails the click check above.
+        if (!urlbar.hasAttribute("open")) {
+            gURLBar.focus();
+            gURLBar.search("example");
+            for (let i = 0; i < 30 && !urlbar.hasAttribute("open"); i++)
+                await sleep(100);
+        }
         const overhangDefault = overhang();
         Services.prefs.setBoolPref("userChrome.ui-no-urlbar-overhang", true);
         await sleep(400);
