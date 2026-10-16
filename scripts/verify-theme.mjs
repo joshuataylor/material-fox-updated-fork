@@ -376,6 +376,47 @@ function probeScript() {
 // chrome window, via executeAsyncScript (`done` is the callback).
 function featureProbeScript(url, done) {
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    // Wait for a condition rather than a fixed delay. Resolves with the first
+    // truthy value, or with the last value once `timeout` ms have passed, so a
+    // contract still reports what it saw.
+    const waitFor = async (cond, timeout = 3000) => {
+        const end = performance.now() + timeout;
+        let v = cond();
+        while (!v && performance.now() < end) {
+            await sleep(20);
+            v = cond();
+        }
+        return v;
+    };
+    // Wait until a measurement stops changing (an animation or a relayout has
+    // finished): the same value on two reads 50ms apart.
+    const settled = async (read, timeout = 3000) => {
+        const end = performance.now() + timeout;
+        let prev = JSON.stringify(read());
+        while (performance.now() < end) {
+            await sleep(50);
+            const cur = JSON.stringify(read());
+            if (cur === prev) return;
+            prev = cur;
+        }
+    };
+    // Turn a boolean pref on or off and wait for its -moz-pref() media query
+    // to follow, at which point the theme's rules for it have applied (in
+    // `win`, for a page's own document).
+    const setPref = (name, value = true, win = window) => {
+        const mq = win.matchMedia(`-moz-pref("${name}")`);
+        if (value) Services.prefs.setBoolPref(name, true);
+        else Services.prefs.clearUserPref(name);
+        return waitFor(() => mq.matches === value, 2000);
+    };
+    const clearPref = (name, win) => setPref(name, false, win);
+    const event = (target, type, timeout = 3000) =>
+        Promise.race([
+            new Promise((r) =>
+                target.addEventListener(type, r, { once: true }),
+            ),
+            sleep(timeout),
+        ]);
     const system = Services.scriptSecurityManager.getSystemPrincipal();
     const addTab = () =>
         gBrowser.addTab("about:blank", {
@@ -390,13 +431,12 @@ function featureProbeScript(url, done) {
         const out = {};
         window.resizeTo(1280, 800);
         openTrustedLinkIn(url, "current");
-        for (
-            let i = 0;
-            i < 50 && gBrowser.selectedBrowser.currentURI.spec !== url;
-            i++
-        )
-            await sleep(100);
-        await sleep(500);
+        await waitFor(
+            () =>
+                gBrowser.selectedBrowser.currentURI.spec === url &&
+                !gBrowser.selectedTab.hasAttribute("busy"),
+            5000,
+        );
 
         // A mouse-down focus opens the results (157+); the URL text must not
         // move, so the leading Trust Panel chip stays shown (issue #15).
@@ -405,7 +445,7 @@ function featureProbeScript(url, done) {
         const trust = document.getElementById("trust-icon-container");
         const display = (e) => (e ? getComputedStyle(e).display : null);
         gBrowser.selectedBrowser.focus();
-        await sleep(200);
+        await waitFor(() => !urlbar.hasAttribute("focused"));
         const x0 = input.getBoundingClientRect().x;
         const trustClosed = display(trust);
         gURLBar.focus();
@@ -413,8 +453,7 @@ function featureProbeScript(url, done) {
             event: new MouseEvent("mousedown"),
             searchString: "",
         });
-        for (let i = 0; i < 30 && !urlbar.hasAttribute("open"); i++)
-            await sleep(100);
+        await waitFor(() => urlbar.hasAttribute("open"));
         out.urlbarClick = {
             open: urlbar.hasAttribute("open"),
             shift: input.getBoundingClientRect().x - x0,
@@ -444,32 +483,30 @@ function featureProbeScript(url, done) {
         if (!urlbar.hasAttribute("open")) {
             gURLBar.focus();
             gURLBar.search("example");
-            for (let i = 0; i < 30 && !urlbar.hasAttribute("open"); i++)
-                await sleep(100);
+            await waitFor(() => urlbar.hasAttribute("open"));
         }
         const overhangDefault = overhang();
-        Services.prefs.setBoolPref("userChrome.ui-no-urlbar-overhang", true);
-        await sleep(400);
+        await setPref("userChrome.ui-no-urlbar-overhang");
         out.urlbarOverhang = {
             open: urlbar.hasAttribute("open"),
             default: overhangDefault,
             pref: overhang(),
         };
-        Services.prefs.clearUserPref("userChrome.ui-no-urlbar-overhang");
-        await sleep(200);
+        await clearPref("userChrome.ui-no-urlbar-overhang");
         gURLBar.view.close();
         gBrowser.selectedBrowser.focus();
-        await sleep(200);
+        await waitFor(() => !urlbar.hasAttribute("open"));
 
         // The find bar clips both axes (no scrollbar), and the top-right bar
         // stays inside a narrow window (issue #8).
         const fb = await gBrowser.getFindBar();
         fb.open();
-        await sleep(400);
+        await waitFor(() => !fb.hidden && fb.getBoundingClientRect().height);
         out.findbar = { overflow: getComputedStyle(fb).overflow };
-        Services.prefs.setBoolPref("userChrome.ui-findbar-top-right", true);
+        await setPref("userChrome.ui-findbar-top-right");
         window.resizeTo(700, 600);
-        await sleep(800);
+        await waitFor(() => window.outerWidth === 700);
+        await settled(() => fb.getBoundingClientRect().toJSON());
         const fr = fb.getBoundingClientRect();
         out.findbarTopRight = {
             position: getComputedStyle(fb).position,
@@ -478,17 +515,21 @@ function featureProbeScript(url, done) {
             right: fr.right,
             windowWidth: window.innerWidth,
         };
-        Services.prefs.clearUserPref("userChrome.ui-findbar-top-right");
+        await clearPref("userChrome.ui-findbar-top-right");
         fb.close(true);
         window.resizeTo(1280, 800);
-        await sleep(500);
+        await waitFor(() => window.outerWidth === 1280 && fb.hidden);
 
         // A split view keeps the tab strip height (issue #6).
         const stripBefore = height("#TabsToolbar");
         const [s1, s2] = [addTab(), addTab()];
         gBrowser.addTabSplitView([s1, s2], {});
         gBrowser.selectedTab = s1;
-        await sleep(700);
+        await waitFor(() => document.querySelector("tab-split-view-wrapper"));
+        await settled(() => [
+            height("#TabsToolbar"),
+            s1.getBoundingClientRect().height,
+        ]);
         out.splitView = {
             stripBefore,
             stripAfter: height("#TabsToolbar"),
@@ -496,7 +537,7 @@ function featureProbeScript(url, done) {
             tab: s1.getBoundingClientRect().height,
         };
         gBrowser.removeTabs([s1, s2]);
-        await sleep(300);
+        await waitFor(() => !s1.isConnected && !s2.isConnected);
 
         // The group line shows under an unselected grouped tab, the label is a
         // chip, the label line is drawn over the selected tab's corners, and a
@@ -504,7 +545,7 @@ function featureProbeScript(url, done) {
         const [g1, g2] = [addTab(), addTab()];
         const group = gBrowser.addTabGroup([g1, g2], { label: "verify" });
         gBrowser.selectedTab = gBrowser.tabs[0];
-        await sleep(600);
+        await settled(() => group.getBoundingClientRect().toJSON());
         out.tabGroup = {
             line: getComputedStyle(g2.querySelector(".tab-stack"), "::after")
                 .backgroundColor,
@@ -513,7 +554,6 @@ function featureProbeScript(url, done) {
                     .height ?? null,
         };
         gBrowser.selectedTab = g1;
-        await sleep(300);
         out.tabGroup.labelLineZ = getComputedStyle(
             group.querySelector(".tab-group-label-container"),
             "::after",
@@ -522,22 +562,32 @@ function featureProbeScript(url, done) {
             g1.querySelector(".tab-background"),
         ).zIndex;
         gBrowser.selectedTab = gBrowser.tabs[0];
-        await sleep(300);
         group.collapsed = true;
-        await sleep(600);
+        await waitFor(() => group.hasAttribute("collapsed"));
+        await settled(() => g2.getBoundingClientRect().toJSON());
         out.tabGroup.collapsedOverflow = getComputedStyle(g2).overflow;
         out.tabGroup.collapsedLine = getComputedStyle(
             g2.querySelector(".tab-stack"),
             "::after",
         ).display;
         gBrowser.removeTabs([g1, g2]);
-        await sleep(300);
+        await waitFor(() => !g1.isConnected && !g2.isConnected);
 
         // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
         // asserted only in the chrome-refresh scenario (issue #12).
         const pinned = addTab();
         gBrowser.pinTab(pinned);
-        await sleep(600);
+        await waitFor(() => pinned.pinned);
+        await settled(() => [
+            pinned
+                .querySelector(".tab-background")
+                .getBoundingClientRect()
+                .toJSON(),
+            pinned
+                .querySelector(".tab-icon-stack")
+                .getBoundingClientRect()
+                .toJSON(),
+        ]);
         const pb = pinned
             .querySelector(".tab-background")
             .getBoundingClientRect();
@@ -558,34 +608,24 @@ function featureProbeScript(url, done) {
         const content = pinned.querySelector(".tab-content");
         const overlay = pinned.querySelector(".tab-icon-overlay");
         content.toggleAttribute("titlechanged", true);
-        await sleep(200);
         const dotDefault = getComputedStyle(content).backgroundImage;
-        Services.prefs.setBoolPref(
-            "userChrome.ui-no-tab-title-changed-dot",
-            true,
-        );
-        Services.prefs.setBoolPref(
-            "userChrome.ui-no-pinned-tab-mute-click",
-            true,
-        );
-        await sleep(400);
+        await setPref("userChrome.ui-no-tab-title-changed-dot");
+        await setPref("userChrome.ui-no-pinned-tab-mute-click");
         out.pinnedPrefs = {
             dotDefault,
             dot: getComputedStyle(content).backgroundImage,
             overlay: getComputedStyle(overlay).pointerEvents,
         };
-        Services.prefs.clearUserPref("userChrome.ui-no-tab-title-changed-dot");
-        Services.prefs.clearUserPref("userChrome.ui-no-pinned-tab-mute-click");
+        await clearPref("userChrome.ui-no-tab-title-changed-dot");
+        await clearPref("userChrome.ui-no-pinned-tab-mute-click");
         gBrowser.removeTab(pinned);
 
         // The nav bar's start corner is square while the first tab is selected and rounded otherwise.
         const nav = document.getElementById("nav-bar");
         const other = addTab();
         gBrowser.selectedTab = gBrowser.tabs[0];
-        await sleep(300);
         const cornerFirst = getComputedStyle(nav).borderStartStartRadius;
         gBrowser.selectedTab = other;
-        await sleep(300);
         out.navCorner = {
             first: cornerFirst,
             other: getComputedStyle(nav).borderStartStartRadius,
@@ -604,17 +644,13 @@ function featureProbeScript(url, done) {
         const fav = row.querySelector(".urlbarView-favicon");
         const badge = row.querySelector(".urlbarView-type-icon");
         const maskDefault = getComputedStyle(fav).maskImage;
-        Services.prefs.setBoolPref(
-            "userChrome.ui-no-urlbar-history-badge",
-            true,
-        );
-        await sleep(400);
+        await setPref("userChrome.ui-no-urlbar-history-badge");
         out.historyBadge = {
             maskDefault,
             mask: getComputedStyle(fav).maskImage,
             badge: getComputedStyle(badge).display,
         };
-        Services.prefs.clearUserPref("userChrome.ui-no-urlbar-history-badge");
+        await clearPref("userChrome.ui-no-urlbar-history-badge");
         row.remove();
 
         // Opt-in Chromium tab hover timing on an unselected tab: 300ms out,
@@ -623,10 +659,8 @@ function featureProbeScript(url, done) {
         gBrowser.selectedTab = gBrowser.tabs[0];
         const hoverBg = hoverTab.querySelector(".tab-background");
         const duration = () => getComputedStyle(hoverBg).transitionDuration;
-        await sleep(300);
         const hoverDefault = duration();
-        Services.prefs.setBoolPref("userChrome.ui-chromium-tab-hover", true);
-        await sleep(400);
+        await setPref("userChrome.ui-chromium-tab-hover");
         const hoverRest = duration();
         const hr = hoverTab.getBoundingClientRect();
         window.synthesizeMouseEvent(
@@ -635,7 +669,7 @@ function featureProbeScript(url, done) {
             hr.top + hr.height / 2,
             {},
         );
-        await sleep(300);
+        await waitFor(() => hoverTab.matches(":hover"));
         out.tabHover = {
             hovered: hoverTab.matches(":hover"),
             default: hoverDefault,
@@ -643,9 +677,9 @@ function featureProbeScript(url, done) {
             hover: duration(),
         };
         window.synthesizeMouseEvent("mousemove", 5, window.innerHeight - 5, {});
-        Services.prefs.clearUserPref("userChrome.ui-chromium-tab-hover");
+        await clearPref("userChrome.ui-chromium-tab-hover");
         gBrowser.removeTab(hoverTab);
-        await sleep(300);
+        await waitFor(() => !hoverTab.isConnected);
 
         // Opt-in ui-themed-pages: Settings' canvas on the theme palette
         // (edelvarden/material-fox-updated#124). about:preferences runs in
@@ -655,14 +689,14 @@ function featureProbeScript(url, done) {
             skipAnimation: true,
         });
         gBrowser.selectedTab = prefsTab;
-        for (
-            let i = 0;
-            i < 30 &&
-            prefsTab.linkedBrowser.contentDocument?.readyState !== "complete";
-            i++
-        )
-            await sleep(100);
-        await sleep(500);
+        // The tab starts on about:blank, which is already complete.
+        await waitFor(() => {
+            const doc = prefsTab.linkedBrowser.contentDocument;
+            return (
+                doc?.documentURI.startsWith("about:preferences") &&
+                doc.readyState === "complete"
+            );
+        }, 5000);
         const pageStyle = () =>
             prefsTab.linkedBrowser.contentWindow.getComputedStyle(
                 prefsTab.linkedBrowser.contentDocument.documentElement,
@@ -670,8 +704,11 @@ function featureProbeScript(url, done) {
         const canvasDefault = pageStyle()
             .getPropertyValue("--background-color-canvas")
             .trim();
-        Services.prefs.setBoolPref("userChrome.ui-themed-pages", true);
-        await sleep(500);
+        await setPref(
+            "userChrome.ui-themed-pages",
+            true,
+            prefsTab.linkedBrowser.contentWindow,
+        );
         out.themedPages = {
             default: canvasDefault,
             pref: pageStyle()
@@ -681,10 +718,10 @@ function featureProbeScript(url, done) {
                 .getPropertyValue("--md-background-color-50")
                 .trim(),
         };
-        Services.prefs.clearUserPref("userChrome.ui-themed-pages");
+        await clearPref("userChrome.ui-themed-pages");
         gBrowser.removeTab(prefsTab);
         gBrowser.selectedTab = gBrowser.tabs[0];
-        await sleep(300);
+        await waitFor(() => !prefsTab.isConnected);
 
         // Opt-in tab counter on the "List all tabs" button
         // (edelvarden/material-fox-updated#86).
@@ -709,8 +746,7 @@ function featureProbeScript(url, done) {
             };
         };
         const counterDefault = counter();
-        Services.prefs.setBoolPref("userChrome.ui-tab-counter", true);
-        await sleep(400);
+        await setPref("userChrome.ui-tab-counter");
         const counterPref = counter();
         const drawnDefault = drawnCount();
         // Where the tab strip starts, and whether Firefox's divider before the
@@ -732,11 +768,11 @@ function featureProbeScript(url, done) {
         const allTabsPos =
             CustomizableUI.getPlacementOfWidget("alltabs-button").position;
         CustomizableUI.moveWidgetWithinArea("alltabs-button", 0);
-        await sleep(400);
+        await settled(() => [drawnCount(), stripStart()]);
         const drawnFirst = drawnCount();
         const startFirst = stripStart();
         CustomizableUI.moveWidgetWithinArea("alltabs-button", allTabsPos);
-        await sleep(400);
+        await settled(() => stripStart());
         out.tabCounter = {
             default: counterDefault,
             pref: counterPref,
@@ -749,8 +785,7 @@ function featureProbeScript(url, done) {
             default: startDefault,
             first: startFirst,
         };
-        Services.prefs.clearUserPref("userChrome.ui-tab-counter");
-        await sleep(200);
+        await clearPref("userChrome.ui-tab-counter");
 
         // Opt-in ui-no-inactive-titlebar: with another window in front, the
         // toolbox keeps its active colour instead of the theme's grey
@@ -764,11 +799,16 @@ function featureProbeScript(url, done) {
             getComputedStyle(document.getElementById("TabsToolbar")).opacity;
         const activeToolbox = toolboxBg();
         const otherWindow = OpenBrowserWindow();
-        await sleep(2500);
+        await waitFor(
+            () => document.documentElement.matches(":-moz-window-inactive"),
+            5000,
+        );
+        // Both fade over --inactive-window-transition.
+        await settled(() => [toolboxBg(), stripOpacity()]);
         const inactiveDefault = toolboxBg();
         const opacityDefault = stripOpacity();
-        Services.prefs.setBoolPref("userChrome.ui-no-inactive-titlebar", true);
-        await sleep(600);
+        await setPref("userChrome.ui-no-inactive-titlebar");
+        await settled(() => [toolboxBg(), stripOpacity()]);
         out.inactiveTitlebar = {
             inactive: document.documentElement.matches(":-moz-window-inactive"),
             customTitlebar:
@@ -779,10 +819,13 @@ function featureProbeScript(url, done) {
             opacityDefault,
             opacityPref: stripOpacity(),
         };
-        Services.prefs.clearUserPref("userChrome.ui-no-inactive-titlebar");
+        await clearPref("userChrome.ui-no-inactive-titlebar");
         otherWindow.close();
         window.focus();
-        await sleep(1000);
+        await waitFor(
+            () => !document.documentElement.matches(":-moz-window-inactive"),
+            5000,
+        );
 
         // Menus, opened by a synthesised right-click and measured row by row
         // (edelvarden/material-fox-updated#150, #145, #135). Windows and Linux
@@ -799,11 +842,11 @@ function featureProbeScript(url, done) {
                 const r = el.getBoundingClientRect();
                 const x = r.left + (dx ?? r.width / 2);
                 const y = r.top + (dy ?? r.height / 2);
+                const shown = event(popup, "popupshown");
                 for (const type of ["mousedown", "contextmenu", "mouseup"])
                     mouse(type, x, y);
-                for (let i = 0; i < 30 && popup.state !== "open"; i++)
-                    await sleep(100);
-                await sleep(200);
+                await shown;
+                await settled(() => popup.getBoundingClientRect().toJSON());
                 const pr = popup.getBoundingClientRect();
                 // Firefox's row padding, resolved in this popup.
                 const pad = document.createElement("div");
@@ -864,8 +907,9 @@ function featureProbeScript(url, done) {
                                     : null,
                         };
                     });
+                const hidden = event(popup, "popuphidden");
                 popup.hidePopup();
-                await sleep(300);
+                await hidden;
                 return { gutter: popup.hasAttribute("needsgutter"), rows };
             };
             const page = gBrowser.selectedBrowser;
@@ -880,17 +924,18 @@ function featureProbeScript(url, done) {
             };
             // A checked item (Menu Bar) makes Firefox add the gutter.
             CustomizableUI.setToolbarVisibility("toolbar-menubar", true);
-            await sleep(400);
+            await waitFor(
+                () =>
+                    document
+                        .getElementById("toolbar-menubar")
+                        .getBoundingClientRect().height,
+            );
             out.menus.toolbar = await openMenu(
                 "toolbar-context-menu",
                 document.getElementById("reload-button"),
             );
             CustomizableUI.setToolbarVisibility("toolbar-menubar", false);
-            Services.prefs.setBoolPref(
-                "userChrome.ui-context-menu-icons",
-                true,
-            );
-            await sleep(400);
+            await setPref("userChrome.ui-context-menu-icons");
             out.menus.tabIcons = await openMenu(
                 "tabContextMenu",
                 gBrowser.selectedTab,
@@ -900,26 +945,28 @@ function featureProbeScript(url, done) {
                 page,
                 pageWidth - 20,
             );
-            Services.prefs.clearUserPref("userChrome.ui-context-menu-icons");
-            await sleep(300);
+            await clearPref("userChrome.ui-context-menu-icons");
             // userChrome.ui-menu-icon-column: every row gets the icon column,
             // so the labels line up with the nav rows' (fork #21).
-            Services.prefs.setBoolPref("userChrome.ui-menu-icon-column", true);
-            await sleep(400);
+            await setPref("userChrome.ui-menu-icon-column");
             out.menus.pageColumn = await openMenu(
                 "contentAreaContextMenu",
                 page,
                 pageWidth - 20,
             );
-            Services.prefs.clearUserPref("userChrome.ui-menu-icon-column");
-            await sleep(300);
+            await clearPref("userChrome.ui-menu-icon-column");
         }
 
         // Vertical tabs: no corner flares, all corners rounded
         // (edelvarden/material-fox-updated#141).
         Services.prefs.setBoolPref("sidebar.revamp", true);
         Services.prefs.setBoolPref("sidebar.verticalTabs", true);
-        await sleep(1000);
+        const tabsOrient = () =>
+            document.getElementById("tabbrowser-tabs").getAttribute("orient");
+        await waitFor(() => tabsOrient() === "vertical");
+        await settled(() =>
+            gBrowser.selectedTab.getBoundingClientRect().toJSON(),
+        );
         const vbg = gBrowser.selectedTab.querySelector(".tab-background");
         out.verticalTab = {
             orient: document
@@ -936,7 +983,10 @@ function featureProbeScript(url, done) {
         const vpin = addTab();
         gBrowser.pinTab(vpin);
         gBrowser.selectedTab = gBrowser.tabs[1];
-        await sleep(800);
+        await settled(() => [
+            vpin.getBoundingClientRect().toJSON(),
+            v2.getBoundingClientRect().toJSON(),
+        ]);
         const unpinned = gBrowser.tabs.filter((t) => !t.pinned);
         const centre = (e) => {
             const r = e.getBoundingClientRect();
@@ -971,7 +1021,13 @@ function featureProbeScript(url, done) {
         ).display;
         out.verticalTab.pinnedWidth = vpin.getBoundingClientRect().width;
         SidebarController._state.launcherExpanded = false;
-        await sleep(1000);
+        await waitFor(
+            () =>
+                !document
+                    .getElementById("tabbrowser-tabs")
+                    .hasAttribute("expanded"),
+        );
+        await settled(() => strip.getBoundingClientRect().toJSON());
         out.verticalTab.collapsed = {
             expanded: document
                 .getElementById("tabbrowser-tabs")
@@ -987,10 +1043,13 @@ function featureProbeScript(url, done) {
         };
         SidebarController._state.launcherExpanded = true;
         gBrowser.removeTabs([v1, v2, vpin]);
-        await sleep(500);
+        await waitFor(() => !v1.isConnected && !vpin.isConnected);
         Services.prefs.clearUserPref("sidebar.verticalTabs");
         Services.prefs.clearUserPref("sidebar.revamp");
-        await sleep(800);
+        await waitFor(() => tabsOrient() === "horizontal");
+        await settled(() =>
+            gBrowser.selectedTab.getBoundingClientRect().toJSON(),
+        );
 
         // Toolbar spacing (fork issue #12), last because it rearranges the
         // nav bar: the all-tabs circle is centred on the selected tab, the
@@ -1019,7 +1078,10 @@ function featureProbeScript(url, done) {
             ) + 1,
         );
         CustomizableUI.addWidgetToArea("edit-controls", "nav-bar");
-        await sleep(800);
+        await waitFor(() => document.getElementById("paste-button"));
+        await settled(() =>
+            document.getElementById("nav-bar").getBoundingClientRect().toJSON(),
+        );
         const navR = document.getElementById("nav-bar").getBoundingClientRect();
         const urlR = document.getElementById("urlbar").getBoundingClientRect();
         const buttons = [
@@ -1064,7 +1126,7 @@ function featureProbeScript(url, done) {
             ),
         };
         await PlacesUIUtils.maybeAddImportButton();
-        await sleep(300);
+        await waitFor(() => document.getElementById("import-button"), 1000);
         const importButton = document.getElementById("import-button");
         out.toolbarSpacing.importTransition = importButton
             ? getComputedStyle(importButton).transitionProperty
