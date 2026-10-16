@@ -453,12 +453,20 @@ function featureProbeScript(url, done) {
             event: new MouseEvent("mousedown"),
             searchString: "",
         });
-        await waitFor(() => urlbar.hasAttribute("open"));
+        // The empty search only opens the view once Firefox has suggestions
+        // to show, which on a CI runner's first launch can take a while, so
+        // wait for the query (as Firefox's own tests do) and then the view.
+        await Promise.race([gURLBar.lastQueryContextPromise, sleep(10000)]);
+        await waitFor(() => urlbar.hasAttribute("open"), 10000);
         out.urlbarClick = {
             open: urlbar.hasAttribute("open"),
             shift: input.getBoundingClientRect().x - x0,
             trustClosed,
             trustOpen: display(trust),
+            // Why it stayed shut, if it did.
+            focused: gURLBar.focused,
+            viewOpen: gURLBar.view.isOpen,
+            rows: gURLBar.view.visibleRowCount,
         };
         // How far the open surface reaches past the bar, by default and with
         // userChrome.ui-no-urlbar-overhang (fork #19).
@@ -1303,7 +1311,11 @@ function contractsFor(scenarioId, p) {
         // A click into the address bar opens the results without moving the
         // URL text: the Trust Panel chip stays shown (issue #15).
         const uc = f.urlbarClick || {};
-        add("urlbar-click-opens-results", uc.open === true, uc.open);
+        add(
+            "urlbar-click-opens-results",
+            uc.open === true,
+            `open ${uc.open}, focused ${uc.focused}, view ${uc.viewOpen}, rows ${uc.rows}`,
+        );
         add(
             "urlbar-click-text-still",
             typeof uc.shift === "number" &&
