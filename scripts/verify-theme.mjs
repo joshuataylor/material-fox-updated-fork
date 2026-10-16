@@ -844,6 +844,16 @@ function featureProbeScript(url, done) {
                             textX: tr?.width
                                 ? Math.round(tr.left - pr.left)
                                 : null,
+                            // The nav rows draw their label in ::after, right
+                            // after the icon's margin box.
+                            labelX:
+                                !tr?.width && ir?.width
+                                    ? Math.round(
+                                          ir.right +
+                                              parseFloat(ics.marginInlineEnd) -
+                                              pr.left,
+                                      )
+                                    : null,
                         };
                     });
                 popup.hidePopup();
@@ -883,6 +893,17 @@ function featureProbeScript(url, done) {
                 pageWidth - 20,
             );
             Services.prefs.clearUserPref("userChrome.ui-context-menu-icons");
+            await sleep(300);
+            // userChrome.ui-menu-icon-column: every row gets the icon column,
+            // so the labels line up with the nav rows' (fork #21).
+            Services.prefs.setBoolPref("userChrome.ui-menu-icon-column", true);
+            await sleep(400);
+            out.menus.pageColumn = await openMenu(
+                "contentAreaContextMenu",
+                page,
+                pageWidth - 20,
+            );
+            Services.prefs.clearUserPref("userChrome.ui-menu-icon-column");
             await sleep(300);
         }
 
@@ -1475,6 +1496,27 @@ function contractsFor(scenarioId, p) {
             "menu-gutter-when-checked",
             menus.toolbar.gutter && gutter > plain,
             `needsgutter ${menus.toolbar.gutter}, text ${plain} -> ${gutter}`,
+        );
+        // With userChrome.ui-menu-icon-column the nav labels start where
+        // the other rows' text does, which is where it starts with the icons
+        // pref. Without it they don't (fork #21).
+        const navLabels = (m) => [
+            ...new Set(
+                m.rows
+                    .filter((r) => /^context-(back|forward|reload)/.test(r.id))
+                    .map((r) => r.labelX),
+            ),
+        ];
+        const [columnText] = textX(menus.pageColumn);
+        const [iconsText] = textX(menus.pageIcons);
+        const columnNav = navLabels(menus.pageColumn);
+        add(
+            "menu-icon-column-pref-aligns-labels",
+            textX(menus.pageColumn).length === 1 &&
+                columnText === iconsText &&
+                columnNav.length === 1 &&
+                Math.abs(columnNav[0] - columnText) <= 1,
+            `text ${textX(menus.pageColumn)} (icons pref ${iconsText}), nav labels ${columnNav}, default nav ${navLabels(menus.page)} vs text ${textX(menus.page)}`,
         );
         add(
             "menu-icons-pref-uses-gutter",

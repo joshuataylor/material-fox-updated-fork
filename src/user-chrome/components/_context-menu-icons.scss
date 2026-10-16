@@ -388,3 +388,36 @@
     }
   }
 }
+
+// Opt-in: give every row of the themed menus Firefox's icon column, left
+// empty where a row has no icon, so the labels line up with the icons of
+// Back, Forward and Reload and of extension items (fork #21). The icons pref
+// already does this with its own icons.
+@include moz-pref-media("userChrome.ui-menu-icon-column") {
+  @include moz-pref-media("not userChrome.ui-context-menu-icons") {
+    .textbox-contextmenu,
+    #contentAreaContextMenu,
+    #toolbar-context-menu,
+    #placesContext,
+    #tabContextMenu {
+      menuitem,
+      menu {
+        > .menu-icon {
+          display: revert !important;
+        }
+
+        &:not(
+            [type="radio"],
+            [type="checkbox"],
+            [checked],
+            [image],
+            .menuitem-iconic,
+            .menu-iconic
+          )
+          > .menu-icon {
+          visibility: hidden !important;
+        }
+      }
+    }
+  }
+}

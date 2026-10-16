@@ -55,6 +55,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * instead of growing past it on every side. Off by default.
 // user_pref("userChrome.ui-no-urlbar-overhang", true);
 
+// * Line up right-click menu labels with the Back / Forward / Reload icons by
+// * leaving an empty icon space on the other commands. Off by default.
+// user_pref("userChrome.ui-menu-icon-column", true);
+
 // * Drop the circle behind the audio button on pinned tabs, leaving a plain
 // * speaker icon. Off by default.
 // user_pref("userChrome.ui-no-tab-audio-background", true);

@@ -185,6 +185,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Display icons beside right-click menu commands, such as Copy, Paste, Pin Tab and Mute Tab. Independent of <code>userChrome.ui-no-menu-icons</code>.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-menu-icon-column</code></td>
+    <td>Line up every right-click menu label with the icons of Back, Forward and Reload, by leaving an empty icon space on the commands without one. Only needed with <code>userChrome.ui-context-menu-icons</code> off, which lines them up already. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-no-menu-icons</code></td>
     <td>Hide the theme's icons in the main menu and its panels (New Tab, Downloads, Settings and so on). Firefox's own icons can still appear, and context menu icons from <code>userChrome.ui-context-menu-icons</code> are not affected.</td>
   </tr>
