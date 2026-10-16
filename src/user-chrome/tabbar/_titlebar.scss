@@ -97,7 +97,9 @@
 // (edelvarden/material-fox-updated#140). Firefox switches to its own
 // inactive colours as well (the system's inactive caption, or the
 // lightweight theme's frame_inactive), so point those at the active ones,
-// as Firefox itself does on macOS.
+// as Firefox itself does on macOS. Firefox also fades the tab strip
+// (.browser-titlebar) to --inactive-titlebar-opacity, which dimmed the tab
+// titles (fork #21), so keep that at 1.
 @include moz-pref-media("userChrome.ui-no-inactive-titlebar") {
   :root {
     --toolbox-background-color-inactive: var(
@@ -105,6 +107,7 @@
     ) !important;
     --toolbox-text-color-inactive: var(--toolbox-text-color) !important;
     --lwt-accent-color-inactive: var(--lwt-accent-color) !important;
+    --inactive-titlebar-opacity: 1 !important;
   }
 }
 

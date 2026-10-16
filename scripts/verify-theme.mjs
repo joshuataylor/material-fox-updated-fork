@@ -702,17 +702,26 @@ function featureProbeScript(url, done) {
         const toolboxBg = () =>
             getComputedStyle(document.getElementById("navigator-toolbox"))
                 .backgroundColor;
+        // Firefox also fades the tab strip (.browser-titlebar) when inactive
+        // (fork #21).
+        const stripOpacity = () =>
+            getComputedStyle(document.getElementById("TabsToolbar")).opacity;
         const activeToolbox = toolboxBg();
         const otherWindow = OpenBrowserWindow();
         await sleep(2500);
         const inactiveDefault = toolboxBg();
+        const opacityDefault = stripOpacity();
         Services.prefs.setBoolPref("userChrome.ui-no-inactive-titlebar", true);
-        await sleep(400);
+        await sleep(600);
         out.inactiveTitlebar = {
             inactive: document.documentElement.matches(":-moz-window-inactive"),
+            customTitlebar:
+                document.documentElement.hasAttribute("customtitlebar"),
             active: activeToolbox,
             default: inactiveDefault,
             pref: toolboxBg(),
+            opacityDefault,
+            opacityPref: stripOpacity(),
         };
         Services.prefs.clearUserPref("userChrome.ui-no-inactive-titlebar");
         otherWindow.close();
@@ -1315,6 +1324,15 @@ function contractsFor(scenarioId, p) {
             it.inactive && it.default !== it.active && it.pref === it.active,
             `active ${it.active}, inactive ${it.default} -> pref ${it.pref}`,
         );
+        // Firefox only fades the strip with tabs in the titlebar.
+        if (it.customTitlebar)
+            add(
+                "inactive-titlebar-pref-keeps-opacity",
+                it.inactive &&
+                    Number(it.opacityDefault) < 1 &&
+                    it.opacityPref === "1",
+                `tab strip opacity inactive ${it.opacityDefault} -> pref ${it.opacityPref}`,
+            );
     }
 
     // Menus (Windows/Linux only, the probe skips them on macOS): one text
