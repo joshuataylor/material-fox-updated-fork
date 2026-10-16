@@ -14,6 +14,25 @@
   fallback: mfox-tab-count-many;
 }
 
+@mixin tab-count-box {
+  content: counter(mfox-tabs, mfox-tab-count);
+  width: fit-content;
+  min-width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  padding-inline: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
 @include moz-pref-media("userChrome.ui-tab-counter") {
   :root {
     counter-reset: mfox-tabs;
@@ -25,31 +44,37 @@
 
   #alltabs-button > .toolbarbutton-badge-stack {
     position: relative !important;
+    anchor-name: --mfox-alltabs;
 
     > .toolbarbutton-icon {
       opacity: 0 !important;
     }
 
     &::after {
-      content: counter(mfox-tabs, mfox-tab-count);
+      @include tab-count-box;
       position: absolute;
       inset: 0;
       margin: auto;
-      width: fit-content;
-      min-width: 16px;
-      height: 16px;
-      box-sizing: border-box;
-      padding-inline: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1.5px solid currentColor;
-      border-radius: 4px;
-      font-size: 9px;
-      font-weight: 700;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-      pointer-events: none;
     }
+  }
+
+  // A counter only sees the tabs before it, so with the button moved in front
+  // of the tabs (Customise, fork #21) the button's own count reads 0. Draw it
+  // from #tabbrowser-tabs::after instead, which follows every tab, anchored over
+  // the button. Only in this case: in another toolbar (the nav bar) the copy
+  // would sit under that toolbar, which paints after the tab strip.
+  #alltabs-button:has(~ #tabbrowser-tabs) > .toolbarbutton-badge-stack::after {
+    content: none;
+  }
+
+  #alltabs-button ~ #tabbrowser-tabs::after {
+    @include tab-count-box;
+    position: fixed;
+    position-anchor: --mfox-alltabs;
+    // Off screen if the button is hidden and the anchor is missing.
+    left: anchor(center, -100px);
+    top: anchor(center, -100px);
+    translate: -50% -50%;
+    z-index: 1;
   }
 }

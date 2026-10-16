@@ -660,10 +660,39 @@ function featureProbeScript(url, done) {
             icon: getComputedStyle(stack.querySelector(".toolbarbutton-icon"))
                 .opacity,
         });
+        // The number as drawn: the text of the ::after generated content on the
+        // button, or on #tabbrowser-tabs when the button sits before the tabs.
+        const drawnCount = () => {
+            const text = (el) =>
+                InspectorUtils.getChildrenForNode(el, true, false).find(
+                    (k) => k.nodeName === "_moz_generated_content_after",
+                )?.textContent ?? null;
+            return {
+                button: text(stack),
+                strip: text(document.getElementById("tabbrowser-tabs")),
+            };
+        };
         const counterDefault = counter();
         Services.prefs.setBoolPref("userChrome.ui-tab-counter", true);
         await sleep(400);
-        out.tabCounter = { default: counterDefault, pref: counter() };
+        const counterPref = counter();
+        const drawnDefault = drawnCount();
+        // Moved to the start of the tab strip in Customise (fork #21), where the
+        // button's own counter has seen no tabs.
+        const allTabsPos =
+            CustomizableUI.getPlacementOfWidget("alltabs-button").position;
+        CustomizableUI.moveWidgetWithinArea("alltabs-button", 0);
+        await sleep(400);
+        const drawnFirst = drawnCount();
+        CustomizableUI.moveWidgetWithinArea("alltabs-button", allTabsPos);
+        await sleep(400);
+        out.tabCounter = {
+            default: counterDefault,
+            pref: counterPref,
+            tabs: gBrowser.tabs.length,
+            drawnDefault,
+            drawnFirst,
+        };
         Services.prefs.clearUserPref("userChrome.ui-tab-counter");
         await sleep(200);
 
@@ -1264,6 +1293,17 @@ function contractsFor(scenarioId, p) {
                 String(tc.pref?.content).includes("counter(mfox-tabs") &&
                 tc.pref?.icon === "0",
             `default ${tc.default?.content} icon ${tc.default?.icon}, pref ${tc.pref?.content} icon ${tc.pref?.icon}`,
+        );
+        // The drawn number matches the open tabs wherever the button sits,
+        // and only one copy shows (fork #21).
+        const want = String(tc.tabs);
+        add(
+            "tab-counter-counts-tabs",
+            tc.drawnDefault?.button === want &&
+                tc.drawnDefault?.strip === null &&
+                tc.drawnFirst?.button === null &&
+                tc.drawnFirst?.strip === want,
+            `${want} tabs: default button ${tc.drawnDefault?.button} strip ${tc.drawnDefault?.strip}, button first: button ${tc.drawnFirst?.button} strip ${tc.drawnFirst?.strip}`,
         );
     }
 
