@@ -233,6 +233,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Hide the small clock badge Firefox draws over the site icon of history suggestions in the address bar dropdown, so the icon shows in full. Bookmark and open-tab badges are kept. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-urlbar-overhang</code></td>
+    <td>Keep the open address bar dropdown the same width as the address bar. Firefox normally grows it past the bar on every side while it is open (by 8px with the new Firefox look, unless <code>browser.uidensity</code> is compact). <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-no-tab-audio-background</code></td>
     <td>Drop the circle (fill, border and shadow) behind the audio button on pinned tabs, leaving a plain speaker icon. The hover background is kept. <code>false</code> by default.</td>
   </tr>

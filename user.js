@@ -51,6 +51,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * their site icons show in full. Off by default.
 // user_pref("userChrome.ui-no-urlbar-history-badge", true);
 
+// * Keep the open address bar dropdown the same width as the address bar,
+// * instead of growing past it on every side. Off by default.
+// user_pref("userChrome.ui-no-urlbar-overhang", true);
+
 // * Drop the circle behind the audio button on pinned tabs, leaving a plain
 // * speaker icon. Off by default.
 // user_pref("userChrome.ui-no-tab-audio-background", true);

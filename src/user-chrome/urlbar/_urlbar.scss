@@ -18,6 +18,39 @@
   }
 }
 
+// Opt-in: keep the open address bar flush with the bar. With Nova, Firefox
+// grows the open surface by --urlbar-background-overhang-open on every side,
+// 8px at normal density and 0 in compact (fork #19). With Nova off, the input
+// itself grows over the container's padding and margins instead.
+@include moz-pref-media("userChrome.ui-no-urlbar-overhang") {
+  :root {
+    --urlbar-background-overhang-open: 0px !important;
+  }
+
+  #urlbar {
+    --urlbar-input-growth-open-inline: 0px !important;
+    --urlbar-input-growth-open-block: 0px !important;
+  }
+
+  // Nova makes the results view a row gutter wider than the bar on each side,
+  // which the overhang used to cover, so the selection bar would stick out.
+  // Keep the view to the bar's width and inset the rows by the gutter instead.
+  // Firefox 159 lowercased the urlbarView variables (Bug 2052926).
+  @include moz-pref-media("browser.nova.enabled") {
+    :root {
+      --urlbarview-margin-inline: 0px !important;
+      --urlbarView-margin-inline: 0px !important;
+    }
+
+    .urlbarView-results {
+      padding-inline: var(
+        --urlbarview-row-gutter,
+        var(--urlbarView-row-gutter)
+      ) !important;
+    }
+  }
+}
+
 // The first and last toolbar buttons as far from the window edge as from the
 // top of the bar: (38px - 28px) / 2, or (36px - 28px) / 2 in compact mode.
 // Firefox's 6px (Nova) left them a pixel or two further in (fork #12).

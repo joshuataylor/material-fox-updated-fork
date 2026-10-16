@@ -421,6 +421,34 @@ function featureProbeScript(url, done) {
             trustClosed,
             trustOpen: display(trust),
         };
+        // How far the open surface reaches past the bar, by default and with
+        // userChrome.ui-no-urlbar-overhang (fork #19).
+        const overhang = () => {
+            const u = urlbar.getBoundingClientRect();
+            const s = urlbar
+                .querySelector(".urlbar-background")
+                .getBoundingClientRect();
+            // The result rows (and the selection bar) stay inside it.
+            const row = urlbar
+                .querySelector(".urlbarView-row")
+                ?.getBoundingClientRect();
+            return {
+                left: u.left - s.left,
+                top: u.top - s.top,
+                right: s.right - u.right,
+                rowInset: row ? row.left - s.left : null,
+            };
+        };
+        const overhangDefault = overhang();
+        Services.prefs.setBoolPref("userChrome.ui-no-urlbar-overhang", true);
+        await sleep(400);
+        out.urlbarOverhang = {
+            open: urlbar.hasAttribute("open"),
+            default: overhangDefault,
+            pref: overhang(),
+        };
+        Services.prefs.clearUserPref("userChrome.ui-no-urlbar-overhang");
+        await sleep(200);
         gURLBar.view.close();
         gBrowser.selectedBrowser.focus();
         await sleep(200);
@@ -1172,6 +1200,19 @@ function contractsFor(scenarioId, p) {
                 uc.trustClosed !== "none" &&
                 uc.trustOpen !== "none",
             `shift ${uc.shift}px, chip ${uc.trustClosed} -> ${uc.trustOpen}`,
+        );
+        // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
+        // the bar. Nova grows it by 8px by default (fork #19).
+        const oh = f.urlbarOverhang || {};
+        const flush = (o) =>
+            !!o && [o.left, o.top, o.right].every((v) => Math.abs(v) < 0.5);
+        add(
+            "urlbar-overhang-pref-flush",
+            oh.open === true &&
+                flush(oh.pref) &&
+                oh.pref.rowInset >= 0 &&
+                (scenarioId !== "themed" || oh.default?.left > 0),
+            `default ${JSON.stringify(oh.default)}, pref ${JSON.stringify(oh.pref)}`,
         );
         // The find bar clips both axes, so it never shows a scrollbar, and the
         // top-right bar fits a 700px window (issue #8).
