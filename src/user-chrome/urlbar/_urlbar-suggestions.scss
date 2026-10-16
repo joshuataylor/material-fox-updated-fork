@@ -110,12 +110,6 @@
   }
 }
 
-// remove unnecessary border upper url bar suggestions (Firefox 157 with Nova
-// off; 158+ has no body wrappers and Nova draws no separator)
-#urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
-  border-color: transparent !important;
-}
-
 // urlbar suggestions item height
 .urlbarView-row-inner {
   // min-height: 20px; // (Default) Height with margins equals 38px
@@ -147,15 +141,6 @@
 .urlbar-go-button,
 .search-go-button {
   display: none !important;
-}
-
-// crop the background of item which out of the results block on hover
-// (Firefox 157 only; 158+ removed the wrappers and scrolls .urlbarView-results)
-.urlbarView-body-outer,
-.urlbarView-body-inner {
-  border-bottom-left-radius: 16px !important;
-  border-bottom-right-radius: 16px !important;
-  overflow: hidden !important;
 }
 
 // fix urlbar search tag height
