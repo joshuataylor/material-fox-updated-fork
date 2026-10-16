@@ -34,7 +34,7 @@ export default {
     dpr: 2, // device-pixel ratio; 2 = crisp Retina-quality PNGs. Override with --dpr.
     channels: ["nightly"], // default; override with --channels
     schemes: ["light", "dark"], // override with --schemes (or --scheme)
-    settleMs: 1000, // per-screenshot settle time (ms) after load, before capture
+    settleMs: 1000, // most a shot waits per step (load, setup, trigger) to settle before capture
 
     screenshots: [
         {
@@ -317,6 +317,8 @@ export default {
             // New tab page chrome -- Nova 158 renders the search box with <moz-urlbar>
             // (gated by browser.urlbar.newtab.featureGate). Full window.
             name: "newtab",
+            // Settle for at least 1s: the account button's badge shows a little after the page loads.
+            minSettleMs: 1000,
             url: "about:newtab",
         },
         {
@@ -379,6 +381,7 @@ export default {
             // focus): the URL text and the leading site chip must not move.
             name: "urlbar-clicked",
             url: "https://example.com/",
+            waitFor: "#urlbar[open]",
             setup: `
                 gURLBar.focus();
                 gURLBar.startQuery({ event: new MouseEvent("mousedown"), searchString: "" });
@@ -393,6 +396,7 @@ export default {
             // field.
             name: "urlbar-open",
             url: "https://example.com/",
+            waitFor: "#urlbar[open]",
             setup: 'gURLBar.focus(); gURLBar.value = "example"; gURLBar.startQuery({ searchString: "example" }); return true;',
             crops: [{ label: "urlbar", selector: "#urlbar" }],
             variants: [
@@ -422,6 +426,8 @@ export default {
             // Overflowing tab strip -> scroll arrows + the all-tabs (v) button.
             // Isolated: opens ~40 tabs, which must not leak into other screenshots.
             name: "tab-overflow",
+            // Settle for at least 1s: Firefox flashes the scroll button when tabs open off screen.
+            minSettleMs: 1000,
             url: "https://example.com/",
             isolate: true,
             setup:
@@ -451,6 +457,8 @@ export default {
         {
             // Split View tab container (155+).
             name: "split-view",
+            // Settle for at least 1s: the splitter between the panes stays highlighted for a moment after the split opens.
+            minSettleMs: 1000,
             url: "https://example.com/",
             isolate: true,
             setup:

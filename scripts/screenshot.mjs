@@ -24,6 +24,8 @@
 // Use `variants: [{ id, prefs }]` for captures with different prefs. Variant prefs override the screenshot's prefs.
 // Screenshots share a browser, with UI state reset between captures.
 // Set `isolate: true` on a screenshot or the config to use a fresh profile for each capture that changes persistent state, such as bookmarks or history.
+// Before capture the harness waits for the window to settle (see settle()). A shot can add `waitFor` selectors and a `minSettleMs` floor.
+// Headless runs capture the schemes in parallel (--no-parallel to turn that off).
 //
 // PNGs output to `outDir` (default tmp/screenshots), named
 // <feature>__<enabled|disabled>__<channel_major>__<light|dark>__<os>.png.
@@ -241,6 +243,10 @@ function buildOptions({ binary, profileDir, headless, nova, scheme, dpr }) {
     // Suppress the startup default-browser / "pin to taskbar" prompt
     // (DefaultBrowserCheck.sys.mjs) so it does not overlay captures on Windows.
     options.setPreference("browser.shell.checkDefaultBrowser", false);
+    // Hide overlay scrollbars straight away. macOS shows the page's scrollbar
+    // for a moment after a load, and a quick capture would catch it.
+    options.setPreference("ui.scrollbarFadeBeginDelay", 0);
+    options.setPreference("ui.scrollbarFadeDuration", 0);
     // Set the system and page colour schemes.
     options.setPreference("ui.systemUsesDarkTheme", scheme === "dark" ? 1 : 0);
     options.setPreference(
@@ -269,7 +275,7 @@ async function newDriver(options) {
 // Use openTrustedLinkIn because gBrowser.loadURI can race the Marionette response and drop the connection.
 // Standard WebDriver page navigation is documented here; this function runs in Firefox's chrome context:
 // https://www.selenium.dev/documentation/webdriver/interactions/navigation/
-async function navigate(driver, url, settleMs) {
+async function navigate(driver, url) {
     await driver.executeScript((u) => {
         // eslint-disable-next-line no-undef
         openTrustedLinkIn(u, "current");
@@ -286,9 +292,93 @@ async function navigate(driver, url, settleMs) {
             return uri !== "about:blank" && loading === false;
         });
         if (done) break;
-        await sleep(150);
+        await sleep(50);
     }
-    await sleep(settleMs);
+}
+
+// The longest setTimeout delay a setup script schedules (e.g. opening the find
+// bar 300ms later), so settle() does not capture before it has run.
+function timerDelay(code) {
+    const delays = [
+        ...String(code || "").matchAll(/setTimeout\([\s\S]*?,\s*(\d+)\s*\)/g),
+    ].map((m) => Number(m[1]));
+    return delays.length ? Math.max(...delays) : 0;
+}
+
+// Wait for the browser window to settle instead of a fixed delay: no CSS
+// transition or finite animation still running, the crop targets showing and
+// not moving between frames, every `waitFor` selector matching (UI that opens
+// asynchronously, like the address bar results), and at least `minMs` gone.
+// `maxMs` caps the wait, so an element that never shows costs what the old
+// fixed delay did.
+async function settle(driver, { selectors = [], waitFor = [], minMs, maxMs }) {
+    await driver.executeAsyncScript(
+        (selectors, waitFor, minMs, maxMs, done) => {
+            /* global document, performance, requestAnimationFrame */
+            const start = performance.now();
+            const frame = () => new Promise((r) => requestAnimationFrame(r));
+            const rect = (s) =>
+                document.querySelector(s)?.getBoundingClientRect();
+            const layout = () =>
+                selectors
+                    .map((s) => {
+                        const r = rect(s);
+                        return r
+                            ? [r.x, r.y, r.width, r.height]
+                                  .map(Math.round)
+                                  .join()
+                            : "none";
+                    })
+                    .join("|");
+            const showing = () =>
+                selectors.every((s) => rect(s)?.width && rect(s)?.height) &&
+                waitFor.every((s) => document.querySelector(s));
+            const animating = () =>
+                document
+                    .getAnimations()
+                    .some(
+                        (a) =>
+                            a.playState === "running" &&
+                            a.effect?.getComputedTiming().endTime !== Infinity,
+                    );
+            (async () => {
+                let prev = null;
+                let still = 0;
+                while (performance.now() - start < maxMs) {
+                    await frame();
+                    const cur = layout();
+                    still = cur === prev ? still + 1 : 0;
+                    prev = cur;
+                    if (
+                        performance.now() - start >= minMs &&
+                        still >= 2 &&
+                        showing() &&
+                        !animating()
+                    )
+                        break;
+                }
+                done(true);
+            })();
+        },
+        selectors,
+        waitFor,
+        minMs,
+        maxMs,
+    );
+}
+
+// A window screenshot once two captures in a row match, which also covers
+// changes inside the page (its own transitions, late badges) that the chrome
+// window cannot see. Gives up after a few tries and keeps the last one.
+async function stableScreenshot(driver) {
+    let png = await driver.takeScreenshot();
+    for (let i = 0; i < 4; i++) {
+        await sleep(100);
+        const next = await driver.takeScreenshot();
+        if (next === png) return png;
+        png = next;
+    }
+    return png;
 }
 
 async function setPrefs(driver, prefs) {
@@ -463,14 +553,13 @@ function osFullScreenShot(outPath) {
 
 // Run setup in chrome context, then wait for UI updates before capture.
 // For example, setup can open the findbar with document.getElementById("cmd_find").doCommand().
-async function runSetup(driver, setup, settleMs) {
+async function runSetup(driver, setup) {
     if (!setup) return;
     await driver.executeScript(setup);
-    await sleep(settleMs);
 }
 
 // Used when a web-content element needs to open a content-anchored chrome popup (e.g. the #PopupAutoComplete satchel/datalist dropdown).
-async function runContentTrigger(driver, trigger, settleMs) {
+async function runContentTrigger(driver, trigger) {
     if (!trigger) return;
     await driver.setContext("content");
     try {
@@ -496,7 +585,6 @@ async function runContentTrigger(driver, trigger, settleMs) {
             return true;
         });
     }
-    await sleep(settleMs);
 }
 
 // Select the built-in theme matching the requested colour scheme.
@@ -518,7 +606,17 @@ async function enforceColorScheme(driver, scheme) {
                 () => done(false),
             );
     }, themeId);
-    await sleep(300);
+    // Wait for the browser window to switch to the scheme.
+    await driver.executeAsyncScript((dark, done) => {
+        /* global matchMedia, performance */
+        const mq = matchMedia("(prefers-color-scheme: dark)");
+        const start = performance.now();
+        const tick = () =>
+            mq.matches === dark || performance.now() - start > 2000
+                ? done(true)
+                : setTimeout(tick, 20);
+        tick();
+    }, scheme === "dark");
 }
 
 // Reset UI state between captures: close findbars, panels and menus, leave split view, and keep one tab.
@@ -629,9 +727,25 @@ async function captureScreenshot(
                 `  ! window is ${sizemode} after the fill, not normal: the tab strip will not match a normal window`,
             );
     }
-    await navigate(driver, screenshot.url, settleMs);
-    await runSetup(driver, screenshot.setup, settleMs);
-    await runContentTrigger(driver, screenshot.contentTrigger, settleMs);
+    await navigate(driver, screenshot.url);
+    await runSetup(driver, screenshot.setup);
+    await runContentTrigger(driver, screenshot.contentTrigger);
+    // One settle for all three steps, capped at what their fixed delays used
+    // to add up to.
+    const steps =
+        1 + (screenshot.setup ? 1 : 0) + (screenshot.contentTrigger ? 1 : 0);
+    await settle(driver, {
+        selectors: (screenshot.crops || []).map((c) => c.selector),
+        waitFor: [].concat(screenshot.waitFor || []),
+        // A short floor for state that settles without animating, or the
+        // shot's own `minSettleMs` for Firefox state that changes on a timer.
+        minMs: Math.max(
+            250,
+            screenshot.minSettleMs ?? 0,
+            timerDelay(screenshot.setup),
+        ),
+        maxMs: settleMs * steps,
+    });
     await stripAutomationIndicator(driver);
 
     // Native-window popups are invisible to WebDriver screenshots; capture the
@@ -666,7 +780,7 @@ async function captureScreenshot(
     }
 
     if (screenshot.window !== false) {
-        const png = await driver.takeScreenshot();
+        const png = await stableScreenshot(driver);
         const out = nameFor("window");
         writePng(png, out);
         written.push({ aspect: "window", file: out });
@@ -773,100 +887,153 @@ async function main() {
             label: "screenshot",
         });
 
-        try {
-            for (const scheme of schemes) {
-                console.log(
-                    `\n[${channel}/${scheme}] (nova=${nova}, headless=${headless})...`,
-                );
-                // Selenium copies the profile for each launch. Apply the requested theme after startup.
-                const launch = async () => {
-                    const options = buildOptions({
-                        binary,
-                        profileDir,
-                        headless,
-                        nova,
-                        scheme,
-                        dpr,
-                    });
-                    options.windowSize(config.window);
+        // One scheme's captures in its own browser. Returns its log lines and
+        // manifest entries, so parallel schemes print in order.
+        const runScheme = async (scheme, live) => {
+            const lines = [];
+            let pending = "";
+            const write = (s) => {
+                if (live) process.stdout.write(s);
+                else pending += s;
+            };
+            const log = (s) => {
+                if (live) console.log(s);
+                else {
+                    lines.push(pending + s);
+                    pending = "";
+                }
+            };
+            const entries = [];
+            log(
+                `\n[${channel}/${scheme}] (nova=${nova}, headless=${headless})...`,
+            );
+            // Selenium copies the profile for each launch. Apply the requested theme after startup.
+            const launch = async () => {
+                const options = buildOptions({
+                    binary,
+                    profileDir,
+                    headless,
+                    nova,
+                    scheme,
+                    dpr,
+                });
+                options.windowSize(config.window);
+                // Now and then a launch comes up without userChrome.css
+                // applied (the same flake verify-theme guards against), so
+                // check for the sheet and relaunch.
+                for (let attempt = 1; ; attempt++) {
                     const d = await newDriver(options);
-                    await enforceColorScheme(d, scheme);
-                    return d;
-                };
-
-                // Reuse one browser unless the screenshot requires isolation.
-                // Isolated captures get a fresh profile so bookmarks and history do not carry over.
-                let shared = null;
-                try {
-                    for (const screenshot of screenshots) {
-                        for (const {
-                            screenshot: s,
-                            variant,
-                            state,
-                        } of expandScreenshot(screenshot)) {
-                            const isolate =
-                                s.isolate ?? config.isolate ?? false;
-                            const label = variant
-                                ? `${screenshot.name}/${variant}`
-                                : screenshot.name;
-                            process.stdout.write(
-                                `  - ${label}${isolate ? " [isolated]" : ""} ... `,
+                    const themed = await d.executeScript(() =>
+                        InspectorUtils.getAllStyleSheets(document, false).some(
+                            (s) =>
+                                /\/chrome\/userChrome\.css$/i.test(
+                                    s.href || "",
+                                ),
+                        ),
+                    );
+                    if (themed || attempt === 2) {
+                        if (!themed)
+                            console.warn(
+                                `  ! ${channel}/${scheme}: userChrome.css did not load after a relaunch`,
                             );
-                            let driver;
-                            if (isolate) driver = await launch();
-                            else driver = shared ?? (shared = await launch());
-                            if (!versionByChannel[channel])
-                                versionByChannel[channel] = await readVersion(
-                                    driver,
-                                    channel,
-                                );
-                            const version = versionByChannel[channel];
-                            const nameFor = (aspect) =>
-                                flatFile({
-                                    outDir,
-                                    screenshotName: screenshot.name,
-                                    variant,
-                                    aspect,
+                        await enforceColorScheme(d, scheme);
+                        return d;
+                    }
+                    await d.quit().catch(() => {});
+                }
+            };
+
+            // Reuse one browser unless the screenshot requires isolation.
+            // Isolated captures get a fresh profile so bookmarks and history do not carry over.
+            let shared = null;
+            try {
+                for (const screenshot of screenshots) {
+                    for (const {
+                        screenshot: s,
+                        variant,
+                        state,
+                    } of expandScreenshot(screenshot)) {
+                        const isolate = s.isolate ?? config.isolate ?? false;
+                        const label = variant
+                            ? `${screenshot.name}/${variant}`
+                            : screenshot.name;
+                        write(
+                            `  - ${label}${isolate ? " [isolated]" : ""} ... `,
+                        );
+                        let driver;
+                        if (isolate) driver = await launch();
+                        else driver = shared ?? (shared = await launch());
+                        if (!versionByChannel[channel])
+                            versionByChannel[channel] = await readVersion(
+                                driver,
+                                channel,
+                            );
+                        const version = versionByChannel[channel];
+                        const nameFor = (aspect) =>
+                            flatFile({
+                                outDir,
+                                screenshotName: screenshot.name,
+                                variant,
+                                aspect,
+                                state,
+                                version,
+                                scheme,
+                                osTag,
+                            });
+                        try {
+                            const written = await captureScreenshot(
+                                driver,
+                                s,
+                                nameFor,
+                                settleMs,
+                                headless,
+                            );
+                            log(`${written.length} file(s)`);
+                            for (const w of written)
+                                entries.push({
+                                    feature: featureName(
+                                        screenshot.name,
+                                        variant,
+                                        w.aspect,
+                                    ),
                                     state,
+                                    channel,
                                     version,
                                     scheme,
-                                    osTag,
+                                    os: osTag,
+                                    aspect: w.aspect,
+                                    file: w.file,
                                 });
-                            try {
-                                const written = await captureScreenshot(
-                                    driver,
-                                    s,
-                                    nameFor,
-                                    settleMs,
-                                    headless,
-                                );
-                                console.log(`${written.length} file(s)`);
-                                for (const w of written)
-                                    manifest.push({
-                                        feature: featureName(
-                                            screenshot.name,
-                                            variant,
-                                            w.aspect,
-                                        ),
-                                        state,
-                                        channel,
-                                        version,
-                                        scheme,
-                                        os: osTag,
-                                        aspect: w.aspect,
-                                        file: w.file,
-                                    });
-                            } catch (err) {
-                                console.log(`error: ${err.message}`);
-                            } finally {
-                                if (isolate)
-                                    await driver.quit().catch(() => {});
-                            }
+                        } catch (err) {
+                            log(`error: ${err.message}`);
+                        } finally {
+                            if (isolate) await driver.quit().catch(() => {});
                         }
                     }
-                } finally {
-                    if (shared) await shared.quit().catch(() => {});
                 }
+            } finally {
+                if (shared) await shared.quit().catch(() => {});
+            }
+            return { lines, entries };
+        };
+
+        try {
+            // Headless schemes are independent browsers, so run them side by
+            // side. Display grabs share the screen, so a headful run stays one
+            // at a time (as does --no-parallel).
+            const parallel =
+                headless && args.parallel !== false && schemes.length > 1;
+            if (parallel) {
+                const results = await Promise.all(
+                    schemes.map((scheme) => runScheme(scheme, false)),
+                );
+                for (const { lines, entries } of results) {
+                    for (const line of lines) console.log(line);
+                    manifest.push(...entries);
+                }
+            } else {
+                for (const scheme of schemes)
+                    manifest.push(...(await runScheme(scheme, true)).entries);
             }
         } finally {
             rmSync(profileDir, { recursive: true, force: true });
