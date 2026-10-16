@@ -16,6 +16,14 @@
     order: 99 !important;
   }
 
+  // Flexible spaces in the tab strip go before the List all tabs button, as
+  // the default one already lands. With the default order of 0, a button moved
+  // to the start in Customise came first and the space sat between it and the
+  // tabs (fork #21).
+  #TabsToolbar-customization-target > toolbarspring {
+    order: -1 !important;
+  }
+
   #tabbrowser-arrowscrollbox .tabbrowser-tab:is(:first-child) {
     margin-left: 0px !important;
   }

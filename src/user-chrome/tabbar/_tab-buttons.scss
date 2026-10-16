@@ -1,3 +1,15 @@
+// Firefox draws a divider before the tabs whenever a toolbar button comes
+// before them (normally the Firefox View button). The theme treats the List
+// all tabs button as part of the tab strip, and on Windows moves it to the far
+// end, so drop the divider when it is the only button before the tabs
+// (fork #21).
+#alltabs-button
+  ~ #tabbrowser-tabs[orient="horizontal"]:not(
+    :is(toolbarbutton:not(#alltabs-button), toolbarpaletteitem) ~ *
+  )::before {
+  display: none !important;
+}
+
 // centered alltabs icon
 #alltabs-button {
   display: flex !important;

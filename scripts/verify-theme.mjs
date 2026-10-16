@@ -705,6 +705,20 @@ function featureProbeScript(url, done) {
         await sleep(400);
         const counterPref = counter();
         const drawnDefault = drawnCount();
+        // Where the tab strip starts, and whether Firefox's divider before the
+        // tabs shows (fork #21).
+        const stripStart = () => ({
+            firstTab: Math.round(gBrowser.tabs[0].getBoundingClientRect().left),
+            separator: getComputedStyle(
+                document.getElementById("tabbrowser-tabs"),
+                "::before",
+            ).borderInlineStartStyle,
+            separatorDisplay: getComputedStyle(
+                document.getElementById("tabbrowser-tabs"),
+                "::before",
+            ).display,
+        });
+        const startDefault = stripStart();
         // Moved to the start of the tab strip in Customise (fork #21), where the
         // button's own counter has seen no tabs.
         const allTabsPos =
@@ -712,6 +726,7 @@ function featureProbeScript(url, done) {
         CustomizableUI.moveWidgetWithinArea("alltabs-button", 0);
         await sleep(400);
         const drawnFirst = drawnCount();
+        const startFirst = stripStart();
         CustomizableUI.moveWidgetWithinArea("alltabs-button", allTabsPos);
         await sleep(400);
         out.tabCounter = {
@@ -720,6 +735,11 @@ function featureProbeScript(url, done) {
             tabs: gBrowser.tabs.length,
             drawnDefault,
             drawnFirst,
+        };
+        out.tabStripStart = {
+            platform: AppConstants.platform,
+            default: startDefault,
+            first: startFirst,
         };
         Services.prefs.clearUserPref("userChrome.ui-tab-counter");
         await sleep(200);
@@ -1330,6 +1350,28 @@ function contractsFor(scenarioId, p) {
             "themed-pages-pref",
             !!tp.palette && tp.default !== tp.palette && tp.pref === tp.palette,
             `canvas ${tp.default} -> ${tp.pref} (palette ${tp.palette})`,
+        );
+    }
+
+    if (
+        scenarioId === "themed" ||
+        scenarioId === "themed-proton" ||
+        scenarioId === "chrome-refresh"
+    ) {
+        // With the List all tabs button moved before the tabs, Firefox's
+        // divider before the tabs stays off, and under ui-chrome-refresh on
+        // Windows/Linux (which orders the strip) the tabs start where they do
+        // by default (fork #21).
+        const ts = (p.features || {}).tabStripStart || {};
+        const ordered =
+            scenarioId === "chrome-refresh" && ts.platform !== "macosx";
+        add(
+            "tab-strip-start-button-first",
+            !!ts.first &&
+                (ts.first.separator === "none" ||
+                    ts.first.separatorDisplay === "none") &&
+                (!ordered || ts.first.firstTab === ts.default.firstTab),
+            `first tab ${ts.default?.firstTab} -> ${ts.first?.firstTab}, divider ${ts.first?.separator}/${ts.first?.separatorDisplay}`,
         );
     }
 
