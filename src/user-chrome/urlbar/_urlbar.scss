@@ -32,9 +32,10 @@
 // Grouped buttons (zoom, cut/copy/paste) in a toolbar: the menu panel's
 // `margin-inline-end: var(--space-small)` also matches there, which left 7.5px
 // after the group instead of the 4px between other buttons (fork #12).
-// Firefox's toolbar rule is 2px on both sides.
+// Firefox's toolbar rule was 2px on both sides. From 160 it is
+// var(--space-xxsmall), 1.5px with Windows' 12px root font (Bug 2022989).
 toolbar .toolbaritem-combined-buttons {
-  margin-inline-end: 2px !important;
+  margin-inline: 2px !important;
 }
 
 // Just URL bar without top and bottom paddings
