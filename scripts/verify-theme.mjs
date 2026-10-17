@@ -626,6 +626,31 @@ function featureProbeScript(url, done) {
         };
         await clearPref("userChrome.ui-no-tab-title-changed-dot");
         await clearPref("userChrome.ui-no-pinned-tab-mute-click");
+        // ui-no-tab-audio-background drops the ring round a muted pinned
+        // tab's audio button: a border up to 157, an outline from 158
+        // (fork #21).
+        pinned.toggleAttribute("muted", true);
+        overlay.toggleAttribute("muted", true);
+        overlay.toggleAttribute("pinned", true);
+        const ring = () => {
+            const cs = getComputedStyle(overlay);
+            const outline =
+                cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0;
+            const border =
+                parseFloat(cs.borderTopWidth) > 0 &&
+                cs.borderTopColor !== "rgba(0, 0, 0, 0)";
+            return {
+                any: outline || border || cs.boxShadow !== "none",
+                outline: `${cs.outlineStyle} ${cs.outlineWidth}`,
+                border: `${cs.borderTopWidth} ${cs.borderTopColor}`,
+                shadow: cs.boxShadow,
+            };
+        };
+        const ringDefault = ring();
+        await setPref("userChrome.ui-no-tab-audio-background");
+        out.pinnedPrefs.ringDefault = ringDefault;
+        out.pinnedPrefs.ring = ring();
+        await clearPref("userChrome.ui-no-tab-audio-background");
         gBrowser.removeTab(pinned);
 
         // The nav bar's start corner is square while the first tab is selected and rounded otherwise.
@@ -1404,6 +1429,11 @@ function contractsFor(scenarioId, p) {
             `${String(pp.dotDefault).slice(0, 24)} -> ${pp.dot}`,
         );
         add("pref:no-pinned-tab-mute-click", pp.overlay === "none", pp.overlay);
+        add(
+            "pref:no-tab-audio-background-ring",
+            pp.ringDefault?.any === true && pp.ring?.any === false,
+            `default ${JSON.stringify(pp.ringDefault)}, pref ${JSON.stringify(pp.ring)}`,
+        );
         // Panel padding (issue #17 and #2).
         const pad = p.panelPadding || {};
         add(
