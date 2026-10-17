@@ -583,6 +583,16 @@ function featureProbeScript(url, done) {
 
         // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
         // asserted only in the chrome-refresh scenario (issue #12).
+        // The first tab's start margin applies only without pinned tabs, so
+        // the gap after the last pinned tab matches the gap between other
+        // tabs (fork #21).
+        const bgOf = (tab) =>
+            tab.querySelector(".tab-background").getBoundingClientRect();
+        const spare = addTab();
+        await waitFor(() => spare.getBoundingClientRect().width);
+        const firstMarginNoPinned = parseFloat(
+            getComputedStyle(gBrowser.tabs[0]).marginLeft,
+        );
         const pinned = addTab();
         gBrowser.pinTab(pinned);
         await waitFor(() => pinned.pinned);
@@ -602,6 +612,16 @@ function featureProbeScript(url, done) {
         const pi = pinned
             .querySelector(".tab-icon-stack")
             .getBoundingClientRect();
+        const stripTabs = gBrowser.tabs.filter((tab) => !tab.pinned);
+        out.pinnedGap = {
+            firstMarginNoPinned,
+            afterPinned: Math.round(
+                bgOf(stripTabs[0]).left - bgOf(pinned).right,
+            ),
+            between: Math.round(
+                bgOf(stripTabs[1]).left - bgOf(stripTabs[0]).right,
+            ),
+        };
         out.icons = {
             back: width("#back-button > .toolbarbutton-icon"),
             extensions: width(
@@ -652,6 +672,7 @@ function featureProbeScript(url, done) {
         out.pinnedPrefs.ring = ring();
         await clearPref("userChrome.ui-no-tab-audio-background");
         gBrowser.removeTab(pinned);
+        gBrowser.removeTab(spare);
 
         // The nav bar's start corner is square while the first tab is selected and rounded otherwise.
         const nav = document.getElementById("nav-bar");
@@ -1429,6 +1450,17 @@ function contractsFor(scenarioId, p) {
             `${String(pp.dotDefault).slice(0, 24)} -> ${pp.dot}`,
         );
         add("pref:no-pinned-tab-mute-click", pp.overlay === "none", pp.overlay);
+        // The gap after the last pinned tab is the gap between other tabs,
+        // and the first tab keeps its start margin without pinned tabs
+        // (fork #21).
+        const pg = f.pinnedGap || {};
+        add(
+            "pinned-tabs-gap-matches",
+            pg.firstMarginNoPinned === 8 &&
+                typeof pg.afterPinned === "number" &&
+                Math.abs(pg.afterPinned - pg.between) <= 1,
+            `no pinned: first margin ${pg.firstMarginNoPinned}, after pinned ${pg.afterPinned} vs between ${pg.between}`,
+        );
         add(
             "pref:no-tab-audio-background-ring",
             pp.ringDefault?.any === true && pp.ring?.any === false,
@@ -1702,6 +1734,19 @@ function contractsFor(scenarioId, p) {
             "import-button-transition",
             String(ts.importTransition).includes("background-color"),
             ts.importTransition,
+        );
+    }
+
+    if (scenarioId === "chrome-refresh") {
+        // The pinned tab gap, under ui-chrome-refresh as well (fork #21).
+        const f = p.features || {};
+        const pg = f.pinnedGap || {};
+        add(
+            "pinned-tabs-gap-matches",
+            pg.firstMarginNoPinned === 8 &&
+                typeof pg.afterPinned === "number" &&
+                Math.abs(pg.afterPinned - pg.between) <= 1,
+            `no pinned: first margin ${pg.firstMarginNoPinned}, after pinned ${pg.afterPinned} vs between ${pg.between}`,
         );
     }
 

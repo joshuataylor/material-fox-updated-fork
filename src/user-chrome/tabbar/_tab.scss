@@ -350,9 +350,12 @@ html {
 }
 
 // fix first tab margin (the horizontal strip only: vertical tabs line up
-// with each other, edelvarden/material-fox-updated#134)
+// with each other, edelvarden/material-fox-updated#134). Only when there are
+// no pinned tabs: they sit in their own container before the strip, and the
+// margin after them made a bigger gap than between other tabs (fork #21).
 #tabbrowser-tabs:not([orient="vertical"])
-  #tabbrowser-arrowscrollbox
+  #pinned-tabs-container:empty
+  ~ #tabbrowser-arrowscrollbox
   .tabbrowser-tab:is(:first-child) {
   margin-left: 8px !important;
 }
@@ -361,13 +364,6 @@ html {
 #tabbrowser-tabs[overflow] {
   .tabbrowser-tab:is([pinned], [first-visible-unpinned-tab]) {
     margin-inline-start: 0 !important;
-  }
-}
-
-// fix for prev style, if no pinned tabs - restore margin to prevent left tab corner cropping
-#tabbrowser-tabs:not([haspinnedtabs], [orient="vertical"]) {
-  .tabbrowser-tab[first-visible-unpinned-tab] {
-    margin-inline-start: 8px !important;
   }
 }
 
