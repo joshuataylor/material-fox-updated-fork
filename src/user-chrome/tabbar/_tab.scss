@@ -319,7 +319,7 @@ html {
 // `style.maxWidth` Firefox writes while closing or dragging tabs still wins
 // without a [style*="max-width"] selector.
 #tabbrowser-tabs {
-  --tab-max-width: 238px !important;
+  --tab-max-width: #{$tab-max-width} !important;
 }
 
 #tabs-newtab-button {

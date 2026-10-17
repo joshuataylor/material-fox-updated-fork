@@ -735,9 +735,9 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(hoverTab);
         await waitFor(() => !hoverTab.isConnected);
 
-        // The tab hover preview lines up with the tab background, not the
-        // tab's edge (fork #21). It only opens headful, so read its margin:
-        // Firefox's -shadow margin plus the background's inset.
+        // The tab hover preview is centred under a full-width tab (fork #21).
+        // It only opens headful, so read its margin against the tab's maximum
+        // width and the panel's width.
         const preview = document.getElementById("tab-preview-panel");
         if (preview) {
             const ps = getComputedStyle(preview);
@@ -747,11 +747,11 @@ function featureProbeScript(url, done) {
                     parseFloat(
                         ps.getPropertyValue("--panel-box-shadow-margin"),
                     ) || 0,
-                inset: Math.round(
-                    gBrowser.tabs[0]
-                        .querySelector(".tab-background")
-                        .getBoundingClientRect().left -
-                        gBrowser.tabs[0].getBoundingClientRect().left,
+                width: parseFloat(ps.getPropertyValue("--panel-width")),
+                tabMax: parseFloat(
+                    getComputedStyle(
+                        document.getElementById("tabbrowser-tabs"),
+                    ).getPropertyValue("--tab-max-width"),
                 ),
             };
         }
@@ -1781,12 +1781,14 @@ function contractsFor(scenarioId, p) {
     if (scenarioId === "chrome-refresh") {
         // The pinned tab gap, under ui-chrome-refresh as well (fork #21).
         const f = p.features || {};
-        // The tab hover preview starts at the tab background (fork #21).
+        // The tab hover preview is centred under a full-width tab (fork #21).
         const tp = f.tabPreview || {};
+        const previewOffset =
+            tp.marginStart + tp.shadowMargin + tp.width / 2 - tp.tabMax / 2;
         add(
-            "refresh:tab-preview-lines-up",
-            tp.inset > 0 && tp.marginStart === tp.inset - tp.shadowMargin,
-            `margin ${tp.marginStart}, inset ${tp.inset}, shadow margin ${tp.shadowMargin}`,
+            "refresh:tab-preview-centred",
+            tp.width > 0 && tp.tabMax > 0 && Math.abs(previewOffset) <= 0.5,
+            `centre ${previewOffset} from the tab's (margin ${tp.marginStart}, shadow margin ${tp.shadowMargin}, panel ${tp.width}, tab ${tp.tabMax})`,
         );
         const pg = f.pinnedGap || {};
         add(
