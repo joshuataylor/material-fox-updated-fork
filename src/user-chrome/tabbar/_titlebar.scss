@@ -99,7 +99,11 @@
 // lightweight theme's frame_inactive), so point those at the active ones,
 // as Firefox itself does on macOS. Firefox also fades the tab strip
 // (.browser-titlebar) to --inactive-titlebar-opacity, which dimmed the tab
-// titles (fork #21), so keep that at 1.
+// titles (fork #21), so keep that at 1. Chrome still fades the new tab
+// button, so give it Firefox's per-platform value, read on :root where
+// Firefox sets it, and only where Firefox fades the strip (tabs in the
+// titlebar). macOS already fades every toolbar button on an inactive window
+// (osx/browser.css), so leave it alone there.
 @include moz-pref-media("userChrome.ui-no-inactive-titlebar") {
   :root {
     --toolbox-background-color-inactive: var(
@@ -107,7 +111,21 @@
     ) !important;
     --toolbox-text-color-inactive: var(--toolbox-text-color) !important;
     --lwt-accent-color-inactive: var(--lwt-accent-color) !important;
+    --md-inactive-titlebar-opacity: var(--inactive-titlebar-opacity);
+  }
+
+  .browser-titlebar {
     --inactive-titlebar-opacity: 1 !important;
+  }
+
+  @media not (-moz-platform: macos) {
+    :root[customtitlebar] :is(#tabs-newtab-button, #new-tab-button) {
+      transition: opacity var(--inactive-window-transition);
+
+      &:-moz-window-inactive {
+        opacity: var(--md-inactive-titlebar-opacity) !important;
+      }
+    }
   }
 }
 

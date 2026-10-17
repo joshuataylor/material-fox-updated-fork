@@ -872,6 +872,10 @@ function featureProbeScript(url, done) {
         // (fork #21).
         const stripOpacity = () =>
             getComputedStyle(document.getElementById("TabsToolbar")).opacity;
+        // Chrome still fades the new tab button (fork #21).
+        const newTabOpacity = () =>
+            getComputedStyle(document.getElementById("tabs-newtab-button"))
+                .opacity;
         const activeToolbox = toolboxBg();
         const otherWindow = OpenBrowserWindow();
         await waitFor(
@@ -883,7 +887,7 @@ function featureProbeScript(url, done) {
         const inactiveDefault = toolboxBg();
         const opacityDefault = stripOpacity();
         await setPref("userChrome.ui-no-inactive-titlebar");
-        await settled(() => [toolboxBg(), stripOpacity()]);
+        await settled(() => [toolboxBg(), stripOpacity(), newTabOpacity()]);
         out.inactiveTitlebar = {
             inactive: document.documentElement.matches(":-moz-window-inactive"),
             customTitlebar:
@@ -893,6 +897,8 @@ function featureProbeScript(url, done) {
             pref: toolboxBg(),
             opacityDefault,
             opacityPref: stripOpacity(),
+            newTabOpacityPref: newTabOpacity(),
+            platform: AppConstants.platform,
         };
         await clearPref("userChrome.ui-no-inactive-titlebar");
         otherWindow.close();
@@ -1601,6 +1607,15 @@ function contractsFor(scenarioId, p) {
                     Number(it.opacityDefault) < 1 &&
                     it.opacityPref === "1",
                 `tab strip opacity inactive ${it.opacityDefault} -> pref ${it.opacityPref}`,
+            );
+        // Windows and Linux: macOS fades every toolbar button itself.
+        if (it.customTitlebar && it.platform !== "macosx")
+            add(
+                "inactive-titlebar-pref-dims-new-tab",
+                it.inactive &&
+                    it.opacityPref === "1" &&
+                    Number(it.newTabOpacityPref) < 1,
+                `new tab button opacity ${it.newTabOpacityPref} (strip ${it.opacityPref})`,
             );
     }
 
