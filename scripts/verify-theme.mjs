@@ -1133,7 +1133,8 @@ function featureProbeScript(url, done) {
         );
 
         // Toolbar spacing (fork issue #12), last because it rearranges the
-        // nav bar: the all-tabs circle is centred on the selected tab, the
+        // nav bar: the all-tabs circle is centred on an unselected tab (the
+        // selected tab's background runs into the toolbar, fork #21), the
         // first and last buttons and the URL bar sit as far from their
         // neighbours as the buttons sit from the top of the bar, and grouped
         // buttons (zoom, cut/copy/paste) keep the 4px gap of single ones.
@@ -1145,10 +1146,14 @@ function featureProbeScript(url, done) {
         const allTabs = document.querySelector(
             "#alltabs-button > .toolbarbutton-badge-stack",
         );
-        const selBg = gBrowser.selectedTab
+        const spareTab = addTab();
+        await settled(() => spareTab.getBoundingClientRect().toJSON());
+        const tabBg = spareTab
             .querySelector(".tab-background")
             .getBoundingClientRect();
         const atr = allTabs?.getBoundingClientRect();
+        gBrowser.removeTab(spareTab);
+        await waitFor(() => !spareTab.isConnected);
         for (const id of CustomizableUI.getWidgetIdsInArea("nav-bar"))
             if (id.includes("spring")) CustomizableUI.removeWidgetFromArea(id);
         CustomizableUI.addWidgetToArea(
@@ -1181,7 +1186,7 @@ function featureProbeScript(url, done) {
             .getElementById("TabsToolbar")
             .getBoundingClientRect();
         const captionStyle = atr && atr.height >= stripR.height - 1;
-        const target = captionStyle ? stripR : selBg;
+        const target = captionStyle ? stripR : tabBg;
         out.toolbarSpacing = {
             allTabsCaption: captionStyle,
             allTabsOffset: atr

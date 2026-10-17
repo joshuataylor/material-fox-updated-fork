@@ -47,16 +47,14 @@
 
 // all tabs button redesign
 #alltabs-button {
-  // As tall as a tab's background and, like it, at the bottom of the strip, so the
-  // 28px circle is centred on the tab without a sub-pixel nudge (fork #12)
+  // As tall as a tab and, like it, at the bottom of the strip, so the 28px
+  // circle lines up with the tabs and the new tab button. Only the selected
+  // tab's background reaches the bottom of the strip, so going by that one put
+  // the circle 3px low (fork #12, #21).
   min-width: 34px !important;
   max-width: 34px !important;
-  min-height: calc(
-    var(--tab-min-height) - var(--tab-vertical-padding)
-  ) !important;
-  max-height: calc(
-    var(--tab-min-height) - var(--tab-vertical-padding)
-  ) !important;
+  min-height: var(--tab-min-height) !important;
+  max-height: var(--tab-min-height) !important;
   align-self: flex-end !important;
 
   // move to the top left corner
