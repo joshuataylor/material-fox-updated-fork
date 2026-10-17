@@ -735,6 +735,27 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(hoverTab);
         await waitFor(() => !hoverTab.isConnected);
 
+        // The tab hover preview lines up with the tab background, not the
+        // tab's edge (fork #21). It only opens headful, so read its margin:
+        // Firefox's -shadow margin plus the background's inset.
+        const preview = document.getElementById("tab-preview-panel");
+        if (preview) {
+            const ps = getComputedStyle(preview);
+            out.tabPreview = {
+                marginStart: parseFloat(ps.marginInlineStart),
+                shadowMargin:
+                    parseFloat(
+                        ps.getPropertyValue("--panel-box-shadow-margin"),
+                    ) || 0,
+                inset: Math.round(
+                    gBrowser.tabs[0]
+                        .querySelector(".tab-background")
+                        .getBoundingClientRect().left -
+                        gBrowser.tabs[0].getBoundingClientRect().left,
+                ),
+            };
+        }
+
         // Opt-in ui-themed-pages: Settings' canvas on the theme palette
         // (edelvarden/material-fox-updated#124). about:preferences runs in
         // the parent process, so its window is readable from here.
@@ -1740,6 +1761,13 @@ function contractsFor(scenarioId, p) {
     if (scenarioId === "chrome-refresh") {
         // The pinned tab gap, under ui-chrome-refresh as well (fork #21).
         const f = p.features || {};
+        // The tab hover preview starts at the tab background (fork #21).
+        const tp = f.tabPreview || {};
+        add(
+            "refresh:tab-preview-lines-up",
+            tp.inset > 0 && tp.marginStart === tp.inset - tp.shadowMargin,
+            `margin ${tp.marginStart}, inset ${tp.inset}, shadow margin ${tp.shadowMargin}`,
+        );
         const pg = f.pinnedGap || {};
         add(
             "pinned-tabs-gap-matches",

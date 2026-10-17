@@ -146,3 +146,15 @@ html {
     --tab-background-color: #{get-var("tab-background-color-hover")} !important;
   }
 }
+
+// The tab hover preview is anchored to the tab's edge, but the tab draws its
+// background --tab-horizontal-padding in from it, so the preview sat that far
+// to the left of the tab (fork #21). Horizontal tabs only: with vertical tabs
+// it is anchored to the tab's end edge.
+@include moz-pref-media("not sidebar.verticalTabs") {
+  #tab-preview-panel {
+    margin-inline-start: calc(
+      var(--tab-horizontal-padding) - var(--panel-box-shadow-margin, 0px)
+    ) !important;
+  }
+}
