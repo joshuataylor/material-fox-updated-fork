@@ -1634,13 +1634,26 @@ function contractsFor(scenarioId, p) {
             ...new Set(m.rows.map((r) => r.textX).filter((x) => x !== null)),
         ];
         const heights = (m) => [...new Set(m.rows.map((r) => r.h))];
+        // Rows off the popup's most common height, so a failure names them.
+        const oddRows = (m) => {
+            const count = {};
+            for (const r of m.rows) count[r.h] = (count[r.h] || 0) + 1;
+            const common = Object.keys(count).sort(
+                (a, b) => count[b] - count[a],
+            )[0];
+            return m.rows
+                .filter((r) => String(r.h) !== common)
+                .map((r) => `${r.id || "?"}=${r.h}`);
+        };
         for (const [name, m] of Object.entries(menus)) {
+            const odd = oddRows(m);
             add(
                 `menu-${name}-aligned`,
                 m.rows.length > 0 &&
                     textX(m).length === 1 &&
                     heights(m).length === 1,
-                `${m.rows.length} rows, text x ${textX(m)}, heights ${heights(m)}`,
+                `${m.rows.length} rows, text x ${textX(m)}, heights ${heights(m)}` +
+                    (odd.length ? ` (${odd.join(", ")})` : ""),
             );
         }
         // One row height across popups, with or without the icon column.
