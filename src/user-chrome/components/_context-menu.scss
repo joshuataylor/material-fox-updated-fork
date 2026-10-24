@@ -148,6 +148,13 @@ $menu-side-paddings: 4px;
   #context-sendvideo {
     display: none !important;
   }
+
+  // Firefox 160's "Beta" badge (Use Mini Window) pads and borders a full
+  // text line, which makes its row 6px taller than the others. Let the pill
+  // overhang into the row padding instead.
+  menuitem[badge]::after {
+    margin-block: calc(-1 * (var(--space-xxsmall) + 1px)) !important;
+  }
 }
 
 // fix dropdown menu background color override
