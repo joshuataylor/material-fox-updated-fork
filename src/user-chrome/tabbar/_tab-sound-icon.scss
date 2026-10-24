@@ -154,6 +154,15 @@
   opacity: 1 !important;
 }
 
+// Firefox 160 fixed the macOS rule that fades background favicons (0.8), so
+// it now reaches pinned tabs too. Unloaded and sharing tabs keep their fade
+// and pulse.
+@media (-moz-platform: macos) {
+  .tab-icon-image[pinned]:not([pending], [sharing]) {
+    opacity: 1 !important;
+  }
+}
+
 // fix colors for pinned tab icon
 #TabsToolbar .tab-icon-overlay:is([pinned], [sharing]):not([crashed]) {
   color: get-var("text-primary") !important;
