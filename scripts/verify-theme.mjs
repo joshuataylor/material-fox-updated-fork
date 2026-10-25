@@ -671,6 +671,22 @@ function featureProbeScript(url, done) {
         out.pinnedPrefs.ringDefault = ringDefault;
         out.pinnedPrefs.ring = ring();
         await clearPref("userChrome.ui-no-tab-audio-background");
+        // macOS fades unselected tab labels and background favicons;
+        // ui-no-tab-dimming keeps both at full strength.
+        const dimming = () => ({
+            label: getComputedStyle(spare.querySelector(".tab-label-container"))
+                .opacity,
+            pinnedIcon: getComputedStyle(
+                pinned.querySelector(".tab-icon-image"),
+            ).opacity,
+        });
+        out.tabDimming = {
+            platform: AppConstants.platform,
+            default: dimming(),
+        };
+        await setPref("userChrome.ui-no-tab-dimming");
+        out.tabDimming.pref = dimming();
+        await clearPref("userChrome.ui-no-tab-dimming");
         gBrowser.removeTab(pinned);
         gBrowser.removeTab(spare);
 
@@ -1498,6 +1514,18 @@ function contractsFor(scenarioId, p) {
             pp.ringDefault?.any === true && pp.ring?.any === false,
             `default ${JSON.stringify(pp.ringDefault)}, pref ${JSON.stringify(pp.ring)}`,
         );
+        // macOS only: Firefox's fade stays by default, the pref clears it.
+        // The pinned favicon fade only matches from Firefox 160.
+        const td = f.tabDimming;
+        if (td?.platform === "macosx") {
+            add(
+                "pref:no-tab-dimming",
+                Number(td.default.label) < 1 &&
+                    td.pref.label === "1" &&
+                    td.pref.pinnedIcon === "1",
+                `default ${JSON.stringify(td.default)}, pref ${JSON.stringify(td.pref)}`,
+            );
+        }
         // Panel padding (issue #17 and #2).
         const pad = p.panelPadding || {};
         add(

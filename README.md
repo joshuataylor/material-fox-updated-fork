@@ -261,6 +261,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Keep the titlebar and tab strip in their active colours when the window loses focus, instead of turning grey. Useful when each profile has its own theme colour. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-no-tab-dimming</code></td>
+    <td>(macOS) Show the titles of background tabs and the icons of pinned tabs at full strength. Firefox on macOS fades them, on top of the theme's own grey for background tab titles. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-tab-counter</code></td>
     <td>Show how many tabs are open on the "List all tabs" button, as a number in a rounded outline ("99+" past 99), in place of its icon. Counts the tabs in the horizontal tab strip. <code>false</code> by default.</td>
   </tr>

@@ -55,11 +55,13 @@ html {
     }
   }
 
-  // macOS also fades unselected labels (0.7, 0.6 from Firefox 160), which
-  // stacks on the inactive colour above.
-  @media (-moz-platform: macos) {
-    .tab-label-container:not([selected]) {
-      opacity: 1 !important;
+  // Opt-in: macOS also fades unselected labels (0.7, 0.6 from Firefox 160),
+  // which stacks on the inactive colour above.
+  @include moz-pref-media("userChrome.ui-no-tab-dimming") {
+    @media (-moz-platform: macos) {
+      .tab-label-container:not([selected]) {
+        opacity: 1 !important;
+      }
     }
   }
 }
