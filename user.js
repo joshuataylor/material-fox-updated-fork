@@ -82,8 +82,8 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * default.
 // user_pref("userChrome.ui-no-inactive-titlebar", true);
 
-// * (macOS) Show background tab titles and pinned tab icons at full
-// * strength instead of Firefox's fade. Off by default.
+// * (macOS) Show background tab titles at full strength instead of
+// * Firefox's fade. Off by default.
 // user_pref("userChrome.ui-no-tab-dimming", true);
 
 // * Show the number of open tabs on the "List all tabs" button. Off by

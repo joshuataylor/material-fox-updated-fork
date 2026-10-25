@@ -262,7 +262,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.ui-no-tab-dimming</code></td>
-    <td>(macOS) Show the titles of background tabs and the icons of pinned tabs at full strength. Firefox on macOS fades them, on top of the theme's own grey for background tab titles. <code>false</code> by default.</td>
+    <td>(macOS) Show the titles of background tabs at full strength. By default the theme keeps Firefox's earlier fade on them (Firefox 160 made it stronger), on top of its own grey. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-tab-counter</code></td>

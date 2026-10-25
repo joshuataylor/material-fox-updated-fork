@@ -154,14 +154,12 @@
   opacity: 1 !important;
 }
 
-// Opt-in: Firefox 160 fixed the macOS rule that fades background favicons
-// (0.8), so it now reaches pinned tabs too. Unloaded and sharing tabs keep
-// their fade and pulse.
-@include moz-pref-media("userChrome.ui-no-tab-dimming") {
-  @media (-moz-platform: macos) {
-    .tab-icon-image[pinned]:not([pending], [sharing]) {
-      opacity: 1 !important;
-    }
+// Firefox 160 fixed the macOS rule that fades background favicons (0.8), so
+// it now reaches pinned tabs too. Keep them at full strength as before.
+// Unloaded and sharing tabs keep their fade and pulse.
+@media (-moz-platform: macos) {
+  .tab-icon-image[pinned]:not([pending], [sharing]) {
+    opacity: 1 !important;
   }
 }
 

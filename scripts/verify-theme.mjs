@@ -1514,13 +1514,15 @@ function contractsFor(scenarioId, p) {
             pp.ringDefault?.any === true && pp.ring?.any === false,
             `default ${JSON.stringify(pp.ringDefault)}, pref ${JSON.stringify(pp.ring)}`,
         );
-        // macOS only: Firefox's fade stays by default, the pref clears it.
-        // The pinned favicon fade only matches from Firefox 160.
+        // macOS only: background tab labels keep the pre-160 0.7 by default
+        // (Firefox 160 made it 0.6), full strength with the pref, and pinned
+        // favicons stay at 1 (Firefox 160 fades them to 0.8).
         const td = f.tabDimming;
         if (td?.platform === "macosx") {
             add(
                 "pref:no-tab-dimming",
-                Number(td.default.label) < 1 &&
+                td.default.label === "0.7" &&
+                    td.default.pinnedIcon === "1" &&
                     td.pref.label === "1" &&
                     td.pref.pinnedIcon === "1",
                 `default ${JSON.stringify(td.default)}, pref ${JSON.stringify(td.pref)}`,
