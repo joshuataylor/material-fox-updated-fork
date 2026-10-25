@@ -157,6 +157,10 @@ async function main() {
             "Remote debugging ON (Marionette :2828, BiDi :9222), navigator.webdriver=true, expect CAPTCHAs.",
         );
         ffArgs.push("--marionette", "--remote-debugging-port=9222");
+        // Chrome-context Marionette (the MCP, JS in the browser window). Firefox
+        // 159 replaced the --remote-allow-system-access flag with this variable
+        // (Bug 2054896).
+        process.env.MOZ_REMOTE_ALLOW_SYSTEM_ACCESS = "1";
     }
     if (process.platform === "win32" && process.stdout.isTTY) {
         // -attach-console routes Firefox's stdout/stderr to the parent console so its
