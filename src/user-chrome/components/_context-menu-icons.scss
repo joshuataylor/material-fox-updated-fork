@@ -143,6 +143,15 @@
     --md-menu-icon-visibility: visible;
   }
 
+  // Move to Mini Window (tab menu) and Move Section to Mini Window (page
+  // menu), Firefox 160. Firefox's own mini window icon: the theme's set has
+  // none.
+  #context_openTabInMiniWindow,
+  #context-use-mini-window {
+    --menuitem-icon: url("chrome://browser/content/miniwindow/assets/mini-window.svg") !important;
+    --md-menu-icon-visibility: visible;
+  }
+
   #context_moveToStart {
     --menuitem-icon: #{get-var("arrow-back-icon")} !important;
     --md-menu-icon-visibility: visible;
@@ -347,6 +356,14 @@
   #context-copyvideourl {
     --menuitem-icon: #{get-var("copy-icon")} !important;
     --md-menu-icon-visibility: visible;
+  }
+
+  // The visibility is set on each row, and custom properties inherit, so a
+  // <menu> row's would reach every row of its submenu and show an empty,
+  // broken-image icon on the ones without an icon of their own (Move Tab,
+  // Close Multiple Tabs). Start each popup hidden again.
+  menupopup {
+    --md-menu-icon-visibility: initial;
   }
 
   // Show each themed icon in Firefox's own icon column (.menu-icon), and
