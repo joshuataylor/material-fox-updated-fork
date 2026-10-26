@@ -175,6 +175,19 @@ const sameColor = (a, b) =>
     Math.abs(a.a - b.a) <= 0.02;
 const nearWhite = (c) => !!c && c.r >= 235 && c.g >= 235 && c.b >= 235;
 const opaqueWhite = (c) => opaque(c) && nearWhite(c);
+// WCAG contrast ratio of two opaque colours, or null if either is missing.
+const contrast = (a, b) => {
+    if (!a || !b) return null;
+    const lum = ({ r, g, b }) =>
+        [r, g, b]
+            .map((v) => v / 255)
+            .map((v) =>
+                v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4),
+            )
+            .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+};
 
 // Runs in the chrome window (selenium serialises the source), so Services and document are the chrome globals.
 // Returns only serialisable data.
@@ -1233,6 +1246,58 @@ function featureProbeScript(url, done) {
         out.toolbarSpacing.importTransition = importButton
             ? getComputedStyle(importButton).transitionProperty
             : null;
+
+        // Text on the accent colour, in dark mode, where the theme's accent is
+        // light: the "Saved to bookmarks" hint (its own text and background,
+        // which the Windows/Linux menu text colour used to override) and
+        // primary buttons (Firefox's text is AccentColorText on Linux).
+        const darkMq = matchMedia("(prefers-color-scheme: dark)");
+        const wasDark = Services.prefs.prefHasUserValue(
+            "ui.systemUsesDarkTheme",
+        )
+            ? Services.prefs.getIntPref("ui.systemUsesDarkTheme")
+            : null;
+        Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
+        await waitFor(() => darkMq.matches);
+        ConfirmationHint.show(
+            document.getElementById("PanelUI-menu-button"),
+            "confirmation-hint-page-bookmarked",
+            {},
+        );
+        const hint = await waitFor(() => {
+            const h = document.getElementById("confirmation-hint");
+            return h?.state === "open" && h;
+        });
+        const accentColor = (prop) => {
+            const e = document.createElement("div");
+            e.style.backgroundColor = `var(${prop})`;
+            document.documentElement.append(e);
+            const c = getComputedStyle(e).backgroundColor;
+            e.remove();
+            return c;
+        };
+        out.accentText = {
+            dark: darkMq.matches,
+            hintText: hint
+                ? getComputedStyle(
+                      document.getElementById("confirmation-hint-message"),
+                  ).color
+                : null,
+            hintBackground: hint
+                ? getComputedStyle(
+                      hint.shadowRoot.querySelector("[part=content]"),
+                  ).backgroundColor
+                : null,
+            buttonText: accentColor("--button-text-color-primary"),
+            buttonBackground: accentColor("--button-background-color-primary"),
+        };
+        hint?.hidePopup();
+        if (wasDark === null)
+            Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
+        else Services.prefs.setIntPref("ui.systemUsesDarkTheme", wasDark);
+        await waitFor(
+            () => wasDark === null || darkMq.matches === (wasDark === 1),
+        );
         done(out);
     })().catch((e) => done({ error: String(e) }));
 }
@@ -1818,6 +1883,30 @@ function contractsFor(scenarioId, p) {
             "import-button-transition",
             String(ts.importTransition).includes("background-color"),
             ts.importTransition,
+        );
+        // Readable text on the accent colour in dark mode: the confirmation
+        // hint and primary buttons (both were light on the light accent on
+        // Windows/Linux, about 2:1).
+        const at = (p.features || {}).accentText || {};
+        const describe = (fg, bg) =>
+            `${fg} on ${bg}, ${contrast(parseColor(fg), parseColor(bg))?.toFixed(2)}:1${at.dark ? "" : " (not dark)"}`;
+        add(
+            "dark:confirmation-hint-contrast",
+            at.dark &&
+                contrast(
+                    parseColor(at.hintText),
+                    parseColor(at.hintBackground),
+                ) >= 4.5,
+            describe(at.hintText, at.hintBackground),
+        );
+        add(
+            "dark:primary-button-contrast",
+            at.dark &&
+                contrast(
+                    parseColor(at.buttonText),
+                    parseColor(at.buttonBackground),
+                ) >= 4.5,
+            describe(at.buttonText, at.buttonBackground),
         );
     }
 

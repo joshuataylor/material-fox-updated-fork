@@ -70,9 +70,12 @@
   //
   // Scoped to Windows/Linux to match where menus are themed -- macOS keeps native menus, so would risk light-on-light.
   // See https://github.com/joshuataylor/material-fox-updated-fork/issues/4
+  //
+  // Leave out the panels that pair their own text colour with their own background (the "Saved to bookmarks"
+  // hint on the accent colour, Ctrl+Tab's grey, the date picker's Field), or the hint's text turns light-on-light.
   @media (-moz-platform: windows), (-moz-platform: linux) {
     menupopup,
-    panel {
+    panel:not(#confirmation-hint, #ctrlTab-panel, #DateTimePickerPanel) {
       --arrowpanel-color: #{get-var("text-primary")} !important;
       --panel-text-color: #{get-var("text-primary")} !important;
     }
@@ -118,8 +121,9 @@
     --toolbar-field-focus-color: #{get-var("text-primary")} !important;
     --toolbar-field-text-color-focus: #{get-var("text-primary")} !important;
 
-    // text on accent
+    // text on accent (--button-text-color-primary is the current name, AccentColorText on Linux otherwise)
     --button-primary-color: #{get-var("text-on-accent")} !important;
+    --button-text-color-primary: #{get-var("text-on-accent")} !important;
 
     --autocomplete-popup-separator-color: #{get-var("menu-border-color")} !important;
 
