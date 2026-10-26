@@ -31,8 +31,13 @@
     // font-size: 1rem !important;
     line-height: 20.02px !important;
 
-    color: var(--arrowpanel-color) !important;
-    background: var(--arrowpanel-background) !important;
+    // The --arrowpanel-* pair is only set with the theme's palette, so fall
+    // back to Firefox's panel colours under userChrome.theme-default.
+    color: var(--arrowpanel-color, var(--panel-text-color)) !important;
+    background: var(
+      --arrowpanel-background,
+      var(--panel-background-color)
+    ) !important;
     box-shadow: get-var("elevation-2") !important;
   }
 

@@ -1319,6 +1319,28 @@ function featureProbeScript(url, done) {
         };
         menu.hidePopup();
         menu.remove();
+
+        // The theme's tab tooltip (hover previews off) keeps a background
+        // under userChrome.theme-default, where --arrowpanel-* is unset.
+        await setPref("userChrome.theme-default");
+        const previewMq = matchMedia(
+            '-moz-pref("browser.tabs.hoverPreview.enabled")',
+        );
+        Services.prefs.setBoolPref("browser.tabs.hoverPreview.enabled", false);
+        await waitFor(() => !previewMq.matches);
+        const tipTab = gBrowser.selectedTab;
+        InspectorUtils.addPseudoClassLock(tipTab, ":hover");
+        const tip = getComputedStyle(tipTab, "::after");
+        out.tabTooltip = {
+            themeDefault: matchMedia('-moz-pref("userChrome.theme-default")')
+                .matches,
+            display: tip.display,
+            text: tip.color,
+            background: tip.backgroundColor,
+        };
+        InspectorUtils.removePseudoClassLock(tipTab, ":hover");
+        Services.prefs.clearUserPref("browser.tabs.hoverPreview.enabled");
+        await clearPref("userChrome.theme-default");
         done(out);
     })().catch((e) => done({ error: String(e) }));
 }
@@ -1937,6 +1959,16 @@ function contractsFor(scenarioId, p) {
             mh.open &&
                 contrast(parseColor(mh.text), parseColor(mh.background)) >= 4.5,
             `${mh.text} on ${mh.background}, ${contrast(parseColor(mh.text), parseColor(mh.background))?.toFixed(2)}:1${mh.open ? "" : " (menu not open)"}`,
+        );
+        // The tab tooltip has a background under userChrome.theme-default.
+        const tt = (p.features || {}).tabTooltip || {};
+        add(
+            "theme-default:tab-tooltip-opaque",
+            tt.themeDefault &&
+                tt.display === "block" &&
+                opaque(parseColor(tt.background)) &&
+                contrast(parseColor(tt.text), parseColor(tt.background)) >= 4.5,
+            `${tt.text} on ${tt.background}${tt.themeDefault ? "" : " (theme-default not applied)"}`,
         );
     }
 
