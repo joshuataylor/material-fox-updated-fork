@@ -1298,6 +1298,27 @@ function featureProbeScript(url, done) {
         await waitFor(
             () => wasDark === null || darkMq.matches === (wasDark === 1),
         );
+
+        // The hovered item of a menu the theme draws (a page's <select>
+        // dropdown, a menulist in a panel; on macOS the only non-native
+        // menus): the theme's hover background with readable text.
+        const menu = document.createXULElement("menupopup");
+        const item = document.createXULElement("menuitem");
+        item.setAttribute("label", "Hovered item");
+        menu.append(item);
+        document.getElementById("mainPopupSet").append(menu);
+        const menuShown = event(menu, "popupshown");
+        menu.openPopup(document.getElementById("PanelUI-menu-button"));
+        await menuShown;
+        item.setAttribute("_moz-menuactive", "true");
+        const itemLabel = item.querySelector(".menu-text") || item;
+        out.menuHover = {
+            open: menu.state === "open",
+            text: getComputedStyle(itemLabel).color,
+            background: getComputedStyle(item).backgroundColor,
+        };
+        menu.hidePopup();
+        menu.remove();
         done(out);
     })().catch((e) => done({ error: String(e) }));
 }
@@ -1907,6 +1928,15 @@ function contractsFor(scenarioId, p) {
                     parseColor(at.buttonBackground),
                 ) >= 4.5,
             describe(at.buttonText, at.buttonBackground),
+        );
+        // The hovered menu item keeps readable text on the theme's hover
+        // background (macOS kept Firefox's white hover text, 1.3:1).
+        const mh = (p.features || {}).menuHover || {};
+        add(
+            "menu-hover-contrast",
+            mh.open &&
+                contrast(parseColor(mh.text), parseColor(mh.background)) >= 4.5,
+            `${mh.text} on ${mh.background}, ${contrast(parseColor(mh.text), parseColor(mh.background))?.toFixed(2)}:1${mh.open ? "" : " (menu not open)"}`,
         );
     }
 

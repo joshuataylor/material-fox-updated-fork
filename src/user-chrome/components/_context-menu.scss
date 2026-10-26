@@ -176,8 +176,11 @@ arrowscrollbox {
       background: transparent !important;
     }
 
+    // Keep the menu's text colour: Firefox's -moz-menuhovertext is white on
+    // macOS, for the native blue highlight this replaces.
     &[_moz-menuactive]:not([disabled]) {
       background: get-var("menu-background-color-hover") !important;
+      color: inherit !important;
     }
   }
 
