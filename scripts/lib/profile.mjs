@@ -55,6 +55,8 @@ export function makeThemedProfile({
         "browser.startup.homepage_override.mstone": "ignore",
         // No Windows "restart apps" relaunch of a test browser at login.
         "toolkit.winRegisterApplicationRestart": false,
+        // No first-run launch-on-login (Windows Run entry, macOS login item).
+        "browser.startup.windowsLaunchOnLogin.alreadyApplied": true,
     };
     writeFileSync(join(dir, "user.js"), renderUserJs({ ...base, ...prefs }));
     return dir;

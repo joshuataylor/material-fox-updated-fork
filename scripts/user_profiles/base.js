@@ -39,9 +39,14 @@ export default {
     // Skip the "Proceed with Caution" interstitial on about:config.
     "browser.aboutConfig.showWarning": false,
     // Don't register with Windows "restart apps": otherwise a test browser left
-    // open at shutdown is relaunched at login (-os-autostart), running from
-    // tmp/firefox and blocking `mise run clean`.
+    // open at shutdown is relaunched at login, running from tmp/firefox and
+    // blocking `mise run clean`.
     "toolkit.winRegisterApplicationRestart": false,
+    // Don't launch on login. A fresh profile counts as a first run, and release
+    // builds then turn launch-on-login on through a Nimbus rollout
+    // (DefaultLaunchOnLogin.sys.mjs): a Windows Run entry (-os-autostart) or a
+    // macOS login item for the tmp/firefox build. Marking it applied skips that.
+    "browser.startup.windowsLaunchOnLogin.alreadyApplied": true,
 
     // Fewer nags in a throwaway profile (none of these change the themed chrome):
     "browser.shell.checkDefaultBrowser": false, // no "make default" prompt
