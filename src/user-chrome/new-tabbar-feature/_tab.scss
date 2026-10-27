@@ -65,18 +65,11 @@ html {
   max-height: 28px !important;
 }
 
-// hover bg opacity for not selected tab
+// No flares on a hovered tab. Its box keeps the resting size above: a
+// margin or height change here re-lays out the whole strip on every hover.
 .tabbrowser-tab:not(:is([visuallyselected], [selected])):hover,
 .tabbrowser-tab[multiselected]:not(:is([visuallyselected], [selected])) {
   .tab-background {
-    margin-top: var(--tab-vertical-padding) !important;
-    margin-bottom: var(--tab-vertical-padding) !important;
-    margin-left: var(--tab-horizontal-padding) !important;
-    margin-right: var(--tab-horizontal-padding) !important;
-
-    min-height: 28px !important;
-    max-height: 28px !important;
-
     &::before,
     &::after {
       background: none !important;
