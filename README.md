@@ -254,7 +254,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.ui-chromium-tab-hover</code></td>
-    <td>Use Chromium's tab hover timing: the hover colour comes in over 100ms and fades back out over 300ms, instead of the theme's quick 83ms both ways. Follows the reduce-motion settings like the theme's other animations. <code>false</code> by default.</td>
+    <td>Use Chromium's tab hover timing: the hover colour comes in over 100ms and fades back out over 300ms, instead of the theme's quick 83ms fade in and instant change out. The fade out also runs on the tab you switch away from, which shows each tab switch one frame later. Follows the reduce-motion settings like the theme's other animations. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-inactive-titlebar</code></td>

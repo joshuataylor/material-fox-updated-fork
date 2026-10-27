@@ -14,10 +14,8 @@
     top: unset !important;
     opacity: 0 !important;
     border: none !important;
-
-    transition-property: opacity !important;
-    transition-duration: get-var("medium-short-duration") !important;
-    transition-timing-function: get-var("point-to-point") !important;
+    // No fade: the separators either side of a tab change on every tab
+    // switch, and a fade starting there delays the switch by a frame.
   }
 
   &::before {

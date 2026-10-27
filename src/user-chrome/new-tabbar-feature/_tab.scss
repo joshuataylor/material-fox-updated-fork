@@ -88,9 +88,8 @@ html {
   --tab-opacity: 1 !important;
 }
 
-// tab transition
+// tab transition: hover fades in, the rest is instant (see tabbar/_tab.scss)
 .tab-background {
-  transition-property: opacity, background-color !important;
   transition-duration: get-var("medium-short-duration") !important;
   transition-timing-function: get-var("fast-invoke") !important;
 }
