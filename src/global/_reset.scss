@@ -73,9 +73,11 @@ body {
     // to be `*:not(hbox.titlebar-buttonbox, hbox.titlebar-buttonbox *)` plus
     // ::before/::after copies, which walked every element's ancestors. Pseudo
     // elements inherit from their element, and the caption buttons get their
-    // icon font back below instead.
+    // icon font back below instead. `inherit` rather than the variable: :root
+    // (more specific than `*`) resolves it once, where a var() here made every
+    // element substitute it on each restyle (about 10% of a full restyle).
     * {
-      font-family: var(--#{$prefix}-font-family) !important;
+      font-family: inherit !important;
     }
 
     // Window caption glyphs (minimise/maximise/close) come from an icon font on
