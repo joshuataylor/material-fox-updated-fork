@@ -104,11 +104,17 @@ html {
   }
 }
 
-// selected tab style
-.tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {
+// selected tab style: taller, to join the toolbar below. Vertical tabs have
+// no toolbar to join, so they keep the resting 28px pill, which also stops
+// every tab switch re-laying out the vertical strip.
+#tabbrowser-tabs:not([orient="vertical"])
+  .tabbrowser-tab:is([visuallyselected], [selected])
+  .tab-background {
   min-height: 34px !important;
   max-height: 34px !important;
+}
 
+.tabbrowser-tab:is([visuallyselected], [selected]) .tab-background {
   border-bottom-left-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
 
