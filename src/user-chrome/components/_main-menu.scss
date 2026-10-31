@@ -110,6 +110,12 @@
     list-style-image: get-var("history-icon") !important;
   }
 
+  // tab groups icon: Firefox's own, the Material set has no equivalent. The row
+  // shows from 161 (browser.tabs.groups.alternateMenu, Bug 2048790).
+  #appMenu-tab-groups-button {
+    list-style-image: url("chrome://browser/skin/tabbrowser/tab-groups.svg") !important;
+  }
+
   // download icon
   #appMenu-downloads-button,
   #appMenu-library-downloads-button {
