@@ -280,6 +280,21 @@ html {
       border-start-start-radius: 0 !important;
       border-start-end-radius: 0 !important;
     }
+
+    // From 161, opening or closing the sidebar animates the content area's
+    // corner and border through the view transition's snapshots (Bug
+    // 2079871). Firefox decides that from attributes, not from the drawn
+    // corner, so it would still draw a rounded, bordered corner for the length
+    // of the transition, with the snapshots pulled 1px under the border.
+    :root::view-transition-image-pair(tabbrowser-tabbox) {
+      border: none !important;
+      border-radius: 0 !important;
+    }
+
+    :root::view-transition-old(tabbrowser-tabbox),
+    :root::view-transition-new(tabbrowser-tabbox) {
+      margin: 0 !important;
+    }
   }
 }
 
