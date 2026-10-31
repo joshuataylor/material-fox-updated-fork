@@ -37,6 +37,9 @@
   max-height: var(--tab-min-height) !important;
   margin: 0 !important;
   margin-top: auto !important;
+  // From 161 the last button in the tab strip gets 4px of end padding (Bug
+  // 2072714), which pushed the circle 1px off the middle of its 40px.
+  padding-inline: var(--toolbarbutton-outer-padding) !important;
 
   & > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
     padding: 6px !important;

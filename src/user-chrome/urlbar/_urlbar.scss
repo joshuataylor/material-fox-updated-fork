@@ -54,8 +54,15 @@
 // The first and last toolbar buttons as far from the window edge as from the
 // top of the bar: (38px - 28px) / 2, or (36px - 28px) / 2 in compact mode.
 // Firefox's 6px (Nova) left them a pixel or two further in (fork #12).
+// From 161 the edges read --toolbar-edge-padding instead (4px, Bug 2072714).
+// With vertical tabs Firefox lines the button next to the sidebar launcher up
+// with its icons, so only the far edge (6px there) gets the theme's value.
 #nav-bar {
   --toolbar-padding-inline: 5px !important;
+  --toolbar-edge-padding: var(--toolbar-padding-inline) !important;
+  --toolbar-opposite-launcher-edge-padding: var(
+    --toolbar-padding-inline
+  ) !important;
 
   @include moz-pref-media("userChrome.ui-compact-url-bar") {
     --toolbar-padding-inline: 4px !important;
