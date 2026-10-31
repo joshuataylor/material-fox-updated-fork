@@ -21,7 +21,7 @@ Only the current Firefox **Release**, **Beta** and **Nightly** are supported. Ni
 > [!TIP]
 > See https://whattrainisitnow.com for the latest Firefox releases.
 
-As of 2026-10-16 (this will get quickly out of date, so check above...)
+As of 2026-10-31 (this will get quickly out of date, so check above...)
 
 <table>
   <tr>
@@ -31,17 +31,17 @@ As of 2026-10-16 (this will get quickly out of date, so check above...)
   </tr>
   <tr>
     <td>Release</td>
-    <td>Firefox 158</td>
-    <td>Supported</td>
-  </tr>
-  <tr>
-    <td>Beta</td>
     <td>Firefox 159</td>
     <td>Supported</td>
   </tr>
   <tr>
-    <td>Nightly</td>
+    <td>Beta</td>
     <td>Firefox 160</td>
+    <td>Supported</td>
+  </tr>
+  <tr>
+    <td>Nightly</td>
+    <td>Firefox 161</td>
     <td>Best effort</td>
   </tr>
 </table>
