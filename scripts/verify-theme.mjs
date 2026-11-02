@@ -461,6 +461,18 @@ function featureProbeScript(url, done) {
         await waitFor(() => !urlbar.hasAttribute("focused"));
         const x0 = input.getBoundingClientRect().x;
         const trustClosed = display(trust);
+        // The empty search lists only top sites, read from the New Tab feed's
+        // cache, and Firefox keeps the view shut with no rows. A fresh profile
+        // fills that cache some time after startup, on Windows runners
+        // sometimes after the wait below, so wait for it first, as Firefox's
+        // own urlbar tests do (updateTopSites in head-common.js).
+        const { AboutNewTab } = ChromeUtils.importESModule(
+            "resource:///modules/AboutNewTab.sys.mjs",
+        );
+        const topSites = await waitFor(
+            () => AboutNewTab.getTopSites()?.length || 0,
+            30000,
+        );
         gURLBar.focus();
         gURLBar.startQuery({
             event: new MouseEvent("mousedown"),
@@ -480,6 +492,7 @@ function featureProbeScript(url, done) {
             focused: gURLBar.focused,
             viewOpen: gURLBar.view.isOpen,
             rows: gURLBar.view.visibleRowCount,
+            topSites,
         };
         // How far the open surface reaches past the bar, by default and with
         // userChrome.ui-no-urlbar-overhang (fork #19).
@@ -1530,7 +1543,7 @@ function contractsFor(scenarioId, p) {
         add(
             "urlbar-click-opens-results",
             uc.open === true,
-            `open ${uc.open}, focused ${uc.focused}, view ${uc.viewOpen}, rows ${uc.rows}`,
+            `open ${uc.open}, focused ${uc.focused}, view ${uc.viewOpen}, rows ${uc.rows}, top sites ${uc.topSites}`,
         );
         add(
             "urlbar-click-text-still",
