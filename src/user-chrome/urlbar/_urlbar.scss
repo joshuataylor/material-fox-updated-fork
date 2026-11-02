@@ -134,6 +134,12 @@ html {
   justify-content: center !important;
 }
 
+// #identity-box is --urlbar-basic-component-size (28px) tall, shorter than the
+// chips above, so centre them or the permission icon sits 1px below the lock.
+#identity-box {
+  align-items: center !important;
+}
+
 // The anchor icons keep Firefox's own --urlbar-icon-padding, so each one is a
 // square hit area rather than a 16px-wide, 30px-tall capsule.
 #notification-popup-box {
