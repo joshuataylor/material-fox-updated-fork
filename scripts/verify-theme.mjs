@@ -507,6 +507,20 @@ function featureProbeScript(url, done) {
             await waitFor(() => urlbar.hasAttribute("open"));
         }
         const overhangDefault = overhang();
+        // The selected row keeps readable text on the theme's grey highlight
+        // (Linux's system theme gave it white SelectedItemText).
+        await waitFor(() => urlbar.querySelector(".urlbarView-row"));
+        if (gURLBar.view.selectedRowIndex < 0)
+            gURLBar.view.selectedRowIndex = 0;
+        const selRow = urlbar.querySelector(".urlbarView-row[selected]");
+        out.urlbarSelectedRow = selRow
+            ? {
+                  text: getComputedStyle(
+                      selRow.querySelector(".urlbarView-title") || selRow,
+                  ).color,
+                  background: getComputedStyle(selRow).backgroundColor,
+              }
+            : null;
         await setPref("userChrome.ui-no-urlbar-overhang");
         out.urlbarOverhang = {
             open: urlbar.hasAttribute("open"),
@@ -1538,6 +1552,17 @@ function contractsFor(scenarioId, p) {
                 oh.pref.rowInset >= 0 &&
                 (scenarioId !== "themed" || oh.default?.left > 0),
             `default ${JSON.stringify(oh.default)}, pref ${JSON.stringify(oh.pref)}`,
+        );
+        // The selected result's text is readable on the theme's highlight.
+        const sr = f.urlbarSelectedRow || {};
+        const srContrast = contrast(
+            parseColor(sr.text),
+            parseColor(sr.background),
+        );
+        add(
+            "urlbar-selected-row-contrast",
+            srContrast >= 4.5,
+            `${sr.text} on ${sr.background}, ${srContrast?.toFixed(2)}:1`,
         );
         // The find bar clips both axes, so it never shows a scrollbar, and the
         // top-right bar fits a 700px window (issue #8).

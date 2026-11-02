@@ -15,6 +15,13 @@
 }
 
 @include moz-pref-media("not userChrome.theme-default") {
+  // Under the system theme on Linux Firefox gives the selected row
+  // SelectedItemText (white) to sit on its SelectedItem fill. The theme paints
+  // the row grey below, so keep the text in the view's own colour.
+  .urlbarView {
+    --urlbarview-text-color-selected: currentColor !important;
+  }
+
   // urlbar suggestions item. Hover only on [row-selectable] rows, as Firefox
   // does: rows whose buttons are the selectable parts (the Actions search mode
   // chips, tips) would otherwise get a full-height slab behind the button.
