@@ -210,7 +210,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.ui-no-ripple</code></td>
-    <td>Disable ripple effect from buttons</td>
+    <td>Disable the Material ripple animation (the circle that grows out over a toolbar button when you press or hover it).</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-nova-border</code></td>
