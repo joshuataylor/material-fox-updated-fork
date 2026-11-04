@@ -95,7 +95,7 @@ Firefox 155 introduced a large visual redesign codenamed Project Nova, behind `b
 
 It was Nightly-only at first, and has been on by default in every channel since Firefox 157 (Bug 2056186), so Release users get it too. You can still turn it off with `browser.nova.enabled` set to `false`; the theme supports both.
 
-Firefox 156 to 160 continue Nova rather than redesign it again. Firefox 157 also rebuilt the address bar (the results list is now its own popover below the input).
+Firefox 156 onwards continue Nova rather than redesign it again. Firefox 157 also rebuilt the address bar (the results list is now its own popover below the input).
 
 Nova restyles tabs, menus and panels, adds a warmer "fire" colour palette and an active-tab glow, and draws borders and rounded corners around the toolbar, sidebar and web content.
 
