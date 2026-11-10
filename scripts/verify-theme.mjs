@@ -640,6 +640,19 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(ct);
         await waitFor(() => !ct.isConnected);
 
+        // The downloads info badge is the theme accent, not Nova violet
+        // (Firefox 161 moved it to --icon-color-information).
+        const dl = document.getElementById("downloads-button");
+        const dlBadge = dl?.querySelector(".toolbarbutton-badge");
+        if (dlBadge) {
+            dl.setAttribute("attention", "info");
+            out.downloadsInfoBadge = {
+                fill: getComputedStyle(dlBadge).fill,
+                accent: getComputedStyle(document.documentElement).accentColor,
+            };
+            dl.removeAttribute("attention");
+        }
+
         // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
         // asserted only in the chrome-refresh scenario (issue #12).
         // The first tab's start margin applies only without pinned tabs, so
@@ -1662,6 +1675,13 @@ function contractsFor(scenarioId, p) {
             "container-tab-no-outline",
             ct.style === "none" || (ctColor !== null && ctColor.a === 0),
             ct.outline,
+        );
+        // Downloads info badge in the theme accent (161).
+        const db = f.downloadsInfoBadge || {};
+        add(
+            "downloads-info-badge-accent",
+            sameColor(parseColor(db.fill), parseColor(db.accent)),
+            `fill ${db.fill}, accent ${db.accent}`,
         );
         // Opt-in pinned-tab prefs (issue #16).
         const pp = f.pinnedPrefs || {};
