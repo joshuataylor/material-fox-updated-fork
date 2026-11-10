@@ -163,4 +163,12 @@
     --tab-selected-outline-color: transparent !important;
     --tab-border-color-selected: transparent !important;
   }
+
+  // Firefox 161 (Nova) sets --tab-border-color-selected to the container
+  // colour on .tabbrowser-tab[usercontextid] itself (Bug 2074327), which beats
+  // the :root value above. Clear it on the outline's consumer, container tabs
+  // only.
+  .tabbrowser-tab[usercontextid] > .tab-stack > .tab-background {
+    --tab-border-color-selected: transparent !important;
+  }
 }

@@ -621,6 +621,25 @@ function featureProbeScript(url, done) {
         gBrowser.removeTabs([g1, g2]);
         await waitFor(() => !g1.isConnected && !g2.isConnected);
 
+        // A selected container tab has no outline in its container colour
+        // (Firefox 161 sets --tab-border-color-selected on the tab, issue #62).
+        const ct = gBrowser.addTab("about:blank", {
+            triggeringPrincipal: system,
+            skipAnimation: true,
+            userContextId: 1,
+        });
+        gBrowser.selectedTab = ct;
+        await waitFor(() => ct.selected);
+        const ctBg = getComputedStyle(ct.querySelector(".tab-background"));
+        out.containerTab = {
+            outline: `${ctBg.outlineStyle} ${ctBg.outlineWidth} ${ctBg.outlineColor}`,
+            color: ctBg.outlineColor,
+            style: ctBg.outlineStyle,
+        };
+        gBrowser.selectedTab = gBrowser.tabs[0];
+        gBrowser.removeTab(ct);
+        await waitFor(() => !ct.isConnected);
+
         // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
         // asserted only in the chrome-refresh scenario (issue #12).
         // The first tab's start margin applies only without pinned tabs, so
@@ -1635,6 +1654,14 @@ function contractsFor(scenarioId, p) {
             "tab-group-collapsed-line-hidden",
             tg.collapsedLine === "none",
             tg.collapsedLine,
+        );
+        // Selected container tab: no outline in the container colour (161).
+        const ct = f.containerTab || {};
+        const ctColor = parseColor(ct.color);
+        add(
+            "container-tab-no-outline",
+            ct.style === "none" || (ctColor !== null && ctColor.a === 0),
+            ct.outline,
         );
         // Opt-in pinned-tab prefs (issue #16).
         const pp = f.pinnedPrefs || {};
