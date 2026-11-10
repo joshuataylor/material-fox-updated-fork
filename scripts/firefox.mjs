@@ -10,16 +10,17 @@
 //   node scripts/firefox.mjs --prefs josh # overlay scripts/user_profiles/josh.js
 //   node scripts/firefox.mjs --remote # Marionette
 //
-// The profile is at tmp/profiles/<channel> . chrome/ is symlinked into here, as Firefox reads <profile>/chrome/userChrome.css,
-// and user.js is regenerated every launch from scripts/user_profiles/base.js + any --prefs overlays, then browser.nova.enabled
+// The profile is at tmp/profiles/<channel> , and chrome/ is symlinked into here, as Firefox reads <profile>/chrome/userChrome.css,
+// and user.js is regenerated every launch from scripts/user_profiles/base.js and any --prefs overlays, then browser.nova.enabled
 // and the Marionette port are applied last.
 //
 // This is to allow nicer testing of the myriad of options both Firefox and material-fox-updated has, and allows testing cross-browser.
 //
 // `--remote` enables Marionette (port :2828) + the Remote Agent (WebDriver Classic + BiDi, :9222).
-// Off by default, as marionette sets `navigator.webdriver` as `true`. This causes issues when using Google etc,
-// as the browser tells the website, and they now think you're running a headless scraper or something...
-// .... which is dumb, as there are so many workarounds, and Playwright for example just patches this out..
+//
+// Off by default, as marionette sets `navigator.webdriver` as `true`, which causes issues when using Google etc,
+// as the browser tells the website, and they now think you're running a headless scraper or something... which is dumb, as
+// there are so many workarounds, and Playwright for example just patches this out..
 
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -157,9 +158,7 @@ async function main() {
             "Remote debugging ON (Marionette :2828, BiDi :9222), navigator.webdriver=true, expect CAPTCHAs.",
         );
         ffArgs.push("--marionette", "--remote-debugging-port=9222");
-        // Chrome-context Marionette (the MCP, JS in the browser window). Firefox
-        // 159 replaced the --remote-allow-system-access flag with this variable
-        // (Bug 2054896).
+        // Chrome-context Marionette (JS in the browser window). Firefox 159 replaced the --remote-allow-system-access flag with this variable (Bug 2054896).
         process.env.MOZ_REMOTE_ALLOW_SYSTEM_ACCESS = "1";
     }
     if (process.platform === "win32" && process.stdout.isTTY) {
