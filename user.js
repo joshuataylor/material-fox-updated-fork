@@ -82,6 +82,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * default.
 // user_pref("userChrome.ui-no-inactive-titlebar", true);
 
+// * When the system asks for more contrast, show secondary text at full
+// * strength instead of the theme's grey. Off by default.
+// user_pref("userChrome.ui-high-contrast-text", true);
+
 // * (macOS) Show background tab titles at full strength instead of
 // * Firefox's fade. Off by default.
 // user_pref("userChrome.ui-no-tab-dimming", true);

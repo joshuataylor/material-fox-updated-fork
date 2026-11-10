@@ -46,9 +46,15 @@
     --link-color-hover: #{get-var("accent-color")} !important;
     --link-color-active: #{get-var("accent-color")} !important;
     --link-color-visited: #{get-var("accent-color")} !important;
+  }
 
-    // secondary text color
-    --text-color-deemphasized: #{get-var("text-secondary")} !important;
+  // secondary text color. With userChrome.ui-high-contrast-text, step aside
+  // when the OS asks for more contrast, so Firefox's full-strength value shows
+  // (currentColor from 161, Bug 2083711).
+  @media not ((prefers-contrast) and (-moz-pref("userChrome.ui-high-contrast-text"))) {
+    :root:not([windowtype="Toolkit:PictureInPicture"]) {
+      --text-color-deemphasized: #{get-var("text-secondary")} !important;
+    }
   }
 
   // shadow

@@ -261,6 +261,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>Keep the titlebar and tab strip in their active colours when the window loses focus, instead of turning grey. Useful when each profile has its own theme colour. <code>false</code> by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-high-contrast-text</code></td>
+    <td>When your system asks for more contrast (for example macOS "Increase contrast" or a high contrast theme), show secondary text such as descriptions and URLs at full strength, as Firefox does, instead of the theme's grey. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-no-tab-dimming</code></td>
     <td>(macOS) Show the titles of background tabs at full strength. By default the theme keeps Firefox's earlier fade on them (Firefox 160 made it stronger), on top of its own grey. <code>false</code> by default.</td>
   </tr>

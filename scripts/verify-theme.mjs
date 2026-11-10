@@ -653,6 +653,31 @@ function featureProbeScript(url, done) {
             dl.removeAttribute("attention");
         }
 
+        // userChrome.ui-high-contrast-text: with the OS asking for more
+        // contrast, the theme's grey --text-color-deemphasized steps aside
+        // for Firefox's own value; without the pref it stays.
+        const contrastMq = window.matchMedia("(prefers-contrast)");
+        const deemphasized = () =>
+            getComputedStyle(document.documentElement)
+                .getPropertyValue("--text-color-deemphasized")
+                .trim();
+        const rest = deemphasized();
+        Services.prefs.setIntPref("ui.useAccessibilityTheme", 1);
+        await waitFor(() => contrastMq.matches);
+        await settled(deemphasized);
+        const contrastOff = deemphasized();
+        await setPref("userChrome.ui-high-contrast-text");
+        await settled(deemphasized);
+        const contrastOn = deemphasized();
+        await clearPref("userChrome.ui-high-contrast-text");
+        Services.prefs.clearUserPref("ui.useAccessibilityTheme");
+        await waitFor(() => !contrastMq.matches);
+        out.highContrastText = {
+            rest,
+            contrastOff,
+            contrastOn,
+        };
+
         // Toolbar and new-tab icon boxes and a pinned tab's icon centring;
         // asserted only in the chrome-refresh scenario (issue #12).
         // The first tab's start margin applies only without pinned tabs, so
@@ -1697,6 +1722,15 @@ function contractsFor(scenarioId, p) {
             "container-tab-no-outline",
             ct.style === "none" || (ctColor !== null && ctColor.a === 0),
             ct.outline,
+        );
+        // userChrome.ui-high-contrast-text (Firefox 161, Bug 2083711).
+        const hc = f.highContrastText || {};
+        add(
+            "high-contrast-text-pref",
+            !!hc.rest &&
+                hc.contrastOff === hc.rest &&
+                hc.contrastOn !== hc.rest,
+            `rest ${hc.rest}, contrast ${hc.contrastOff}, contrast + pref ${hc.contrastOn || "(unset)"}`,
         );
         // Downloads info badge in the theme accent (161).
         const db = f.downloadsInfoBadge || {};
