@@ -221,6 +221,21 @@ html {
   }
 }
 
+// Firefox 162 animates vertical tabs open and closed by collapsing the tab's
+// grid row (Bug 1932997). The fixed height and visible overflow above held a
+// closing tab at full size until it vanished, so let it shrink and clip.
+// .tab-stack is the grid item, and its Chrome Refresh min-height would floor
+// the collapsing row.
+#tabbrowser-tabs[orient="vertical"]
+  .tabbrowser-tab[height-animating]:not(tab-split-view-wrapper > *) {
+  min-height: 0 !important;
+  overflow: clip !important;
+
+  > .tab-stack {
+    min-height: 0 !important;
+  }
+}
+
 // The rest of the vertical strip (edelvarden/material-fox-updated#134).
 #tabbrowser-tabs[orient="vertical"] {
   // Pinned tabs are a grid of tiles above the list: let them fill their

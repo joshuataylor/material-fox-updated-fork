@@ -1211,7 +1211,29 @@ function featureProbeScript(url, done) {
             ).display,
         };
         SidebarController._state.launcherExpanded = true;
-        gBrowser.removeTabs([v1, v2, vpin]);
+        // Firefox 162 animates a closing vertical tab's height (Bug 1932997);
+        // the theme's fixed tab height must not hold it at full size.
+        let closeMin = Infinity;
+        let closeAnimated = false;
+        gBrowser.removeTab(v1, { animate: true });
+        await new Promise((resolve) => {
+            const step = () => {
+                if (!v1.isConnected) return resolve();
+                closeAnimated ||= v1.hasAttribute("height-animating");
+                closeMin = Math.min(
+                    closeMin,
+                    v1.getBoundingClientRect().height,
+                );
+                requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+            setTimeout(resolve, 2000);
+        });
+        out.verticalTab.close = {
+            animated: closeAnimated,
+            minHeight: closeMin === Infinity ? null : Math.round(closeMin),
+        };
+        gBrowser.removeTabs([v1, v2, vpin].filter((t) => t.isConnected));
         await waitFor(() => !v1.isConnected && !vpin.isConnected);
         Services.prefs.clearUserPref("sidebar.verticalTabs");
         Services.prefs.clearUserPref("sidebar.revamp");
@@ -1965,6 +1987,14 @@ function contractsFor(scenarioId, p) {
                 vt.separator === "none" &&
                 vt.fontSizes?.[0] === vt.fontSizes?.[1],
             `label x ${vt.labelX}, separator ${vt.separator}, title / New Tab ${vt.fontSizes}`,
+        );
+        // A closing vertical tab shrinks when Firefox animates it (162+).
+        const vClose = vt.close || {};
+        add(
+            "vertical-tab-close-shrinks",
+            vClose.animated === false ||
+                (vClose.minHeight !== null && vClose.minHeight < 20),
+            `animated ${vClose.animated}, smallest height ${vClose.minHeight}`,
         );
         add(
             "vertical-pinned-fills-cell",
