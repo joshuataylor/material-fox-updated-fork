@@ -85,12 +85,7 @@
   padding-inline: 11px !important;
 
   > .urlbarView-row {
-    // Firefox 159 lowercased the urlbarView variables (Bug 2052926); the
-    // fallback keeps 157/158 working. @todo: drop it once Release is 159.
-    padding: var(
-      --urlbarview-row-gutter,
-      var(--urlbarView-row-gutter)
-    ) !important;
+    padding: var(--urlbarview-row-gutter) !important;
     border-inline-width: 0 !important;
   }
 }
@@ -115,12 +110,6 @@
   .urlbarView-results {
     padding-block: 0 !important;
   }
-}
-
-// remove unnecessary border upper url bar suggestions (Firefox 157 with Nova
-// off; 158+ has no body wrappers and Nova draws no separator)
-#urlbar[open] > .urlbarView > .urlbarView-body-outer > .urlbarView-body-inner {
-  border-color: transparent !important;
 }
 
 // urlbar suggestions item height
@@ -154,15 +143,6 @@
 .urlbar-go-button,
 .search-go-button {
   display: none !important;
-}
-
-// crop the background of item which out of the results block on hover
-// (Firefox 157 only; 158+ removed the wrappers and scrolls .urlbarView-results)
-.urlbarView-body-outer,
-.urlbarView-body-inner {
-  border-bottom-left-radius: 16px !important;
-  border-bottom-right-radius: 16px !important;
-  overflow: hidden !important;
 }
 
 // fix urlbar search tag height

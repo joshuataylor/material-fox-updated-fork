@@ -35,18 +35,13 @@
   // Nova makes the results view a row gutter wider than the bar on each side,
   // which the overhang used to cover, so the selection bar would stick out.
   // Keep the view to the bar's width and inset the rows by the gutter instead.
-  // Firefox 159 lowercased the urlbarView variables (Bug 2052926).
   @include moz-pref-media("browser.nova.enabled") {
     :root {
       --urlbarview-margin-inline: 0px !important;
-      --urlbarView-margin-inline: 0px !important;
     }
 
     .urlbarView-results {
-      padding-inline: var(
-        --urlbarview-row-gutter,
-        var(--urlbarView-row-gutter)
-      ) !important;
+      padding-inline: var(--urlbarview-row-gutter) !important;
     }
   }
 }
