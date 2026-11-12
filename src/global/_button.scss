@@ -101,3 +101,51 @@ $button-min-width: 5.14em;
     cursor: pointer;
   }
 }
+
+// Firefox 162 (Bug 2005078) turned the panel footer, customise mode, remote
+// control and notification bar buttons into `moz-button`s. Their <button> is
+// in a shadow root the rule above can't reach, so give them the same look
+// through the tokens moz-button.css reads. Icon, ghost and split buttons keep
+// Firefox's shape. On 160/161 these are still XUL buttons and nothing matches.
+.panel-footer moz-button,
+#customization-footer moz-button,
+moz-button.notification-button,
+#remote-control-panel-toggle-button {
+  &:not([type~="icon"], [type~="ghost"], [type~="split"]) {
+    --button-border-radius: #{$button-border-radius} !important;
+    --button-padding: #{$button-padding} !important;
+    --button-padding-block-small: 8px !important;
+    --button-padding-inline-small: 16px !important;
+    --button-font-weight: 500 !important;
+    min-width: $button-min-width !important;
+
+    @media not (forced-colors) {
+      --button-background-color: transparent !important;
+      --button-background-color-hover: #{get-var("accent-color-transparent")} !important;
+      --button-background-color-active: #{get-var(
+          "accent-color-transparent-active"
+        )} !important;
+      --button-border-color: var(--in-content-box-border-color) !important;
+      --button-text-color: #{get-var("secondary-button-text")} !important;
+      --button-text-color-hover: #{get-var("secondary-button-text")} !important;
+      --button-text-color-active: #{get-var("secondary-button-text")} !important;
+      --button-text-color-disabled: #{get-var("secondary-button-text")} !important;
+      --button-background-color-disabled: transparent !important;
+      --button-border-color-disabled: var(
+        --in-content-box-border-color
+      ) !important;
+
+      --button-background-color-primary: #{get-var("accent-color")} !important;
+      --button-background-color-primary-hover: #{get-var("accent-color-hover")} !important;
+      --button-background-color-primary-active: #{cm(
+          transparent,
+          get-var("accent-color-hover"),
+          0.8
+        )} !important;
+      --button-border-color-primary: transparent !important;
+      --button-text-color-primary: #{get-var("text-on-accent")} !important;
+      --button-text-color-primary-hover: #{get-var("text-on-accent")} !important;
+      --button-text-color-primary-active: #{get-var("text-on-accent")} !important;
+    }
+  }
+}

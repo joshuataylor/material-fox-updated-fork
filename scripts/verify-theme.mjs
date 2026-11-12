@@ -653,6 +653,46 @@ function featureProbeScript(url, done) {
             dl.removeAttribute("attention");
         }
 
+        // Notification bar buttons keep the theme's 4px shape and accent
+        // hover. Firefox 162 made them moz-buttons (Bug 2005078), whose
+        // <button> sits in a shadow root and paints from --button-* tokens.
+        const nbox = gBrowser.getNotificationBox();
+        const note = await nbox.appendNotification(
+            "verify-theme-buttons",
+            { label: "verify-theme", priority: nbox.PRIORITY_INFO_MEDIUM },
+            [
+                {
+                    label: "Primary",
+                    accessKey: "P",
+                    primary: true,
+                    callback: () => true,
+                },
+            ],
+        );
+        const nBtn = note.querySelector(".notification-button");
+        const nFace =
+            nBtn?.shadowRoot?.querySelector(".button-background") ?? nBtn;
+        let nHover = null;
+        if (nBtn?.localName === "moz-button") {
+            // A light-DOM child of moz-button isn't rendered, so resolve the
+            // token's value on a swatch in the document instead.
+            const swatch = document.createElement("div");
+            swatch.style.backgroundColor = getComputedStyle(nBtn)
+                .getPropertyValue("--button-background-color-primary-hover")
+                .trim();
+            document.documentElement.append(swatch);
+            nHover = getComputedStyle(swatch).backgroundColor;
+            swatch.remove();
+        }
+        out.notificationButton = {
+            tag: nBtn?.localName,
+            radius: nFace && getComputedStyle(nFace).borderTopLeftRadius,
+            bg: nFace && getComputedStyle(nFace).backgroundColor,
+            hover: nHover,
+            accent: getComputedStyle(document.documentElement).accentColor,
+        };
+        nbox.removeNotification(note, true);
+
         // userChrome.ui-high-contrast-text: with the OS asking for more
         // contrast, the theme's grey --text-color-deemphasized steps aside
         // for Firefox's own value; without the pref it stays.
@@ -1738,6 +1778,19 @@ function contractsFor(scenarioId, p) {
             "downloads-info-badge-accent",
             sameColor(parseColor(db.fill), parseColor(db.accent)),
             `fill ${db.fill}, accent ${db.accent}`,
+        );
+        // Notification bar buttons: 4px, accent fill, accent hover (moz-button
+        // on 162, Bug 2005078; the hover is checked only there).
+        const nb = f.notificationButton || {};
+        const nbAccent = parseColor(nb.accent);
+        const nbHover = parseColor(nb.hover);
+        add(
+            "notification-button-theme",
+            nb.radius === "4px" &&
+                sameColor(parseColor(nb.bg), nbAccent) &&
+                (nb.tag !== "moz-button" ||
+                    (!!nbHover && sameColor({ ...nbHover, a: 1 }, nbAccent))),
+            `${nb.tag}: radius ${nb.radius}, bg ${nb.bg}, hover ${nb.hover}, accent ${nb.accent}`,
         );
         // Opt-in pinned-tab prefs (issue #16).
         const pp = f.pinnedPrefs || {};
