@@ -457,6 +457,16 @@ $-checkbox-selectors: (
       display: none !important;
     }
   }
+
+  // With Nova on (ui-material-findbar), the field keeps Nova's padding
+  // (--space-medium at the start) and 28px minimum height, so the text sat
+  // about 3px further in. Without Nova findbar.css has these.
+  @include moz-pref-media("browser.nova.enabled") {
+    .findbar-textbox {
+      min-height: auto !important;
+      padding: 2px 5px !important;
+    }
+  }
 } // end: not browser.nova.enabled or userChrome.ui-material-findbar
 
 // ============================================================================
