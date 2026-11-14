@@ -246,7 +246,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.ui-pre-nova-look</code></td>
-    <td>Bring back details of the Firefox look from before the "Nova" redesign while Nova is on: the focus ring on the address bar, the address bar results' spacing and a dash between title and address, notification bars as cards with the coloured edge, the sidebar as a floating card, and rounded search fields instead of pills. Also turns on <code>userChrome.ui-no-nova-border</code>. For the find bar, see <code>userChrome.ui-material-findbar</code>. Does nothing while <code>browser.nova.enabled</code> is off, which Firefox 162 no longer allows. <code>false</code> by default.</td>
+    <td>Bring back details of the Firefox look from before the "Nova" redesign while Nova is on: the focus ring on the address bar, the address bar results' spacing and a dash between title and address, notification bars as cards with the coloured edge, the sidebar as a floating card, panels with their smaller corners, and rounded search fields instead of pills. Also turns on <code>userChrome.ui-no-nova-border</code>. For the find bar, see <code>userChrome.ui-material-findbar</code>. Does nothing while <code>browser.nova.enabled</code> is off, which Firefox 162 no longer allows. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-tab-audio-background</code></td>

@@ -38,6 +38,14 @@
       // the regular icon, instead of Nova's pill with a small icon.
       --input-search-border-radius: var(--input-border-radius) !important;
       --input-search-icon-size: var(--input-icon-size) !important;
+
+      // Panels (the app menu, the bookmark star, downloads) with Proton's 8px
+      // corners. Nova's --popup-border-radius makes them 24px.
+      --panel-border-radius: 8px !important;
+
+      // Disabled toolbar buttons (Back and Forward on a fresh tab) at 0.5,
+      // Nova dims them to 0.4.
+      --toolbarbutton-opacity-disabled: 0.5 !important;
     }
 
     // The focused address bar's outline, as urlbar.css draws it without
@@ -63,7 +71,13 @@
       ) !important;
       --info-bar-box-shadow: 0 1px 2px rgba(58, 57, 68, 0.1) !important;
       --info-bar-margin: 4px !important;
-      --icon-color-information: #{get-var("accent-color")} !important;
+      // Firefox's blue info icon and the bar's inline padding from before
+      // Nova (Nova makes the icon violet and the padding 12px).
+      --icon-color-information: light-dark(
+        oklch(55% 0.24 260),
+        oklch(83% 0.17 260)
+      ) !important;
+      --message-bar-container-padding-inline: 0.75rem 0.5rem !important;
 
       border: var(--border-width) solid var(--message-bar-border-color) !important;
       // Proton's --border-radius-small. Nova makes the token 8px.
@@ -71,6 +85,13 @@
 
       &::before {
         display: block !important;
+      }
+
+      // Secondary buttons as plain text, as without Nova. Nova's tokens set
+      // --button-border to `1px solid currentColor` on :root, resolved there,
+      // so the button's text colour (the accent) outlined them.
+      moz-button.notification-button {
+        --button-border: var(--border-width) solid transparent !important;
       }
     }
 
