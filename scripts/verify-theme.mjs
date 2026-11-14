@@ -244,6 +244,9 @@ function probeScript() {
         version: Services.appinfo.version,
         os: Services.appinfo.OS,
         nova: Services.prefs.getBoolPref("browser.nova.enabled", false),
+        // Firefox 162 locks the pref on (Bug 2082898), so Nova can't be
+        // turned off there.
+        novaLocked: Services.prefs.prefIsLocked("browser.nova.enabled"),
         // Firefox CSS variables the theme overrides / relies on (drift guard).
         vars: {
             toolbarBackground: v("--toolbar-background-color"),
@@ -2401,6 +2404,14 @@ async function main() {
                     failed++;
                     continue;
                 }
+            }
+            // A Nova-off scenario on a build that locks Nova on would only
+            // repeat the Nova-on checks, so report it and move on.
+            if (scenario.nova === false && p.novaLocked && p.nova) {
+                console.error(
+                    `  [${channel}/${scenario.id}] browser.nova.enabled is locked on in ${p.version}: scenario not applicable, no checks run`,
+                );
+                continue;
             }
             for (const ct of contractsFor(scenario.id, p)) {
                 rows.push({ channel, scenario: scenario.id, ...ct });
