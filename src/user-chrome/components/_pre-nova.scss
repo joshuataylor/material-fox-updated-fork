@@ -21,10 +21,41 @@
         min-height: 20px !important;
       }
 
-      // Rows inset 5.625px from the panel's edges (Proton's 7px view margin
-      // less its -1.375px results margin), instead of Nova's 2.75px gutter.
-      .urlbarView-results {
-        padding-inline: 5.625px !important;
+      // With ui-no-urlbar-overhang (no view margin), rows inset 5.625px from
+      // the panel's edges: Proton's 7px view margin less its -1.375px results
+      // margin, instead of Nova's 2.75px gutter.
+      @include moz-pref-media("userChrome.ui-no-urlbar-overhang") {
+        .urlbarView-results {
+          padding-inline: 5.625px !important;
+        }
+      }
+
+      // Otherwise Proton's own: the -0.125rem results margin inside a 7px
+      // view margin (:root below).
+      @include moz-pref-media("not userChrome.ui-no-urlbar-overhang") {
+        .urlbarView-results {
+          margin-inline: -0.125rem !important;
+          padding-inline: 0 !important;
+        }
+      }
+    }
+
+    // The open address bar grows over the bar's own margin and padding (3px
+    // and 2px) as without Nova, instead of Nova's 8px overhang over the tab
+    // strip. ui-no-urlbar-overhang keeps it flush instead.
+    @include moz-pref-media("not userChrome.ui-no-urlbar-overhang") {
+      :root {
+        --urlbar-background-overhang-open: 0px !important;
+        --urlbarview-margin-inline: 7px !important;
+      }
+
+      #urlbar {
+        --urlbar-input-growth-open-inline: var(
+          --urlbar-margin-inline
+        ) !important;
+        --urlbar-input-growth-open-block: var(
+          --urlbar-container-padding-block
+        ) !important;
       }
     }
 
