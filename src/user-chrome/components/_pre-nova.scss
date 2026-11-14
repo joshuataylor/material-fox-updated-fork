@@ -1,0 +1,109 @@
+// Opt-in: userChrome.ui-pre-nova-look brings back details of the Firefox
+// look from before Nova, for people who had Nova turned off. Firefox 162 locks
+// Nova on (Bug 2082898). Nested in browser.nova.enabled, so it does nothing
+// where Nova is off and Firefox already draws these. It also turns on the
+// ui-no-nova-border rules (urlbar/_urlbar.scss). The find bar has its own pref,
+// userChrome.ui-material-findbar.
+@include moz-pref-media("userChrome.ui-pre-nova-look") {
+  @include moz-pref-media("browser.nova.enabled") {
+    // Address bar results: an em dash between the title and the URL, as
+    // view-proton.css draws it, instead of Nova's bullet.
+    .urlbarView {
+      --urlbarview-separator-char: "\2014" / "" !important;
+      --urlbarview-separator-margin-inline: 0.4em !important;
+
+      // Rows start 1px under the bar and are 38px tall, as without Nova,
+      // instead of Nova's 8.25px top padding (less a 2.75px negative margin,
+      // see :root below) and 39px rows.
+      padding-block-start: 1px !important;
+
+      .urlbarView-row-inner {
+        min-height: 20px !important;
+      }
+
+      // Rows inset 5.625px from the panel's edges (Proton's 7px view margin
+      // less its -1.375px results margin), instead of Nova's 2.75px gutter.
+      .urlbarView-results {
+        padding-inline: 5.625px !important;
+      }
+    }
+
+    // Proton's 0px instead of Nova's -0.25rem: the view's block margin, and
+    // through --urlbarview-joint-background-outset-block (also on :root) where
+    // the results background starts and ends.
+    :root {
+      --urlbarview-margin-block: 0px !important;
+
+      // Search fields (the sidebar panels' among them) as rounded boxes with
+      // the regular icon, instead of Nova's pill with a small icon.
+      --input-search-border-radius: var(--input-border-radius) !important;
+      --input-search-icon-size: var(--input-icon-size) !important;
+    }
+
+    // The focused address bar's outline, as urlbar.css draws it without
+    // Nova: the field's own border plus a --focus-outline-width ring, instead
+    // of Nova's single border.
+    #urlbar {
+      --urlbar-background-border-focused: var(
+          --urlbar-input-container-border-width
+        )
+        solid var(--toolbar-field-border-color) !important;
+      --urlbar-background-outline-focused: var(--focus-outline-width) solid
+        var(--toolbar-field-border-color-focus) !important;
+    }
+
+    // Notification bars as cards: Nova (infobar.css) flattens them into a
+    // full-width strip with only a top border and drops the accent stripe.
+    // The host's own properties and variables can be set from here, the rest
+    // of the bar is in its shadow root.
+    notification-message.infobar {
+      --info-bar-background-color: light-dark(
+        white,
+        rgb(66, 65, 77)
+      ) !important;
+      --info-bar-box-shadow: 0 1px 2px rgba(58, 57, 68, 0.1) !important;
+      --info-bar-margin: 4px !important;
+      --icon-color-information: #{get-var("accent-color")} !important;
+
+      border: var(--border-width) solid var(--message-bar-border-color) !important;
+      // Proton's --border-radius-small. Nova makes the token 8px.
+      border-radius: 4px !important;
+
+      &::before {
+        display: block !important;
+      }
+    }
+
+    // The sidebar panel as a floating card on the toolbar colour, as
+    // sidebar.css draws it without Nova, instead of Nova's solid panel with a
+    // rounded outer corner.
+    #sidebar-box {
+      --sidebar-box-start-start-radius: 0 !important;
+      --sidebar-box-start-end-radius: 0 !important;
+
+      background-color: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding-block-end: var(--space-small) !important;
+
+      #sidebar-container[hidden] ~ & {
+        padding-inline-start: var(--space-small) !important;
+      }
+
+      #sidebar {
+        // Proton's --border-radius-medium. Nova makes the token 12px.
+        border-radius: 8px !important;
+        box-shadow: var(--content-area-shadow) !important;
+        outline: 0.5px solid var(--sidebar-border-color) !important;
+      }
+    }
+
+    #sidebar-splitter {
+      width: var(--space-medium) !important;
+      border-inline: calc((var(--space-medium) - var(--splitter-width)) / 2)
+        solid transparent !important;
+      border-radius: 0 !important;
+      background-clip: padding-box !important;
+    }
+  }
+}

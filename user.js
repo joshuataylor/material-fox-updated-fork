@@ -42,6 +42,10 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * compact bar. Checkboxes are shown by default.
 // user_pref("userChrome.ui-findbar-hide-checkboxes", true);
 
+// * Use the theme's white Material find bar with the new Firefox look (Nova)
+// * on, which Firefox 162 no longer lets you turn off. Off by default.
+// user_pref("userChrome.ui-material-findbar", true);
+
 // * Hide the leading "Not Secure" chip on insecure (HTTP) pages for a minimal,
 // * Chrome-like address bar. The secure (lock) indicator and breached-connection
 // * warnings are always kept. Off by default -- the warning is a safety signal.
@@ -54,6 +58,12 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 // * Keep the open address bar dropdown the same width as the address bar,
 // * instead of growing past it on every side. Off by default.
 // user_pref("userChrome.ui-no-urlbar-overhang", true);
+
+// * Bring back details of the look from before Nova: the address bar focus
+// * ring, results spacing and dash, card notification bars, a floating sidebar
+// * card and rounded search fields. Also turns on userChrome.ui-no-nova-border.
+// * Off by default.
+// user_pref("userChrome.ui-pre-nova-look", true);
 
 // * Line up right-click menu labels with the Back / Forward / Reload icons by
 // * leaving an empty icon space on the other commands. Off by default.

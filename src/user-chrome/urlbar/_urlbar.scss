@@ -251,7 +251,10 @@ html {
 // .browserContainer and #sidebar-box draw a border and --border-radius-medium
 // corners only on the edges that face other chrome (content-area.css,
 // sidebar.css).
-@include moz-pref-media("userChrome.ui-no-nova-border") {
+// userChrome.ui-pre-nova-look includes it (components/_pre-nova.scss).
+@include moz-pref-media(
+  "userChrome.ui-no-nova-border or userChrome.ui-pre-nova-look"
+) {
   @include moz-pref-media("browser.nova.enabled") {
     #navigator-toolbox,
     #sidebar-box {

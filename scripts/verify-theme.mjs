@@ -554,6 +554,22 @@ function featureProbeScript(url, done) {
         fb.open();
         await waitFor(() => !fb.hidden && fb.getBoundingClientRect().height);
         out.findbar = { overflow: getComputedStyle(fb).overflow };
+
+        // userChrome.ui-material-findbar: the theme's material bar with Nova
+        // on, which Firefox 162 locks (Bug 2082898). Its checkboxes become
+        // chips.
+        const fbFace = () => ({
+            radius: getComputedStyle(fb).borderTopLeftRadius,
+            chip: getComputedStyle(fb.querySelector("checkbox"))
+                .borderTopLeftRadius,
+        });
+        const fbDefault = fbFace();
+        await setPref("userChrome.ui-material-findbar");
+        await settled(fbFace);
+        out.materialFindbar = { default: fbDefault, pref: fbFace() };
+        await clearPref("userChrome.ui-material-findbar");
+        await settled(fbFace);
+
         await setPref("userChrome.ui-findbar-top-right");
         window.resizeTo(700, 600);
         await waitFor(() => window.outerWidth === 700);
@@ -582,6 +598,34 @@ function featureProbeScript(url, done) {
                 .color,
         };
         gBrowser.removeTab(bgTab);
+
+        // userChrome.ui-pre-nova-look: the em dash result separator, the
+        // notification bar as a card and the sidebar as a floating card.
+        const pnBox = gBrowser.getNotificationBox();
+        const pnNote = await pnBox.appendNotification(
+            "verify-theme-pre-nova",
+            { label: "verify-theme", priority: pnBox.PRIORITY_INFO_MEDIUM },
+            [],
+        );
+        const preNova = () => ({
+            separator: getComputedStyle(document.querySelector(".urlbarView"))
+                .getPropertyValue("--urlbarview-separator-char")
+                .trim(),
+            noteRadius: getComputedStyle(pnNote).borderTopLeftRadius,
+            noteStripe: getComputedStyle(pnNote, "::before").display,
+            sidebarRadius: getComputedStyle(
+                document.querySelector("#sidebar-box #sidebar"),
+            ).borderTopLeftRadius,
+            sidebarBoxBackground: getComputedStyle(
+                document.getElementById("sidebar-box"),
+            ).backgroundColor,
+        });
+        const preNovaDefault = preNova();
+        await setPref("userChrome.ui-pre-nova-look");
+        await settled(preNova);
+        out.preNovaLook = { default: preNovaDefault, pref: preNova() };
+        await clearPref("userChrome.ui-pre-nova-look");
+        pnBox.removeNotification(pnNote, true);
 
         // A split view keeps the tab strip height (issue #6).
         const stripBefore = height("#TabsToolbar");
@@ -1724,6 +1768,31 @@ function contractsFor(scenarioId, p) {
             !!it.tab && it.content === it.tab,
             `tab ${it.tab}, label ${it.content}`,
         );
+        // The material find bar and the pre-Nova details under Nova (162 locks
+        // it, Bug 2082898). With Nova off Firefox and the theme already draw
+        // them, so only the Nova scenario checks the prefs make a difference.
+        if (p.nova) {
+            const mf = f.materialFindbar || {};
+            add(
+                "pref:material-findbar",
+                mf.default?.chip === "0px" &&
+                    mf.pref?.radius === "8px" &&
+                    mf.pref?.chip !== "0px",
+                `default ${JSON.stringify(mf.default)}, pref ${JSON.stringify(mf.pref)}`,
+            );
+            const pn = f.preNovaLook || {};
+            const pnPref = pn.pref || {};
+            add(
+                "pref:pre-nova-look",
+                pn.default?.separator !== pnPref.separator &&
+                    pnPref.separator?.startsWith('"\\2014"') &&
+                    pnPref.noteRadius === "4px" &&
+                    pnPref.noteStripe === "block" &&
+                    pnPref.sidebarRadius === "8px" &&
+                    parseColor(pnPref.sidebarBoxBackground)?.a === 0,
+                `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
+            );
+        }
         const tr = f.findbarTopRight || {};
         add(
             "findbar-top-right-fits",

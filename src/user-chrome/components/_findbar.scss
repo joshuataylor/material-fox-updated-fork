@@ -257,7 +257,12 @@ $-checkbox-selectors: (
 // Fix: keep the material cosmetics from the mixin, but neutralise the overlay-only
 // properties so the findbar stays in its native grid-docked position and Firefox's
 // own show/hide keeps working. Find then works with browser.nova.enabled = false.
-@include moz-pref-media("not browser.nova.enabled") {
+//
+// userChrome.ui-material-findbar applies the same branch with Nova on, which
+// Firefox 162 locks (Bug 2082898), so the material bar replaces Nova's.
+@include moz-pref-media(
+  "not browser.nova.enabled or userChrome.ui-material-findbar"
+) {
   // Include Mixin (cosmetics: border, background, elevation, radius, button shapes)
   @include refined-findbar();
 
@@ -452,7 +457,7 @@ $-checkbox-selectors: (
       display: none !important;
     }
   }
-} // end: not browser.nova.enabled
+} // end: not browser.nova.enabled or userChrome.ui-material-findbar
 
 // ============================================================================
 // Opt-in: float the find-in-page bar in the TOP-RIGHT corner of the content

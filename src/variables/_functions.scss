@@ -27,7 +27,15 @@ $base-font-size: 16px;
 
 // Apply moz pref media rule (support `not` and `or` with two params)
 @mixin moz-pref-media($pref-names) {
-  @if str-index($pref-names, "not") == 1 {
+  @if str-index($pref-names, "not ") == 1 and str-index($pref-names, " or ") {
+    // "not pref.a or pref.b" -> (not -moz-pref("pref.a")) or -moz-pref("pref.b")
+    $or-index: str-index($pref-names, " or ");
+    $first: str-slice($pref-names, 5, $or-index - 1);
+    $second: str-slice($pref-names, $or-index + 4);
+    @media (not (#{'-moz-pref("' + $first + '")'})) or (#{'-moz-pref("' + $second + '")'}) {
+      @content;
+    }
+  } @else if str-index($pref-names, "not") == 1 {
     $actual-pref-names: str-slice($pref-names, 5);
     @media not (#{'-moz-pref("' + $actual-pref-names + '")'}) {
       @content;

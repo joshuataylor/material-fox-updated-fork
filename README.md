@@ -229,6 +229,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
     <td>With <code>userChrome.ui-findbar-top-right</code> enabled, hide the find bar's four toggle checkboxes (Match Case, Match Diacritics, Whole Words, Highlight All) for a more compact bar at every window width. Below about 1100px wide the theme hides them anyway so the search box fits, and their settings still apply while hidden. Shown by default.</td>
   </tr>
   <tr>
+    <td><code>userChrome.ui-material-findbar</code></td>
+    <td>Use the theme's white Material find bar, with a borderless search field and chip-style toggles, while the new Firefox look ("Nova") is on. Without it the theme only styles the find bar with Nova turned off, and Firefox 162 no longer lets you turn Nova off. Combines with <code>userChrome.ui-findbar-top-right</code>. <code>false</code> by default.</td>
+  </tr>
+  <tr>
     <td><code>userChrome.ui-no-not-secure-warning</code></td>
     <td>Hide the leading "Not Secure" chip shown on insecure (HTTP) pages, for a minimal, Chrome-like address bar. The secure (lock) indicator and breached-connection warnings are always kept. <code>false</code> by default.</td>
   </tr>
@@ -239,6 +243,10 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   <tr>
     <td><code>userChrome.ui-no-urlbar-overhang</code></td>
     <td>Keep the open address bar dropdown the same width as the address bar. Firefox normally grows it past the bar on every side while it is open (by 8px with the new Firefox look, unless <code>browser.uidensity</code> is compact). <code>false</code> by default.</td>
+  </tr>
+  <tr>
+    <td><code>userChrome.ui-pre-nova-look</code></td>
+    <td>Bring back details of the Firefox look from before the "Nova" redesign while Nova is on: the focus ring on the address bar, the address bar results' spacing and a dash between title and address, notification bars as cards with the coloured edge, the sidebar as a floating card, and rounded search fields instead of pills. Also turns on <code>userChrome.ui-no-nova-border</code>. For the find bar, see <code>userChrome.ui-material-findbar</code>. Does nothing while <code>browser.nova.enabled</code> is off, which Firefox 162 no longer allows. <code>false</code> by default.</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-no-tab-audio-background</code></td>
