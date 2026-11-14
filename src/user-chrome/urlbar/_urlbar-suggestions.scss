@@ -25,15 +25,19 @@
   // urlbar suggestions item. Hover only on [row-selectable] rows, as Firefox
   // does: rows whose buttons are the selectable parts (the Actions search mode
   // chips, tips) would otherwise get a full-height slab behind the button.
+  // Nova clips the row fill to its content box, inside 9px of padding, which
+  // left a gap between the accent bar and the fill.
   .urlbarView-row {
     &[selected] {
       border-left-color: get-var("accent-color") !important;
       background-color: get-var("menu-background-color-hover") !important;
+      background-clip: padding-box !important;
     }
 
     &[row-selectable]:not([selected]):hover {
       border-left-color: get-var("menu-background-color-hover") !important;
       background-color: get-var("menu-background-color-hover") !important;
+      background-clip: padding-box !important;
     }
   }
 }

@@ -55,6 +55,17 @@ html {
     }
   }
 
+  // Nova colours .tab-content from --tab-text-color, set to the toolbar text
+  // colour, so unselected labels lost the inactive colour above (near-black
+  // instead of #474747). Without Nova it is currentColor. Set once here and
+  // inherited, rather than on every tab.
+  @media not (forced-colors) {
+    #tabbrowser-tabs {
+      --tab-text-color: currentColor !important;
+      --tab-text-color-hover: currentColor !important;
+    }
+  }
+
   // macOS also fades unselected labels, on top of the inactive colour above.
   // Firefox 160 took it from 0.7 to 0.6, so hold the earlier 0.7, or full
   // strength with ui-no-tab-dimming.

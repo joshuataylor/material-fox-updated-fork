@@ -571,6 +571,18 @@ function featureProbeScript(url, done) {
         window.resizeTo(1280, 800);
         await waitFor(() => window.outerWidth === 1280 && fb.hidden);
 
+        // An unselected tab's text takes the theme's inactive colour from the
+        // tab. Nova's --tab-text-color (the toolbar text colour) on
+        // .tab-content blocked it.
+        const bgTab = addTab();
+        await waitFor(() => bgTab.querySelector(".tab-content"));
+        out.inactiveTabText = {
+            tab: getComputedStyle(bgTab).color,
+            content: getComputedStyle(bgTab.querySelector(".tab-content"))
+                .color,
+        };
+        gBrowser.removeTab(bgTab);
+
         // A split view keeps the tab strip height (issue #6).
         const stripBefore = height("#TabsToolbar");
         const [s1, s2] = [addTab(), addTab()];
@@ -1705,6 +1717,12 @@ function contractsFor(scenarioId, p) {
             "findbar-overflow-hidden",
             f.findbar?.overflow === "hidden",
             f.findbar?.overflow,
+        );
+        const it = f.inactiveTabText || {};
+        add(
+            "inactive-tab-text-colour",
+            !!it.tab && it.content === it.tab,
+            `tab ${it.tab}, label ${it.content}`,
         );
         const tr = f.findbarTopRight || {};
         add(
