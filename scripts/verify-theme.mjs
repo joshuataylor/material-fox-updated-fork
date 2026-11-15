@@ -726,9 +726,18 @@ function featureProbeScript(url, done) {
                     primary: true,
                     callback: () => true,
                 },
+                { label: "Secondary", accessKey: "S", callback: () => true },
             ],
         );
-        const nBtn = note.querySelector(".notification-button");
+        const nBtns = [...note.querySelectorAll(".notification-button")];
+        const isPrimary = (b) =>
+            b.classList.contains("primary") ||
+            b.getAttribute("type") === "primary";
+        const nBtn = nBtns.find(isPrimary) ?? nBtns[0];
+        const nSecondary = nBtns.find((b) => b !== nBtn);
+        const nSecondaryFace =
+            nSecondary?.shadowRoot?.querySelector(".button-background") ??
+            nSecondary;
         const nFace =
             nBtn?.shadowRoot?.querySelector(".button-background") ?? nBtn;
         let nHover = null;
@@ -749,6 +758,9 @@ function featureProbeScript(url, done) {
             bg: nFace && getComputedStyle(nFace).backgroundColor,
             hover: nHover,
             accent: getComputedStyle(document.documentElement).accentColor,
+            secondaryBorder:
+                nSecondaryFace &&
+                getComputedStyle(nSecondaryFace).borderTopColor,
         };
         nbox.removeNotification(note, true);
 
@@ -1881,6 +1893,15 @@ function contractsFor(scenarioId, p) {
                 (nb.tag !== "moz-button" ||
                     (!!nbHover && sameColor({ ...nbHover, a: 1 }, nbAccent))),
             `${nb.tag}: radius ${nb.radius}, bg ${nb.bg}, hover ${nb.hover}, accent ${nb.accent}`,
+        );
+        // Secondary buttons keep the theme's outline, a 41% tint of their own
+        // text colour. Firefox dropped the variable it came from (Bug 1988865),
+        // which left the full text colour or Nova's accent.
+        const nbBorder = parseColor(nb.secondaryBorder);
+        add(
+            "secondary-button-border",
+            !!nbBorder && nbBorder.a > 0.2 && nbBorder.a < 0.6,
+            `${nb.tag}: border ${nb.secondaryBorder}`,
         );
         // Opt-in pinned-tab prefs (issue #16).
         const pp = f.pinnedPrefs || {};
