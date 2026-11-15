@@ -185,6 +185,11 @@
       --sidebar-box-start-end-radius: 0 !important;
 
       background-color: transparent !important;
+      // Nova also gives the box --sidebar-text-color, which pairs with the
+      // sidebar background it no longer has. The panel's heading now sits on
+      // the toolbar colour, so it takes the toolbar's text colour (on Linux
+      // the system's sidebar text came out white on the light toolbar).
+      color: inherit !important;
       border: none !important;
       border-radius: 0 !important;
       padding-block-end: var(--space-small) !important;
