@@ -99,6 +99,28 @@
               var(--urlbar-input-container-padding)
           )
       ) !important;
+      // Nova derives this from the size above. Without Nova it comes from the
+      // height less a 2px border and 2px padding, and the result rows and
+      // their icons are inset by it.
+      --urlbar-icon-padding: calc(
+        (var(--urlbar-height) - 2px - 2px - 16px) / 2
+      ) !important;
+    }
+
+    // Compact density: 26px without Nova, 28px with it. Nova also pads the
+    // results view on every side there and drops the rows' minimum height,
+    // where view-proton.css keeps the view flush and the rows 40px.
+    :root[uidensity="compact"] {
+      --urlbar-height: max(26px, 1.4em) !important;
+
+      .urlbarView {
+        padding-inline: 0 !important;
+        padding-block-end: 0 !important;
+
+        .urlbarView-row-inner {
+          min-height: 22px !important;
+        }
+      }
     }
 
     // Notification bars as cards: Nova (infobar.css) flattens them into a
