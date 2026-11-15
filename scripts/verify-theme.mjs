@@ -755,6 +755,8 @@ function featureProbeScript(url, done) {
             nSecondary;
         const nFace =
             nBtn?.shadowRoot?.querySelector(".button-background") ?? nBtn;
+        await note.updateComplete;
+        const nIcon = note.shadowRoot?.querySelector(".icon");
         let nHover = null;
         if (nBtn?.localName === "moz-button") {
             // A light-DOM child of moz-button isn't rendered, so resolve the
@@ -776,6 +778,7 @@ function featureProbeScript(url, done) {
             secondaryBorder:
                 nSecondaryFace &&
                 getComputedStyle(nSecondaryFace).borderTopColor,
+            infoIcon: nIcon && getComputedStyle(nIcon).fill,
         };
         nbox.removeNotification(note, true);
 
@@ -1921,6 +1924,15 @@ function contractsFor(scenarioId, p) {
             !!nbBorder && nbBorder.a > 0.2 && nbBorder.a < 0.6,
             `${nb.tag}: border ${nb.secondaryBorder}`,
         );
+        // The notification bar's info icon is the accent under Nova, not
+        // Nova's violet.
+        if (p.nova) {
+            add(
+                "notification-info-icon-accent",
+                sameColor(parseColor(nb.infoIcon), nbAccent),
+                `fill ${nb.infoIcon}, accent ${nb.accent}`,
+            );
+        }
         // Opt-in pinned-tab prefs (issue #16).
         const pp = f.pinnedPrefs || {};
         add(
