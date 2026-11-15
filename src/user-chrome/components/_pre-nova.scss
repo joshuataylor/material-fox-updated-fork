@@ -80,15 +80,25 @@
     }
 
     // The focused address bar's outline, as urlbar.css draws it without
-    // Nova: the field's own border plus a --focus-outline-width ring, instead
-    // of Nova's single border.
+    // Nova: a --focus-outline-width ring outside the field's border, instead
+    // of Nova's single border. The theme already colours the 1px border on
+    // focus (urlbar/_urlbar.scss), so the two read as one 3px ring.
     #urlbar {
-      --urlbar-background-border-focused: var(
-          --urlbar-input-container-border-width
-        )
-        solid var(--toolbar-field-border-color) !important;
       --urlbar-background-outline-focused: var(--focus-outline-width) solid
         var(--toolbar-field-border-color-focus) !important;
+    }
+
+    // The boxes inside the bar (search mode switcher, identity box, page
+    // action buttons) are 2px shorter without Nova, which also takes the
+    // input container's border off their height.
+    :root {
+      --urlbar-basic-component-size: calc(
+        var(--urlbar-height) - 2 *
+          (
+            var(--urlbar-input-container-border-width) +
+              var(--urlbar-input-container-padding)
+          )
+      ) !important;
     }
 
     // Notification bars as cards: Nova (infobar.css) flattens them into a
@@ -123,7 +133,26 @@
       // so the button's text colour (the accent) outlined them.
       moz-button.notification-button {
         --button-border: var(--border-width) solid transparent !important;
+        --button-border-color-hover: transparent !important;
+        --button-border-color-active: transparent !important;
+        --button-border-color-disabled: transparent !important;
       }
+    }
+
+    // The bar's icon, centred with a 2px top margin as without Nova. Nova
+    // (infobar.css) pins it to the top, beside the first line of text. It is
+    // in the bar's shadow root, so the selector has to start there:
+    // infobar.css is linked ahead of the container, and a plain message bar
+    // doesn't load it.
+    link[href$="infobar.css"] ~ .container > .icon-container {
+      align-self: auto !important;
+      margin-block-start: 2px !important;
+    }
+
+    // The sidebar panels' top padding, which Nova halves (sidebar.css, in
+    // each panel's shadow root, inside the panel's own chrome document).
+    .sidebar-panel {
+      padding-block-start: var(--space-large) !important;
     }
 
     // The sidebar panel as a floating card on the toolbar colour, as

@@ -600,13 +600,21 @@ function featureProbeScript(url, done) {
         gBrowser.removeTab(bgTab);
 
         // userChrome.ui-pre-nova-look: the em dash result separator, the
-        // notification bar as a card and the sidebar as a floating card.
+        // notification bar as a card with its icon centred, the sidebar as a
+        // floating card and the address bar's boxes at their pre-Nova height.
         const pnBox = gBrowser.getNotificationBox();
         const pnNote = await pnBox.appendNotification(
             "verify-theme-pre-nova",
             { label: "verify-theme", priority: pnBox.PRIORITY_INFO_MEDIUM },
             [],
         );
+        await pnNote.updateComplete;
+        const pnIcon = pnNote.shadowRoot?.querySelector(".icon-container");
+        // The height urlbar.css gives the address bar's boxes without Nova.
+        const pnSwatch = document.createElement("div");
+        pnSwatch.style.cssText =
+            "position: fixed; width: 1px; height: calc(var(--urlbar-height) - 2 * (var(--urlbar-input-container-border-width) + var(--urlbar-input-container-padding)))";
+        document.documentElement.append(pnSwatch);
         const preNova = () => ({
             separator: getComputedStyle(document.querySelector(".urlbarView"))
                 .getPropertyValue("--urlbarview-separator-char")
@@ -619,6 +627,12 @@ function featureProbeScript(url, done) {
             sidebarBoxBackground: getComputedStyle(
                 document.getElementById("sidebar-box"),
             ).backgroundColor,
+            noteIconAlign: pnIcon && getComputedStyle(pnIcon).alignSelf,
+            noteIconMargin: pnIcon && getComputedStyle(pnIcon).marginTop,
+            switcherHeight: document
+                .querySelector(".searchmode-switcher")
+                ?.getBoundingClientRect().height,
+            switcherHeightProton: pnSwatch.getBoundingClientRect().height,
         });
         const preNovaDefault = preNova();
         await setPref("userChrome.ui-pre-nova-look");
@@ -626,6 +640,7 @@ function featureProbeScript(url, done) {
         out.preNovaLook = { default: preNovaDefault, pref: preNova() };
         await clearPref("userChrome.ui-pre-nova-look");
         pnBox.removeNotification(pnNote, true);
+        pnSwatch.remove();
 
         // A split view keeps the tab strip height (issue #6).
         const stripBefore = height("#TabsToolbar");
@@ -1801,7 +1816,10 @@ function contractsFor(scenarioId, p) {
                     pnPref.noteRadius === "4px" &&
                     pnPref.noteStripe === "block" &&
                     pnPref.sidebarRadius === "8px" &&
-                    parseColor(pnPref.sidebarBoxBackground)?.a === 0,
+                    parseColor(pnPref.sidebarBoxBackground)?.a === 0 &&
+                    pnPref.noteIconAlign === "auto" &&
+                    pnPref.noteIconMargin === "2px" &&
+                    pnPref.switcherHeight === pnPref.switcherHeightProton,
                 `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
             );
         }
