@@ -1278,6 +1278,57 @@ function featureProbeScript(url, done) {
                 pageWidth - 20,
             );
             await clearPref("userChrome.ui-menu-icon-column");
+
+            // The Library window's menus get the theme's background too. Its
+            // root is a XUL <window>, not the browser's <html> (fork #22).
+            const libLoaded = new Promise((resolve) => {
+                const obs = (subject) => {
+                    subject.addEventListener(
+                        "load",
+                        () => {
+                            if (
+                                subject.document.documentElement.id === "places"
+                            ) {
+                                Services.ww.unregisterNotification(obs);
+                                resolve(subject);
+                            }
+                        },
+                        { once: true },
+                    );
+                };
+                Services.ww.registerNotification(obs);
+            });
+            PlacesCommandHook.showPlacesOrganizer("AllBookmarks");
+            const lib = await Promise.race([
+                libLoaded,
+                new Promise((r) => setTimeout(() => r(null), 8000)),
+            ]);
+            if (lib) {
+                const lpop = lib.document.getElementById("placesContext");
+                const lshown = event(lpop, "popupshown");
+                lpop.openPopup(
+                    lib.document.getElementById("placesList"),
+                    "overlap",
+                    20,
+                    20,
+                );
+                await lshown;
+                const lbox = lpop.shadowRoot?.querySelector(
+                    ".menupopup-arrowscrollbox",
+                );
+                out.libraryMenu = {
+                    root: lib.document.documentElement.localName,
+                    background:
+                        lbox && lib.getComputedStyle(lbox).backgroundColor,
+                    color: lib.getComputedStyle(lpop).color,
+                };
+                const lhidden = event(lpop, "popuphidden");
+                lpop.hidePopup();
+                await lhidden;
+                lib.close();
+            } else {
+                out.libraryMenu = { error: "Library window did not open" };
+            }
         }
 
         // Vertical tabs: no corner flares, all corners rounded
@@ -2101,6 +2152,17 @@ function contractsFor(scenarioId, p) {
     // column and one row height per popup, one icon per nav item, and the
     // icons pref uses Firefox's gutter instead of adding its own
     // (edelvarden/material-fox-updated#150, #145, #135).
+    const libMenu = (p.features || {}).libraryMenu;
+    if (
+        (scenarioId === "themed" || scenarioId === "themed-proton") &&
+        libMenu
+    ) {
+        add(
+            "library-menu-background",
+            parseColor(libMenu.background)?.a === 1,
+            JSON.stringify(libMenu),
+        );
+    }
     const menus = (p.features || {}).menus;
     if ((scenarioId === "themed" || scenarioId === "themed-proton") && menus) {
         const textX = (m) => [

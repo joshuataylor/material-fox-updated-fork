@@ -44,9 +44,14 @@ $menu-side-paddings: 4px;
     min-height: var(--menuitem-height) !important;
   }
 
-  // context menu background-color & drop shadow
+  // context menu background-color & drop shadow. Firefox no longer sets
+  // --arrowpanel-background, so fall back to its panel colour under
+  // userChrome.theme-default.
   .menupopup-arrowscrollbox {
-    background-color: var(--arrowpanel-background) !important;
+    background-color: var(
+      --arrowpanel-background,
+      var(--panel-background-color)
+    ) !important;
     border: none !important;
     box-shadow: get-var("elevation-2") !important;
   }

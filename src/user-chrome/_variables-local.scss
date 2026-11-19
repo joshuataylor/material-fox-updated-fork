@@ -93,6 +93,14 @@
       --arrowpanel-color: #{get-var("text-primary")} !important;
       --panel-text-color: #{get-var("text-primary")} !important;
     }
+
+    // The menu colour comes from --arrowpanel-background, which the html
+    // block below declares. The Library window's root is a XUL <window>, so
+    // its menus had none and came out transparent (issue #22). Declare it on
+    // the menus themselves.
+    menupopup {
+      --arrowpanel-background: #{get-var("menu-background-color")} !important;
+    }
   }
 
   html {
