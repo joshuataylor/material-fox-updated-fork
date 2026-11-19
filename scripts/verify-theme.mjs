@@ -609,7 +609,9 @@ function featureProbeScript(url, done) {
             [],
         );
         await pnNote.updateComplete;
-        const pnIcon = pnNote.shadowRoot?.querySelector(".icon-container");
+        const pnIcon = pnNote.shadowRoot?.querySelector(
+            ".icon-container > .icon",
+        );
         // The height urlbar.css gives the address bar's boxes without Nova.
         const pnSwatch = document.createElement("div");
         pnSwatch.style.cssText =
@@ -627,8 +629,16 @@ function featureProbeScript(url, done) {
             sidebarBoxBackground: getComputedStyle(
                 document.getElementById("sidebar-box"),
             ).backgroundColor,
-            noteIconAlign: pnIcon && getComputedStyle(pnIcon).alignSelf,
-            noteIconMargin: pnIcon && getComputedStyle(pnIcon).marginTop,
+            // The icon's centre against the bar's, in px (0 when centred).
+            noteIconOffset: pnIcon
+                ? Math.round(
+                      (pnIcon.getBoundingClientRect().top +
+                          pnIcon.getBoundingClientRect().height / 2 -
+                          (pnNote.getBoundingClientRect().top +
+                              pnNote.getBoundingClientRect().height / 2)) *
+                          10,
+                  ) / 10
+                : null,
             switcherHeight: document
                 .querySelector(".searchmode-switcher")
                 ?.getBoundingClientRect().height,
@@ -1895,8 +1905,7 @@ function contractsFor(scenarioId, p) {
                     pnPref.noteStripe === "block" &&
                     pnPref.sidebarRadius === "8px" &&
                     parseColor(pnPref.sidebarBoxBackground)?.a === 0 &&
-                    pnPref.noteIconAlign === "auto" &&
-                    pnPref.noteIconMargin === "2px" &&
+                    Math.abs(pnPref.noteIconOffset) <= 1 &&
                     pnPref.switcherHeight === pnPref.switcherHeightProton,
                 `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
             );

@@ -161,14 +161,15 @@
       }
     }
 
-    // The bar's icon, centred with a 2px top margin as without Nova. Nova
-    // (infobar.css) pins it to the top, beside the first line of text. It is
-    // in the bar's shadow root, so the selector has to start there:
-    // infobar.css is linked ahead of the container, and a plain message bar
-    // doesn't load it.
+    // The bar's icon, centred as without Nova. Nova (infobar.css) pins it to
+    // the top beside the first line of text, with a top margin up to 162 and a
+    // top padding from 162 (Bug 2079920). It is in the bar's shadow root, so
+    // the selector has to start there: infobar.css is linked ahead of the
+    // container, and a plain message bar doesn't load it.
     link[href$="infobar.css"] ~ .container > .icon-container {
       align-self: auto !important;
-      margin-block-start: 2px !important;
+      margin-block-start: 0 !important;
+      padding-block-start: 0 !important;
     }
 
     // The sidebar panels' top padding, which Nova halves (sidebar.css, in
