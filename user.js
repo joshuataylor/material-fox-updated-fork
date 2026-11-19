@@ -61,8 +61,9 @@ user_pref("layout.css.color-mix.enabled", true); // for color-mix
 
 // * Bring back details of the look from before Nova: the address bar focus
 // * ring, the open bar's smaller growth, results spacing and dash, card
-// * notification bars, a floating sidebar card, smaller panel corners and
-// * rounded search fields. Also turns on userChrome.ui-no-nova-border.
+// * notification bars, a floating sidebar card, smaller panel corners,
+// * rounded search fields and the grey tab strip without Nova's gradient.
+// * Also turns on userChrome.ui-no-nova-border.
 // * Off by default.
 // user_pref("userChrome.ui-pre-nova-look", true);
 
