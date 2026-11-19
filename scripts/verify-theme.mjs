@@ -644,11 +644,49 @@ function featureProbeScript(url, done) {
                 ?.getBoundingClientRect().height,
             switcherHeightProton: pnSwatch.getBoundingClientRect().height,
         });
+        // The bookmarks sidebar's search field, in whichever sidebar the
+        // build uses (the older bookmarksSidebar.xhtml on 160/161, the
+        // sidebar-bookmarks panel on 162).
+        await SidebarController.show("viewBookmarksSidebar");
+        const sbDoc = () => document.getElementById("sidebar").contentDocument;
+        await waitFor(() => {
+            const d = sbDoc();
+            return (
+                d?.readyState === "complete" &&
+                (d.getElementById("search-box") ||
+                    d
+                        .querySelector("sidebar-bookmarks")
+                        ?.shadowRoot?.querySelector("moz-input-search"))
+            );
+        });
+        const sbSearch = () => {
+            const d = sbDoc();
+            const host = d.querySelector("sidebar-bookmarks");
+            const field = host
+                ? host.shadowRoot.querySelector("moz-input-search")
+                : d.getElementById("search-box");
+            const input = field?.shadowRoot?.querySelector("input");
+            return {
+                panel: !!host,
+                top: field && Math.round(field.getBoundingClientRect().top),
+                radius:
+                    input &&
+                    d.defaultView.getComputedStyle(input).borderTopLeftRadius,
+            };
+        };
+        const sbSearchDefault = sbSearch();
         const preNovaDefault = preNova();
         await setPref("userChrome.ui-pre-nova-look");
         await settled(preNova);
-        out.preNovaLook = { default: preNovaDefault, pref: preNova() };
+        await settled(sbSearch);
+        out.preNovaLook = {
+            default: preNovaDefault,
+            pref: preNova(),
+            searchDefault: sbSearchDefault,
+            search: sbSearch(),
+        };
         await clearPref("userChrome.ui-pre-nova-look");
+        SidebarController.hide();
         pnBox.removeNotification(pnNote, true);
         pnSwatch.remove();
 
@@ -1908,6 +1946,17 @@ function contractsFor(scenarioId, p) {
                     Math.abs(pnPref.noteIconOffset) <= 1 &&
                     pnPref.switcherHeight === pnPref.switcherHeightProton,
                 `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
+            );
+            // The sidebar's search field: Proton's 8px corners, and moved down
+            // only in the 162 panel, where Nova halves the top padding. The
+            // older 160/161 sidebar has no such padding to restore.
+            const ss = pn.search || {};
+            const sd = pn.searchDefault || {};
+            add(
+                "pref:pre-nova-sidebar-search",
+                ss.radius === "8px" &&
+                    (ss.panel ? ss.top > sd.top : ss.top === sd.top),
+                `default ${JSON.stringify(sd)}, pref ${JSON.stringify(ss)}`,
             );
         }
         const tr = f.findbarTopRight || {};

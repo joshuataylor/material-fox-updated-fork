@@ -66,8 +66,9 @@
       --urlbarview-margin-block: 0px !important;
 
       // Search fields (the sidebar panels' among them) as rounded boxes with
-      // the regular icon, instead of Nova's pill with a small icon.
-      --input-search-border-radius: var(--input-border-radius) !important;
+      // the regular icon, instead of Nova's pill with a small icon. Proton's
+      // --border-radius-medium: Nova makes --input-border-radius 12px.
+      --input-search-border-radius: 8px !important;
       --input-search-icon-size: var(--input-icon-size) !important;
 
       // Panels (the app menu, the bookmark star, downloads) with Proton's 8px
@@ -173,8 +174,10 @@
     }
 
     // The sidebar panels' top padding, which Nova halves (sidebar.css, in
-    // each panel's shadow root, inside the panel's own chrome document).
-    .sidebar-panel {
+    // each panel's shadow root, inside the panel's own chrome document). Only
+    // the <div>: the older bookmarks and history sidebars (still the default
+    // on 160 and 161) put the class on their root <window>.
+    div.sidebar-panel {
       padding-block-start: var(--space-large) !important;
     }
 
