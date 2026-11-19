@@ -70,6 +70,14 @@
       // --border-radius-medium: Nova makes --input-border-radius 12px.
       --input-search-border-radius: 8px !important;
       --input-search-icon-size: var(--input-icon-size) !important;
+      // Their fill and border from before Nova: Nova's dark fill is near
+      // black (#171519) and its border a flat grey.
+      --input-background-color: light-dark(#ffffff, #42414d) !important;
+      --input-border-color: color-mix(
+        in srgb,
+        currentColor 15%,
+        #8f8f9d
+      ) !important;
 
       // Panels (the app menu, the bookmark star, downloads) with Proton's 8px
       // corners. Nova's --popup-border-radius makes them 24px.

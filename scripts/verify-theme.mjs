@@ -677,6 +677,9 @@ function featureProbeScript(url, done) {
                 radius:
                     input &&
                     d.defaultView.getComputedStyle(input).borderTopLeftRadius,
+                border:
+                    input &&
+                    d.defaultView.getComputedStyle(input).borderTopColor,
             };
         };
         const sbSearchDefault = sbSearch();
@@ -1961,6 +1964,7 @@ function contractsFor(scenarioId, p) {
             add(
                 "pref:pre-nova-sidebar-search",
                 ss.radius === "8px" &&
+                    ss.border !== sd.border &&
                     (ss.panel ? ss.top > sd.top : ss.top === sd.top),
                 `default ${JSON.stringify(sd)}, pref ${JSON.stringify(ss)}`,
             );
