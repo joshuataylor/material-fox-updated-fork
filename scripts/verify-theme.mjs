@@ -642,6 +642,30 @@ function featureProbeScript(url, done) {
         pnBox.removeNotification(pnNote, true);
         pnSwatch.remove();
 
+        // The bookmarks toolbar's drop indicator. Firefox moves it by the
+        // distance from #PlacesToolbarItems' outer edge, so its holder has to
+        // start there or the indicator lands inside a bookmark (fork #24).
+        CustomizableUI.setToolbarVisibility("PersonalToolbar", true);
+        await waitFor(
+            () =>
+                document
+                    .getElementById("PlacesToolbarItems")
+                    ?.getBoundingClientRect().width > 0,
+        );
+        const dropHolder = document.getElementById(
+            "PlacesToolbarDropIndicatorHolder",
+        );
+        const dropWasCollapsed = dropHolder.collapsed;
+        dropHolder.collapsed = false;
+        out.bookmarksDropIndicator = {
+            holderLeft: dropHolder.getBoundingClientRect().left,
+            itemsLeft: document
+                .getElementById("PlacesToolbarItems")
+                .getBoundingClientRect().left,
+        };
+        dropHolder.collapsed = dropWasCollapsed;
+        CustomizableUI.setToolbarVisibility("PersonalToolbar", false);
+
         // A split view keeps the tab strip height (issue #6).
         const stripBefore = height("#TabsToolbar");
         const [s1, s2] = [addTab(), addTab()];
@@ -2152,6 +2176,14 @@ function contractsFor(scenarioId, p) {
     // column and one row height per popup, one icon per nav item, and the
     // icons pref uses Firefox's gutter instead of adding its own
     // (edelvarden/material-fox-updated#150, #145, #135).
+    const drop = (p.features || {}).bookmarksDropIndicator;
+    if (drop) {
+        add(
+            "bookmarks-drop-indicator-origin",
+            Math.abs(drop.holderLeft - drop.itemsLeft) < 1,
+            `holder ${drop.holderLeft}, items ${drop.itemsLeft}`,
+        );
+    }
     const libMenu = (p.features || {}).libraryMenu;
     if (
         (scenarioId === "themed" || scenarioId === "themed-proton") &&

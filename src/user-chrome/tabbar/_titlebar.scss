@@ -197,8 +197,12 @@
   }
 }
 
-// fix first tab rounded edge cutoff
-scrollbox:is([orient="horizontal"], [smoothscroll="true"], [flex="1"]) {
+// fix first tab rounded edge cutoff. Not the bookmarks toolbar's items: Firefox
+// places the drag-and-drop indicator from that box's outer edge, so the padding
+// moved it 12px into the next bookmark (fork #24).
+scrollbox:is([orient="horizontal"], [smoothscroll="true"], [flex="1"]):not(
+    #PlacesToolbarItems
+  ) {
   padding-inline-start: 12px !important;
   margin-inline-start: -12px !important;
   padding-inline-end: 12px !important;
