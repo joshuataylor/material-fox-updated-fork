@@ -643,6 +643,11 @@ function featureProbeScript(url, done) {
                 .querySelector(".searchmode-switcher")
                 ?.getBoundingClientRect().height,
             switcherHeightProton: pnSwatch.getBoundingClientRect().height,
+            frameImage: getComputedStyle(document.body).backgroundImage.slice(
+                0,
+                24,
+            ),
+            lwtheme: document.documentElement.hasAttribute("lwtheme"),
         });
         // The bookmarks sidebar's search field, in whichever sidebar the
         // build uses (the older bookmarksSidebar.xhtml on 160/161, the
@@ -1944,6 +1949,7 @@ function contractsFor(scenarioId, p) {
                     pnPref.sidebarRadius === "8px" &&
                     parseColor(pnPref.sidebarBoxBackground)?.a === 0 &&
                     Math.abs(pnPref.noteIconOffset) <= 1 &&
+                    (pnPref.lwtheme || pnPref.frameImage === "none") &&
                     pnPref.switcherHeight === pnPref.switcherHeightProton,
                 `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
             );

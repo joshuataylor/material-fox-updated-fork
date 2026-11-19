@@ -108,6 +108,18 @@
       ) !important;
     }
 
+    // The tab strip without a lightweight theme: Firefox's grey frame from
+    // before Nova, instead of Nova's white with a violet-to-pink gradient
+    // (browser-shared.css --toolbox-background-image). A lightweight theme
+    // brings its own frame, so leave those alone.
+    :root:not([lwtheme]) {
+      --toolbox-background-color: light-dark(
+        rgb(234, 234, 237),
+        #1c1b22
+      ) !important;
+      --toolbox-background-image: none !important;
+    }
+
     // Compact density: 26px without Nova, 28px with it. Nova also pads the
     // results view on every side there and drops the rows' minimum height,
     // where view-proton.css keeps the view flush and the rows 40px.
