@@ -620,6 +620,36 @@ function featureProbeScript(url, done) {
         };
         dialogFrame.remove();
 
+        // The form autocomplete popup (form history, logins, addresses, a
+        // <datalist>) highlights the rounded <autocomplete-row-item> inside
+        // the selected row, not the square row itself, and keeps the row's
+        // second line readable on the highlight.
+        const acBox = document.getElementById("PopupAutoComplete")?.richlistbox;
+        if (acBox) {
+            const acRow = (selected) => {
+                const row = document.createXULElement("richlistitem");
+                row.className = "autocomplete-row-item";
+                if (selected) row.setAttribute("selected", "true");
+                const inner = document.createElementNS(
+                    "http://www.w3.org/1999/xhtml",
+                    "autocomplete-row-item",
+                );
+                row.appendChild(inner);
+                acBox.appendChild(row);
+                const read = {
+                    row: getComputedStyle(row).backgroundColor,
+                    inner: getComputedStyle(inner).backgroundColor,
+                    text: getComputedStyle(inner).color,
+                    dimmed: getComputedStyle(inner).getPropertyValue(
+                        "--text-color-deemphasized",
+                    ),
+                };
+                row.remove();
+                return read;
+            };
+            out.autocompleteRow = { selected: acRow(true), rest: acRow(false) };
+        }
+
         // The find bar clips both axes (no scrollbar), and the top-right bar
         // stays inside a narrow window (issue #8).
         const fb = await gBrowser.getFindBar();
@@ -2009,6 +2039,21 @@ function contractsFor(scenarioId, p) {
             "dialog-buttons-native",
             !themedButton(dlg.accept) && !themedButton(dlg.cancel),
             JSON.stringify(dlg),
+        );
+        // The form autocomplete popup's selected row: the fill is on the
+        // rounded inner element, and the dimmed second line follows the
+        // text on it.
+        const ac = f.autocompleteRow || {};
+        const acSel = ac.selected || {};
+        add(
+            "autocomplete-selected-row-rounded",
+            parseColor(acSel.row)?.a === 0 && parseColor(acSel.inner)?.a > 0,
+            `row ${acSel.row}, inner ${acSel.inner}`,
+        );
+        add(
+            "autocomplete-selected-row-second-line",
+            !!acSel.dimmed && acSel.dimmed !== ac.rest?.dimmed,
+            `selected ${acSel.dimmed} on ${acSel.inner}, rest ${ac.rest?.dimmed}`,
         );
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
         // the bar. Nova grows it by 8px by default (fork #19).

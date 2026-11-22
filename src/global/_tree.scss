@@ -31,4 +31,22 @@ richlistitem[selected] {
   richlistitem:not([selected]) {
     color: get-var(text-primary) !important;
   }
+
+  // Firefox rounds the <autocomplete-row-item> inside each row, concentric
+  // with the popup's corners, so the highlight goes there. On the row itself
+  // it is a square block inset from the rounded edge.
+  richlistitem.autocomplete-row-item[selected] {
+    background-color: transparent !important;
+
+    > autocomplete-row-item {
+      background-color: get-var(accent-color) !important;
+      // The second line ("From this website") is Firefox's dimmed dark text,
+      // which disappears on the accent colour.
+      --text-color-deemphasized: color-mix(
+        in srgb,
+        currentColor 80%,
+        transparent
+      ) !important;
+    }
+  }
 }
