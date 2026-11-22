@@ -27,6 +27,15 @@
     padding-inline-start: get-var("menuicon-margin-inline") !important;
   }
 
+  // The account panel's sync status, Monitor and Relay rows carry their own
+  // icon with Firefox's smaller gap and the text colour, so their labels sat
+  // 6px left of the plain icon rows and their icons were darker.
+  .fxa-menu-sync-status-button > .fxa-menu-sync-status-icon,
+  .subviewbutton .ctaMenuLogo {
+    margin-inline-end: get-var("menuicon-margin-inline") !important;
+    fill: get-var("icon-color-secondary") !important;
+  }
+
   // padding for items without icons
   #fxa-manage-account-button > vbox,
   #PanelUI-fxa-menu-syncnow-button > hbox {

@@ -633,6 +633,18 @@ function featureProbeScript(url, done) {
             padding: getComputedStyle(rowButton).paddingInlineStart,
         };
 
+        // The account panel's rows with their own icon (sync status, Monitor,
+        // Relay) use the theme's icon gutter, like the plain icon rows.
+        const ctaLogo = document.createXULElement("image");
+        ctaLogo.className = "ctaMenuLogo";
+        rowButton.appendChild(ctaLogo);
+        out.accountRowIcon = {
+            gap: getComputedStyle(ctaLogo).marginInlineEnd,
+            gutter: getComputedStyle(document.documentElement)
+                .getPropertyValue("--md-menuicon-margin-inline")
+                .trim(),
+        };
+
         rowHost.remove();
 
         // The form autocomplete popup (form history, logins, addresses, a
@@ -2085,6 +2097,14 @@ function contractsFor(scenarioId, p) {
             "panel-row-button-not-outlined",
             !!sb.padding && sb.padding !== "16px",
             `padding ${sb.padding}`,
+        );
+        // Every icon row in the account panel has the same gap before its
+        // label.
+        const ar = f.accountRowIcon || {};
+        add(
+            "account-panel-rows-aligned",
+            !!ar.gutter && ar.gap === ar.gutter,
+            `icon gap ${ar.gap}, gutter ${ar.gutter}`,
         );
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
         // the bar. Nova grows it by 8px by default (fork #19).
