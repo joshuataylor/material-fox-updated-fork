@@ -647,6 +647,38 @@ function featureProbeScript(url, done) {
 
         rowHost.remove();
 
+        // The dialogs Settings opens in a frame are chrome: documents in a
+        // content frame, which only the content sheet reaches. They carry
+        // the theme's palette, so their accent matches the page behind.
+        const contentDialog = document.createXULElement("browser");
+        contentDialog.setAttribute("type", "content");
+        contentDialog.setAttribute(
+            "style",
+            "position: fixed; inset: 0 auto auto 0; width: 480px; height: 360px;",
+        );
+        contentDialog.setAttribute(
+            "src",
+            "chrome://browser/content/preferences/dialogs/colors.xhtml",
+        );
+        document.documentElement.appendChild(contentDialog);
+        const contentDialogRoot = () =>
+            contentDialog.contentDocument?.querySelector("dialog")
+                ? contentDialog.contentDocument.documentElement
+                : null;
+        await waitFor(contentDialogRoot, 5000);
+        const cdRoot = contentDialogRoot();
+        out.settingsDialog = cdRoot
+            ? {
+                  palette: getComputedStyle(cdRoot)
+                      .getPropertyValue("--md-accent-color")
+                      .trim(),
+                  accent: getComputedStyle(cdRoot)
+                      .getPropertyValue("--color-accent-primary")
+                      .trim(),
+              }
+            : null;
+        contentDialog.remove();
+
         // The form autocomplete popup (form history, logins, addresses, a
         // <datalist>) highlights the rounded <autocomplete-row-item> inside
         // the selected row, not the square row itself, and keeps the row's
@@ -2105,6 +2137,13 @@ function contractsFor(scenarioId, p) {
             "account-panel-rows-aligned",
             !!ar.gutter && ar.gap === ar.gutter,
             `icon gap ${ar.gap}, gutter ${ar.gutter}`,
+        );
+        // A Settings dialog uses the theme's accent, not Firefox's.
+        const sd = f.settingsDialog || {};
+        add(
+            "settings-dialog-accent",
+            !!sd.palette && sd.accent === sd.palette,
+            `accent ${sd.accent}, theme ${sd.palette}`,
         );
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
         // the bar. Nova grows it by 8px by default (fork #19).

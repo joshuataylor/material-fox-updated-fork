@@ -24,5 +24,20 @@
   @import "user-content/pages/global";
 }
 
+// The dialogs Firefox's own pages open in a frame (Settings > Fonts, Colours,
+// Clear Data, certificates) and their confirmation prompts are chrome:
+// documents, so the about: scope above misses them. They get the palette and
+// the accent mapping only, so their buttons, fields and focus rings match
+// the page behind them.
+@-moz-document url-prefix("chrome://browser/content/preferences/dialogs/"),
+  url-prefix("chrome://browser/content/sanitize"),
+  url-prefix("chrome://mozapps/content/preferences/"),
+  url-prefix("chrome://pippki/content/"),
+  url("chrome://global/content/commonDialog.xhtml")
+{
+  @import "variables/index";
+  @import "user-content/variables-local";
+}
+
 // dev tools panel
 @import "user-content/pages/dev-tools";
