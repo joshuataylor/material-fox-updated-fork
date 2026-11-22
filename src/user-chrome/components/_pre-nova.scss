@@ -88,6 +88,13 @@
       --toolbarbutton-opacity-disabled: 0.5 !important;
     }
 
+    // The form autocomplete popup (form history, logins, addresses) sets its
+    // own --panel-border-radius to Nova's 24px, so it gets the panels' 8px
+    // here. On Windows and Linux it already has the theme's menu radius.
+    #PopupAutoComplete {
+      --panel-border-radius: 8px !important;
+    }
+
     // The focused address bar's outline, as urlbar.css draws it without
     // Nova: a --focus-outline-width ring outside the field's border, instead
     // of Nova's single border. The theme already colours the 1px border on

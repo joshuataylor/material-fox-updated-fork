@@ -796,9 +796,15 @@ function featureProbeScript(url, done) {
         await setPref("userChrome.ui-pre-nova-look");
         await settled(preNova);
         await settled(sbSearch);
+        const acRadius = () =>
+            getComputedStyle(
+                document.getElementById("PopupAutoComplete"),
+            ).getPropertyValue("--panel-border-radius");
         out.preNovaLook = {
             default: preNovaDefault,
             pref: preNova(),
+            autocompleteRadius: acRadius(),
+            macos: AppConstants.platform === "macosx",
             searchDefault: sbSearchDefault,
             search: sbSearch(),
         };
@@ -2147,6 +2153,13 @@ function contractsFor(scenarioId, p) {
                     (pnPref.lwtheme || pnPref.frameImage === "none") &&
                     pnPref.switcherHeight === pnPref.switcherHeightProton,
                 `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
+            );
+            // The form autocomplete popup has the other panels' corners: 8px
+            // on macOS, the theme's 12px menu radius on Windows and Linux.
+            add(
+                "pref:pre-nova-autocomplete-radius",
+                pn.autocompleteRadius === (pn.macos ? "8px" : "12px"),
+                `${pn.autocompleteRadius} (macOS ${pn.macos})`,
             );
             // The sidebar's search field: Proton's 8px corners, and moved down
             // only in the 162 panel, where Nova halves the top padding. The
