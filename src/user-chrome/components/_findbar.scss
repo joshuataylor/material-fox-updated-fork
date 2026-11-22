@@ -246,6 +246,18 @@ $-checkbox-selectors: (
   overflow: hidden !important;
 }
 
+// Firefox 163 (Bug 2075485) colours the find bar from --background-color-box
+// and --text-color instead of the toolbar's, except under a lightweight theme
+// or the GTK native theme. Point both at the toolbar's, so the bar matches
+// the theme's toolbar as it did before. The material and top-right bars set
+// their own colours on top.
+@include moz-pref-media("not userChrome.theme-default") {
+  findbar {
+    --background-color-box: var(--toolbar-background-color) !important;
+    --text-color: var(--toolbar-text-color) !important;
+  }
+}
+
 // Firefox 155's "Nova" work moved the findbar into the .browserContainer CSS grid
 // (grid-area: findbar) and hides it via visibility:collapse + negative margin-bottom.
 // That relocation is UNGATED -- it ships for every 155 build regardless of

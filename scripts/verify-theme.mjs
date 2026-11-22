@@ -553,7 +553,14 @@ function featureProbeScript(url, done) {
         const fb = await gBrowser.getFindBar();
         fb.open();
         await waitFor(() => !fb.hidden && fb.getBoundingClientRect().height);
-        out.findbar = { overflow: getComputedStyle(fb).overflow };
+        const navBar = getComputedStyle(document.getElementById("nav-bar"));
+        out.findbar = {
+            overflow: getComputedStyle(fb).overflow,
+            background: getComputedStyle(fb).backgroundColor,
+            color: getComputedStyle(fb).color,
+            toolbarBackground: navBar.backgroundColor,
+            toolbarColor: navBar.color,
+        };
 
         // userChrome.ui-material-findbar: the theme's material bar with Nova
         // on, which Firefox 162 locks (Bug 2082898). Its checkboxes become
@@ -1923,6 +1930,19 @@ function contractsFor(scenarioId, p) {
             f.findbar?.overflow === "hidden",
             f.findbar?.overflow,
         );
+        // Nova's find bar is the toolbar's colour. Firefox 163 (Bug 2075485)
+        // moved it to the box colours, which the theme doesn't map. With Nova
+        // off the theme's material bar draws its own colours.
+        if (p.nova) {
+            const fbc = f.findbar || {};
+            add(
+                "findbar-matches-toolbar",
+                !!fbc.background &&
+                    fbc.background === fbc.toolbarBackground &&
+                    fbc.color === fbc.toolbarColor,
+                `findbar ${fbc.background} / ${fbc.color}, toolbar ${fbc.toolbarBackground} / ${fbc.toolbarColor}`,
+            );
+        }
         const it = f.inactiveTabText || {};
         add(
             "inactive-tab-text-colour",
