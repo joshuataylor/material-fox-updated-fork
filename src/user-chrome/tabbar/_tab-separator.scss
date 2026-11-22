@@ -40,15 +40,7 @@
 // ::before/::after sit at inline-start/end, so one block covers LTR and RTL.
 .tabbrowser-tab:not([visuallyselected], [selected], :hover, [multiselected])
   + .tabbrowser-tab:not([visuallyselected], [selected], :hover, [multiselected])
-  .tab-content::before,
-#tabbrowser-tabs[hasadjacentnewtabbutton]:not([overflow])
-  .tabbrowser-tab[last-visible-tab]:not(
-    [visuallyselected],
-    [selected],
-    :hover,
-    [multiselected]
-  )
-  .tab-content::after {
+  .tab-content::before {
   opacity: var(--tab-separator-opacity) !important;
 }
 
