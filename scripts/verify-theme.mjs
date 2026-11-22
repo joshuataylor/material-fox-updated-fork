@@ -464,6 +464,18 @@ function featureProbeScript(url, done) {
         await waitFor(() => !urlbar.hasAttribute("focused"));
         const x0 = input.getBoundingClientRect().x;
         const trustClosed = display(trust);
+        // The URL text's vertical centre, which must hold from rest through
+        // focus to the open results: the breakout the open bar enters can
+        // move or stretch the input row.
+        const textY = () => {
+            const r = input.getBoundingClientRect();
+            return r.y + r.height / 2;
+        };
+        const textYAt = async () => {
+            await settled(textY);
+            return textY();
+        };
+        const yRest = await textYAt();
         // The empty search lists only top sites, read from the New Tab feed's
         // cache, and Firefox keeps the view shut with no rows. A fresh profile
         // fills that cache some time after startup, on Windows runners
@@ -477,6 +489,8 @@ function featureProbeScript(url, done) {
             30000,
         );
         gURLBar.focus();
+        await waitFor(() => urlbar.hasAttribute("focused"));
+        const yFocused = await textYAt();
         gURLBar.startQuery({
             event: new MouseEvent("mousedown"),
             searchString: "",
@@ -497,6 +511,7 @@ function featureProbeScript(url, done) {
             rows: gURLBar.view.visibleRowCount,
             topSites,
         };
+        const yClickOpen = await textYAt();
         // How far the open surface reaches past the bar, by default and with
         // userChrome.ui-no-urlbar-overhang (fork #19).
         const overhang = () => {
@@ -544,7 +559,23 @@ function featureProbeScript(url, done) {
             pref: overhang(),
         };
         await clearPref("userChrome.ui-no-urlbar-overhang");
+        // Typed text opens the results too, with a different set of rows.
+        gURLBar.search("example");
+        await waitFor(
+            () =>
+                urlbar.hasAttribute("open") &&
+                gURLBar.value === "example" &&
+                urlbar.querySelector(".urlbarView-row"),
+        );
+        out.urlbarTextY = {
+            rest: yRest,
+            focused: yFocused,
+            clickOpen: yClickOpen,
+            typedOpen: await textYAt(),
+            typedIsOpen: urlbar.hasAttribute("open"),
+        };
         gURLBar.view.close();
+        gURLBar.value = "";
         gBrowser.selectedBrowser.focus();
         await waitFor(() => !urlbar.hasAttribute("open"));
 
@@ -1957,6 +1988,17 @@ function contractsFor(scenarioId, p) {
                 uc.trustClosed !== "none" &&
                 uc.trustOpen !== "none",
             `shift ${uc.shift}px, chip ${uc.trustClosed} -> ${uc.trustOpen}`,
+        );
+        // The URL text stays at the same height at rest, focused, and with
+        // the results open from a click or from typing.
+        const ty = f.urlbarTextY || {};
+        const tys = [ty.rest, ty.focused, ty.clickOpen, ty.typedOpen];
+        add(
+            "urlbar-text-vertical-still",
+            ty.typedIsOpen === true &&
+                tys.every((y) => typeof y === "number") &&
+                Math.max(...tys) - Math.min(...tys) <= 0.5,
+            `rest ${ty.rest}, focused ${ty.focused}, click-open ${ty.clickOpen}, typed-open ${ty.typedOpen}`,
         );
         // A XUL dialog's buttons stay Firefox's own, without the theme's
         // button padding (8px 16px).
