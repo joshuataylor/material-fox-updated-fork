@@ -10,7 +10,7 @@
 //   node scripts/firefox.mjs --prefs josh # overlay scripts/user_profiles/josh.js
 //   node scripts/firefox.mjs --remote # Marionette
 //
-// The profile is at tmp/profiles/<channel> , and chrome/ is symlinked into here, as Firefox reads <profile>/chrome/userChrome.css,
+// The profile is at tmp/profiles/<channel> , and chrome/ is copied into here on every launch, as Firefox reads <profile>/chrome/userChrome.css,
 // and user.js is regenerated every launch from scripts/user_profiles/base.js and any --prefs overlays, then browser.nova.enabled
 // and the Marionette port are applied last.
 //
@@ -32,7 +32,7 @@ import {
     REPO,
     findBinary,
 } from "./lib/firefox-bin.mjs";
-import { linkChrome } from "./lib/profile.mjs";
+import { copyChrome } from "./lib/profile.mjs";
 
 function parseArgs(argv) {
     const args = { prefs: [], rest: [] };
@@ -131,7 +131,10 @@ async function main() {
 
     const profileDir = args.profile ?? join(REPO, "tmp", "profiles", channel);
     mkdirSync(join(profileDir, "extensions"), { recursive: true });
-    linkChrome(profileDir);
+    if (!copyChrome(profileDir))
+        console.error(
+            `  note: ${join(profileDir, "chrome")} is not the launcher's copy, left as it is`,
+        );
 
     // base + overlays + computed (nova / marionette) last.
     let prefs = (

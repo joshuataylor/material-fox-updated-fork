@@ -1,9 +1,12 @@
 // Temporary Firefox profiles are created under tmp/profiles/ , used for headless testing etc.
 
 import {
+    cpSync,
+    existsSync,
     lstatSync,
     mkdirSync,
     mkdtempSync,
+    rmSync,
     symlinkSync,
     unlinkSync,
     writeFileSync,
@@ -13,6 +16,9 @@ import { REPO } from "./firefox-bin.mjs";
 
 // Point <profile>/chrome at chrome/ (using a junction on Windows, which needs no admin, a dir symlink on linux/macOS).
 // Windows: https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions
+//
+// Only for profiles that geckodriver launches: it copies the profile for each launch and follows the link, so the
+// browser gets a real chrome/ with the current build. A Firefox started on the profile itself needs copyChrome.
 export function linkChrome(profileDir) {
     const link = join(profileDir, "chrome");
     const target = join(REPO, "chrome");
@@ -27,6 +33,34 @@ export function linkChrome(profileDir) {
         link,
         process.platform === "win32" ? "junction" : "dir",
     );
+}
+
+// Marks a chrome/ that copyChrome wrote, so the next launch may replace it.
+const COPY_MARKER = ".copied-by-launcher";
+
+// Copy chrome/ into <profile>/chrome, replacing an earlier copy or a link.
+//
+// For a Firefox started on the profile itself (scripts/firefox.mjs). Its content processes can only read the
+// profile's own chrome/, so with a link out of the profile about:newtab, about:logins and the other pages in a
+// content process come up without the theme. Firefox reads the sheets at startup, so a copy per launch is current.
+// A chrome/ directory this did not write is left alone.
+export function copyChrome(profileDir) {
+    const dest = join(profileDir, "chrome");
+    let stat = null;
+    try {
+        stat = lstatSync(dest);
+    } catch {
+        /* not present yet */
+    }
+    if (stat?.isSymbolicLink()) unlinkSync(dest);
+    else if (stat) {
+        if (!existsSync(join(dest, COPY_MARKER))) return false;
+        // A running Firefox on Windows keeps these files open.
+        rmSync(dest, { recursive: true, force: true, maxRetries: 5 });
+    }
+    cpSync(join(REPO, "chrome"), dest, { recursive: true, dereference: true });
+    writeFileSync(join(dest, COPY_MARKER), "");
+    return true;
 }
 
 // tad cursed
