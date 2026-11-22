@@ -548,6 +548,47 @@ function featureProbeScript(url, done) {
         gBrowser.selectedBrowser.focus();
         await waitFor(() => !urlbar.hasAttribute("open"));
 
+        // A XUL <dialog> keeps Firefox's own buttons. They sit in its shadow
+        // root, and with the theme's button padding macOS draws the taller
+        // cancel button of a prompt as a square bezel. A real prompt
+        // (commonDialog.xhtml) would interrupt this script, as WebDriver
+        // treats it as a user prompt, so load another dialog document, which
+        // gets the same widget and the same sheets.
+        const dialogFrame = document.createXULElement("iframe");
+        dialogFrame.setAttribute(
+            "style",
+            "position: fixed; inset: 0 auto auto 0; width: 480px; height: 360px;",
+        );
+        dialogFrame.setAttribute(
+            "src",
+            "chrome://browser/content/preferences/dialogs/colors.xhtml",
+        );
+        document.documentElement.appendChild(dialogFrame);
+        const dialogButton = (type) =>
+            dialogFrame.contentDocument
+                ?.querySelector("dialog")
+                ?.shadowRoot?.querySelector(`[dlgtype="${type}"]`);
+        await waitFor(
+            () => dialogButton("cancel")?.getBoundingClientRect().height,
+            5000,
+        );
+        const buttonStyle = (type) => {
+            const b = dialogButton(type);
+            if (!b) return null;
+            const cs = getComputedStyle(b);
+            return {
+                paddingBlock: cs.paddingBlockStart,
+                paddingInline: cs.paddingInlineStart,
+                radius: cs.borderStartStartRadius,
+                height: b.getBoundingClientRect().height,
+            };
+        };
+        out.dialogButtons = {
+            accept: buttonStyle("accept"),
+            cancel: buttonStyle("cancel"),
+        };
+        dialogFrame.remove();
+
         // The find bar clips both axes (no scrollbar), and the top-right bar
         // stays inside a narrow window (issue #8).
         const fb = await gBrowser.getFindBar();
@@ -1916,6 +1957,16 @@ function contractsFor(scenarioId, p) {
                 uc.trustClosed !== "none" &&
                 uc.trustOpen !== "none",
             `shift ${uc.shift}px, chip ${uc.trustClosed} -> ${uc.trustOpen}`,
+        );
+        // A XUL dialog's buttons stay Firefox's own, without the theme's
+        // button padding (8px 16px).
+        const dlg = f.dialogButtons || {};
+        const themedButton = (b) =>
+            !b || (b.paddingBlock === "8px" && b.paddingInline === "16px");
+        add(
+            "dialog-buttons-native",
+            !themedButton(dlg.accept) && !themedButton(dlg.cancel),
+            JSON.stringify(dlg),
         );
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
         // the bar. Nova grows it by 8px by default (fork #19).
