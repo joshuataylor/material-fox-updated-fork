@@ -1665,6 +1665,24 @@ function featureProbeScript(url, done) {
             buttonBackground: accentColor("--button-background-color-primary"),
         };
         hint?.hidePopup();
+
+        // The other contracts run light only. In dark, the toolbar is the
+        // theme's colour and the find bar matches it (Firefox 163 moved the
+        // find bar to the box colours, Bug 2075485, near-black in dark).
+        const darkFb = await gBrowser.getFindBar();
+        darkFb.open();
+        await waitFor(
+            () => !darkFb.hidden && darkFb.getBoundingClientRect().height,
+        );
+        const darkNav = getComputedStyle(document.getElementById("nav-bar"));
+        out.darkChrome = {
+            dark: darkMq.matches,
+            toolbarBackground: darkNav.backgroundColor,
+            toolbarColor: darkNav.color,
+            themeToolbar: accentColor("--md-background-color-100"),
+            findbarBackground: getComputedStyle(darkFb).backgroundColor,
+            findbarColor: getComputedStyle(darkFb).color,
+        };
         if (wasDark === null)
             Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
         else Services.prefs.setIntPref("ui.systemUsesDarkTheme", wasDark);
@@ -1941,6 +1959,22 @@ function contractsFor(scenarioId, p) {
                     fbc.background === fbc.toolbarBackground &&
                     fbc.color === fbc.toolbarColor,
                 `findbar ${fbc.background} / ${fbc.color}, toolbar ${fbc.toolbarBackground} / ${fbc.toolbarColor}`,
+            );
+            const dc = f.darkChrome || {};
+            add(
+                "dark:toolbar-is-theme-colour",
+                dc.dark === true &&
+                    !!dc.toolbarBackground &&
+                    dc.toolbarBackground === dc.themeToolbar,
+                `dark ${dc.dark}, toolbar ${dc.toolbarBackground}, theme ${dc.themeToolbar}`,
+            );
+            add(
+                "dark:findbar-matches-toolbar",
+                dc.dark === true &&
+                    !!dc.findbarBackground &&
+                    dc.findbarBackground === dc.toolbarBackground &&
+                    dc.findbarColor === dc.toolbarColor,
+                `findbar ${dc.findbarBackground} / ${dc.findbarColor}, toolbar ${dc.toolbarBackground} / ${dc.toolbarColor}`,
             );
         }
         const it = f.inactiveTabText || {};
