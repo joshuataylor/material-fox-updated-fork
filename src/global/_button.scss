@@ -64,7 +64,9 @@ $secondary-button-border-color: color-mix(
 // .dialog-button-box holds the XUL <dialog> buttons (its shadow DOM). Those
 // stay native: on macOS the extra padding makes the cancel button taller than
 // 26px, which Firefox then draws as a square bezel.
-:not(button-group, .dialog-button-box) > button {
+// .subviewbutton is a panel's list row (the downloads panel's "Show all
+// downloads" is a <button> with an accesskey), not a push button.
+:not(button-group, .dialog-button-box) > button:not(.subviewbutton) {
   &:is(
       [accesskey],
       .accessory-button,

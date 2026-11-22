@@ -620,6 +620,21 @@ function featureProbeScript(url, done) {
         };
         dialogFrame.remove();
 
+        // A panel's list row that is a <button> with an accesskey (the
+        // downloads panel's "Show all downloads") is not a push button, so it
+        // keeps the row's padding.
+        const rowHost = document.createXULElement("vbox");
+        const rowButton = document.createXULElement("button");
+        rowButton.className = "subviewbutton";
+        rowButton.setAttribute("accesskey", "S");
+        rowHost.appendChild(rowButton);
+        document.documentElement.appendChild(rowHost);
+        out.subviewButton = {
+            padding: getComputedStyle(rowButton).paddingInlineStart,
+        };
+
+        rowHost.remove();
+
         // The form autocomplete popup (form history, logins, addresses, a
         // <datalist>) highlights the rounded <autocomplete-row-item> inside
         // the selected row, not the square row itself, and keeps the row's
@@ -2060,6 +2075,16 @@ function contractsFor(scenarioId, p) {
             "autocomplete-selected-row-second-line",
             !!acSel.dimmed && acSel.dimmed !== ac.rest?.dimmed,
             `selected ${acSel.dimmed} on ${acSel.inner}, rest ${ac.rest?.dimmed}`,
+        );
+        // A <button> used as a panel row keeps the row's look, not the
+        // theme's outlined button with its 16px side padding. Windows and
+        // Linux give a bare XUL button a border of their own, so only the
+        // padding is compared.
+        const sb = f.subviewButton || {};
+        add(
+            "panel-row-button-not-outlined",
+            !!sb.padding && sb.padding !== "16px",
+            `padding ${sb.padding}`,
         );
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
         // the bar. Nova grows it by 8px by default (fork #19).
