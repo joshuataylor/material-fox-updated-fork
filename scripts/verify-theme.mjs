@@ -1603,6 +1603,18 @@ function featureProbeScript(url, done) {
             flare: getComputedStyle(vbg, "::before").display,
             bottomRadius: getComputedStyle(vbg).borderBottomLeftRadius,
         };
+        // Where the toolbar is the title bar here (macOS and Windows), it is
+        // transparent over the frame, so the address bar's field must not be
+        // the frame's colour.
+        out.verticalTab.field = getComputedStyle(
+            urlbar.querySelector(".urlbar-background"),
+        ).backgroundColor;
+        out.verticalTab.frame = getComputedStyle(
+            document.documentElement,
+        ).backgroundColor;
+        out.verticalTab.navbar = getComputedStyle(
+            document.getElementById("nav-bar"),
+        ).backgroundColor;
         // The rest of the strip (edelvarden/material-fox-updated#134):
         // expanded rows share one text start with no separators, and pinned
         // tabs fill their grid cells; collapsed favicons are centred with no
@@ -2658,6 +2670,16 @@ function contractsFor(scenarioId, p) {
                 vt.flare === "none" &&
                 vt.bottomRadius !== "0px",
             `${vt.orient} flare ${vt.flare} radius ${vt.bottomRadius}`,
+        );
+        // With vertical tabs the address bar's field stands out from the
+        // title bar it sits in.
+        // What is behind the field: the toolbar's own colour, or the frame
+        // where the toolbar is transparent.
+        const vBackdrop = parseColor(vt.navbar)?.a > 0 ? vt.navbar : vt.frame;
+        add(
+            "vertical-urlbar-field-visible",
+            !!vt.field && vt.field !== vBackdrop,
+            `field ${vt.field}, toolbar ${vt.navbar}, frame ${vt.frame}`,
         );
         // The rest of the vertical strip (upstream #134).
         add(

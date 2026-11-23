@@ -11,6 +11,19 @@
     background-color: get-var("background-color-50") !important;
   }
 
+  // With vertical tabs the toolbar is the title bar (.browser-titlebar) and
+  // has the frame's colour, which is also the field's resting colour, so the
+  // address bar vanished into it. There the field takes the toolbar colour.
+  #nav-bar.browser-titlebar {
+    #urlbar {
+      --urlbar-background-color: var(--toolbar-bgcolor) !important;
+    }
+
+    #searchbar {
+      background-color: var(--toolbar-bgcolor) !important;
+    }
+  }
+
   // default titlebar background color, when not theme-material
   @include moz-pref-media("not userChrome.theme-material") {
     #navigator-toolbox,
