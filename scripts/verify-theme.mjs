@@ -1615,6 +1615,26 @@ function featureProbeScript(url, done) {
         out.verticalTab.navbar = getComputedStyle(
             document.getElementById("nav-bar"),
         ).backgroundColor;
+        // A container tab's dot stays inside the tab's inset background.
+        const vContainer = gBrowser.addTab("about:blank", {
+            triggeringPrincipal: system,
+            skipAnimation: true,
+            userContextId: 1,
+        });
+        await settled(() => vContainer.getBoundingClientRect().toJSON());
+        const vStack = vContainer.querySelector(".tab-stack");
+        const vDot = getComputedStyle(vStack, "::before");
+        const vDotLeft =
+            vStack.getBoundingClientRect().x + parseFloat(vDot.left);
+        const vTabBg = vContainer
+            .querySelector(".tab-background")
+            .getBoundingClientRect();
+        out.verticalTab.containerDot = {
+            start: vDotLeft,
+            end: vDotLeft + parseFloat(vDot.width),
+            tab: [vTabBg.left, vTabBg.right],
+        };
+        gBrowser.removeTab(vContainer);
         // The rest of the strip (edelvarden/material-fox-updated#134):
         // expanded rows share one text start with no separators, and pinned
         // tabs fill their grid cells; collapsed favicons are centred with no
@@ -2680,6 +2700,13 @@ function contractsFor(scenarioId, p) {
             "vertical-urlbar-field-visible",
             !!vt.field && vt.field !== vBackdrop,
             `field ${vt.field}, toolbar ${vt.navbar}, frame ${vt.frame}`,
+        );
+        // A container tab's dot is inside the tab's background.
+        const vd = vt.containerDot || {};
+        add(
+            "vertical-container-dot-inside-tab",
+            vd.start >= vd.tab?.[0] && vd.end <= vd.tab?.[1],
+            `dot ${vd.start}..${vd.end}, tab ${vd.tab}`,
         );
         // The rest of the vertical strip (upstream #134).
         add(

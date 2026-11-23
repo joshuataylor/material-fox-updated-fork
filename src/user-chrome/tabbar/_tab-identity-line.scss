@@ -26,6 +26,14 @@
   }
 }
 
+// A vertical tab's background is inset from the row, so the dot moves in with
+// it. At the row's edge it sat just outside the tab's rounded box.
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[usercontextid] .tab-stack {
+  &::before {
+    right: calc(var(--tab-margin-inline-inner) + 4px) !important;
+  }
+}
+
 // user container identity line default
 // .tab-stack {
 //   position: relative !important;
