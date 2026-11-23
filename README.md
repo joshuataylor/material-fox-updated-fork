@@ -70,6 +70,9 @@ To start using MaterialFox UPDATED, follow these steps:
 > [!TIP]
 > To update, back up `chrome/custom.css` (and anything else you've changed), replace the rest of the `chrome` folder with the new release, then restart Firefox. Keeping your own rules in `custom.css` makes this painless.
 
+> [!NOTE]
+> Keep `chrome` as a real folder inside the profile, not a symbolic link to a folder somewhere else. With a link the browser window is still themed, but Firefox's pages that run in their own process (the New Tab page, `about:logins`, `about:protections`) are not, because those processes can only read the profile's own `chrome` folder. If you keep the theme elsewhere, copy it in.
+
 ### Installation Script (for Advanced Users)
 
 As an alternative to manual installation, you can use a PowerShell script.
@@ -583,7 +586,7 @@ mise run build
 mise run firefox -- --channel stable
 ```
 
-The launcher downloads the chosen Firefox channel if needed and keeps its profile under `tmp/profiles/`. Use `--channel beta` or `--channel nightly` for the other builds, and `--nova off` to check the theme with Nova disabled.
+The launcher downloads the chosen Firefox channel if needed, keeps its profile under `tmp/profiles/` and copies the built `chrome/` into it on every launch. Use `--channel beta` or `--channel nightly` for the other builds, and `--nova off` to check the theme with Nova disabled.
 
 Other checks:
 
