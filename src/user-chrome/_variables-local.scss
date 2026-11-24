@@ -32,6 +32,17 @@
 
   :root:not([windowtype="Toolkit:PictureInPicture"]) {
     --panel-banner-item-info-icon-bgcolor: #{get-var("accent-color")} !important;
+    // Nova's "vibrant" promo colours are violet constants. They paint the app
+    // menu's update banner and the sign-in card, which stayed violet in a
+    // blue theme. Tint them with the accent instead. The border follows the
+    // text colour by itself (Nova's --promo-border-color).
+    --promo-background-color-vibrant: color-mix(
+      in srgb,
+      #{get-var("accent-color")} 12%,
+      transparent
+    ) !important;
+    --promo-message-text-color-vibrant: #{get-var("text-primary")} !important;
+    --icon-color-accent-primary-desaturated: #{get-var("accent-color")} !important;
     --focus-outline-color: #{get-var("accent-color")} !important;
     --button-primary-active-bgcolor: #{get-var("accent-color")} !important;
     --button-primary-bgcolor: #{get-var("accent-color")} !important;
@@ -184,6 +195,22 @@
   :root {
     --tab-selected-outline-color: transparent !important;
     --tab-border-color-selected: transparent !important;
+  }
+
+  // In dark mode the app menu's banners take --background-color-information
+  // and --icon-color-information, Nova's violet, not the promo colours above.
+  // Those two tokens colour every info bar, so set the banner's own
+  // variables. The warning banners (a manual or unsupported update) keep
+  // Firefox's yellow.
+  #appMenu-popup
+    .panel-banner-item:not(
+      [notificationid="update-manual"],
+      [notificationid="update-unsupported"]
+    ) {
+    --panel-banner-item-background-color: var(
+      --promo-background-color-vibrant
+    ) !important;
+    --panel-banner-item-icon-color: #{get-var("accent-color")} !important;
   }
 
   // Firefox 161 dropped --panel-banner-item-info-icon-bgcolor (Bug 2076457):

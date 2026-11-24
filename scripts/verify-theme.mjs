@@ -679,6 +679,50 @@ function featureProbeScript(url, done) {
             : null;
         contentDialog.remove();
 
+        // The app menu's update banner takes the theme's accent, not Nova's
+        // violet promo colours.
+        const { AppMenuNotifications } = ChromeUtils.importESModule(
+            "resource://gre/modules/AppMenuNotifications.sys.mjs",
+        );
+        AppMenuNotifications.showNotification(
+            "update-available",
+            { callback() {} },
+            null,
+            { dismissed: true },
+        );
+        PanelUI.show();
+        const updateBanner = () =>
+            document.getElementById("appMenu-update-banner");
+        await waitFor(
+            () =>
+                updateBanner() &&
+                !updateBanner().hidden &&
+                updateBanner().getBoundingClientRect().height,
+            5000,
+        );
+        const ubanner = updateBanner();
+        if (ubanner?.getBoundingClientRect().height) {
+            const tint = document.createElement("div");
+            tint.style.backgroundColor =
+                "color-mix(in srgb, var(--md-accent-color) 12%, transparent)";
+            tint.style.color = "var(--md-accent-color)";
+            document.documentElement.append(tint);
+            out.updateBanner = {
+                background: getComputedStyle(ubanner).backgroundColor,
+                icon: getComputedStyle(
+                    ubanner.querySelector(".toolbarbutton-icon"),
+                ).fill,
+                wantBackground: getComputedStyle(tint).backgroundColor,
+                accent: getComputedStyle(tint).color,
+            };
+            tint.remove();
+        }
+        PanelUI.hide();
+        AppMenuNotifications.removeNotification("update-available");
+        await waitFor(
+            () => document.getElementById("appMenu-popup")?.state !== "open",
+        );
+
         // The form autocomplete popup (form history, logins, addresses, a
         // <datalist>) highlights the rounded <autocomplete-row-item> inside
         // the selected row, not the square row itself, and keeps the row's
@@ -2194,6 +2238,19 @@ function contractsFor(scenarioId, p) {
             !!sd.palette && sd.accent === sd.palette,
             `accent ${sd.accent}, theme ${sd.palette}`,
         );
+        // Under Nova the app menu's update banner is tinted with the theme's
+        // accent and its icon is the accent. Without Nova Firefox draws a
+        // plain grey banner.
+        if (p.nova) {
+            const ub = f.updateBanner || {};
+            add(
+                "app-menu-update-banner-accent",
+                !!ub.background &&
+                    ub.background === ub.wantBackground &&
+                    ub.icon === ub.accent,
+                `background ${ub.background} (want ${ub.wantBackground}), icon ${ub.icon} (accent ${ub.accent})`,
+            );
+        }
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with
         // the bar. Nova grows it by 8px by default (fork #19).
         const oh = f.urlbarOverhang || {};
