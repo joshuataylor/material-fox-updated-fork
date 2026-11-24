@@ -201,7 +201,7 @@ Leave all the `userChrome.theme-*` preferences off to use the theme's bundled pa
   </tr>
   <tr>
     <td><code>userChrome.ui-no-animation</code></td>
-    <td>Disable the theme's animations, including the tab loading spinner (the OS "reduce motion" setting does this too)</td>
+    <td>Disable the theme's animations, including the tab loading spinner (the OS "reduce motion" setting does this too). Also stops Firefox's own fade between the views of a menu panel, such as the app menu and its History view (Firefox 163 and later).</td>
   </tr>
   <tr>
     <td><code>userChrome.ui-system-font</code></td>

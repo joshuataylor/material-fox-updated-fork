@@ -723,6 +723,49 @@ function featureProbeScript(url, done) {
             () => document.getElementById("appMenu-popup")?.state !== "open",
         );
 
+        // userChrome.ui-no-animation cuts Firefox's cross-fade between a
+        // panel's views (163+) to 1ms, and the switch still completes: the
+        // panel code waits for a transitionend, which a 0ms duration never
+        // fires.
+        const drillToken = () =>
+            getComputedStyle(document.documentElement)
+                .getPropertyValue("--panel-subview-motion-duration-enter")
+                .trim();
+        const drillDefault = drillToken();
+        if (drillDefault) {
+            await setPref("userChrome.ui-no-animation");
+            await waitFor(() => drillToken() !== drillDefault, 2000);
+            PanelUI.show();
+            await waitFor(
+                () =>
+                    document.getElementById("appMenu-popup")?.state === "open",
+                5000,
+            );
+            const multiView = document.getElementById("appMenu-multiView");
+            document.getElementById("appMenu-history-button").click();
+            const historyView = () =>
+                document.getElementById("PanelUI-history");
+            const settledDrill = await waitFor(
+                () =>
+                    historyView()?.hasAttribute("visible") &&
+                    !multiView.hasAttribute("drilling"),
+                3000,
+            );
+            out.noAnimationDrill = {
+                default: drillDefault,
+                pref: drillToken(),
+                settled: !!settledDrill,
+                opacity:
+                    historyView() && getComputedStyle(historyView()).opacity,
+            };
+            PanelUI.hide();
+            await clearPref("userChrome.ui-no-animation");
+            await waitFor(
+                () =>
+                    document.getElementById("appMenu-popup")?.state !== "open",
+            );
+        }
+
         // The form autocomplete popup (form history, logins, addresses, a
         // <datalist>) highlights the rounded <autocomplete-row-item> inside
         // the selected row, not the square row itself, and keeps the row's
@@ -2249,6 +2292,20 @@ function contractsFor(scenarioId, p) {
                     ub.background === ub.wantBackground &&
                     ub.icon === ub.accent,
                 `background ${ub.background} (want ${ub.wantBackground}), icon ${ub.icon} (accent ${ub.accent})`,
+            );
+        }
+        // userChrome.ui-no-animation also stops Firefox's fade between a
+        // panel's views, where Firefox has one (163+), and the panel still
+        // lands on the new view.
+        const nd = f.noAnimationDrill;
+        if (nd) {
+            add(
+                "pref:no-animation-panel-views",
+                nd.pref === "1ms" &&
+                    nd.default !== "1ms" &&
+                    nd.settled === true &&
+                    nd.opacity === "1",
+                `duration ${nd.default} -> ${nd.pref}, settled ${nd.settled}, opacity ${nd.opacity}`,
             );
         }
         // userChrome.ui-no-urlbar-overhang keeps the open surface flush with

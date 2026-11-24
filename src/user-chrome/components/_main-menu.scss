@@ -409,3 +409,16 @@
     fill: get-var("icon-color-primary") !important;
   }
 }
+
+// userChrome.ui-no-animation also stops Firefox's own cross-fade between a
+// panel's views (Firefox 163, Bug 2084630). 1ms, not 0: PanelMultiView waits
+// for the view's transitionend before it finishes the switch, and a zero
+// duration never fires one, which leaves the panel stuck between two views.
+@media (-moz-pref("userChrome.ui-no-animation")) and (not (-moz-pref("userChrome.ui-force-animation"))) {
+  :root {
+    --panel-subview-motion-duration-enter: 1ms !important;
+    --panel-subview-motion-duration-exit: 1ms !important;
+    --panel-subview-motion-duration-parent-exit: 1ms !important;
+    --panel-subview-motion-duration-fade-reduced: 1ms !important;
+  }
+}
