@@ -178,14 +178,61 @@
         display: block !important;
       }
 
-      // Secondary buttons as plain text, as without Nova. Nova's tokens set
-      // --button-border to `1px solid currentColor` on :root, resolved there,
-      // so the button's text colour (the accent) outlined them.
+      // No outline on the buttons. Nova's tokens set --button-border to
+      // `1px solid currentColor` on :root, resolved there, so the button's
+      // text colour (the accent) outlined them.
       moz-button.notification-button {
         --button-border: var(--border-width) solid transparent !important;
         --button-border-color-hover: transparent !important;
         --button-border-color-active: transparent !important;
         --button-border-color-disabled: transparent !important;
+      }
+
+      // Secondary buttons as without Nova: a grey fill with the bar's text
+      // colour, not accent text on nothing. The values are what Firefox 160
+      // draws with Nova off. 162 made the buttons moz-buttons (Bug 2005078),
+      // painted from tokens, and before that they are plain buttons in the
+      // bar's light DOM.
+      --pre-nova-button-background: light-dark(
+        rgba(207, 207, 216, 0.33),
+        rgba(0, 0, 0, 0.33)
+      );
+      --pre-nova-button-background-hover: light-dark(
+        rgba(207, 207, 216, 0.66),
+        rgba(207, 207, 216, 0.2)
+      );
+      --pre-nova-button-background-active: light-dark(
+        rgb(207, 207, 216),
+        rgba(207, 207, 216, 0.3)
+      );
+      --pre-nova-button-text: light-dark(rgb(21, 20, 26), rgb(251, 251, 254));
+
+      moz-button.notification-button:not([type="primary"]) {
+        --button-background-color: var(--pre-nova-button-background) !important;
+        --button-background-color-hover: var(
+          --pre-nova-button-background-hover
+        ) !important;
+        --button-background-color-active: var(
+          --pre-nova-button-background-active
+        ) !important;
+        --button-text-color: var(--pre-nova-button-text) !important;
+        --button-text-color-hover: var(--pre-nova-button-text) !important;
+        --button-text-color-active: var(--pre-nova-button-text) !important;
+      }
+
+      button.notification-button:not(.primary) {
+        background-color: var(--pre-nova-button-background) !important;
+        border-color: transparent !important;
+        border-radius: 4px !important;
+        color: var(--pre-nova-button-text) !important;
+
+        &:hover {
+          background-color: var(--pre-nova-button-background-hover) !important;
+        }
+
+        &:hover:active {
+          background-color: var(--pre-nova-button-background-active) !important;
+        }
       }
     }
 

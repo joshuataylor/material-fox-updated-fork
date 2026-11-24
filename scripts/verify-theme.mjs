@@ -774,9 +774,22 @@ function featureProbeScript(url, done) {
         const pnNote = await pnBox.appendNotification(
             "verify-theme-pre-nova",
             { label: "verify-theme", priority: pnBox.PRIORITY_INFO_MEDIUM },
-            [],
+            [{ label: "Secondary", callback: () => true }],
         );
         await pnNote.updateComplete;
+        // The bar's secondary button: a moz-button from 162, whose face is in
+        // its shadow root, and a plain button before.
+        const pnButton = pnNote.querySelector(".notification-button");
+        await pnButton?.updateComplete;
+        const pnButtonFace = () => {
+            const face =
+                pnButton?.shadowRoot?.querySelector(".button-background") ??
+                pnButton;
+            const cs = face && getComputedStyle(face);
+            return cs
+                ? { background: cs.backgroundColor, border: cs.borderTopColor }
+                : null;
+        };
         const pnIcon = pnNote.shadowRoot?.querySelector(
             ".icon-container > .icon",
         );
@@ -852,9 +865,11 @@ function featureProbeScript(url, done) {
         };
         const sbSearchDefault = sbSearch();
         const preNovaDefault = preNova();
+        const pnButtonDefault = pnButtonFace();
         await setPref("userChrome.ui-pre-nova-look");
         await settled(preNova);
         await settled(sbSearch);
+        await settled(pnButtonFace);
         const acRadius = () =>
             getComputedStyle(
                 document.getElementById("PopupAutoComplete"),
@@ -863,6 +878,8 @@ function featureProbeScript(url, done) {
             default: preNovaDefault,
             pref: preNova(),
             autocompleteRadius: acRadius(),
+            buttonDefault: pnButtonDefault,
+            button: pnButtonFace(),
             macos: AppConstants.platform === "macosx",
             searchDefault: sbSearchDefault,
             search: sbSearch(),
@@ -2269,6 +2286,16 @@ function contractsFor(scenarioId, p) {
                     (pnPref.lwtheme || pnPref.frameImage === "none") &&
                     pnPref.switcherHeight === pnPref.switcherHeightProton,
                 `default ${JSON.stringify(pn.default)}, pref ${JSON.stringify(pnPref)}`,
+            );
+            // A notification bar's secondary button is filled and has no
+            // outline, as without Nova. By default it is an outlined button.
+            const pb = pn.button || {};
+            add(
+                "pref:pre-nova-notification-button",
+                parseColor(pb.background)?.a > 0 &&
+                    parseColor(pb.border)?.a === 0 &&
+                    parseColor(pn.buttonDefault?.background)?.a === 0,
+                `default ${JSON.stringify(pn.buttonDefault)}, pref ${JSON.stringify(pb)}`,
             );
             // The form autocomplete popup has the other panels' corners: 8px
             // on macOS, the theme's 12px menu radius on Windows and Linux.
