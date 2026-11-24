@@ -21,7 +21,7 @@ Only the current Firefox **Release**, **Beta** and **Nightly** are supported. Ni
 > [!TIP]
 > See https://whattrainisitnow.com for the latest Firefox releases.
 
-As of 2026-11-10 (this will get quickly out of date, so check above...)
+As of 2026-11-24 (this will get quickly out of date, so check above...)
 
 <table>
   <tr>
@@ -36,12 +36,12 @@ As of 2026-11-10 (this will get quickly out of date, so check above...)
   </tr>
   <tr>
     <td>Beta</td>
-    <td>Firefox 161</td>
+    <td>Firefox 162</td>
     <td>Supported</td>
   </tr>
   <tr>
     <td>Nightly</td>
-    <td>Firefox 162</td>
+    <td>Firefox 163</td>
     <td>Best effort</td>
   </tr>
 </table>
@@ -96,7 +96,7 @@ $env:MATERIAL_FOX_VERSION = "tags/v1.0.7"; PowerShell -ExecutionPolicy Unrestric
 
 Firefox 155 introduced a large visual redesign codenamed Project Nova, behind `browser.nova.enabled` in `about:config`.
 
-It was Nightly-only at first, and has been on by default in every channel since Firefox 157 (Bug 2056186), so Release users get it too. You can still turn it off with `browser.nova.enabled` set to `false`; the theme supports both.
+It was Nightly-only at first, and has been on by default in every channel since Firefox 157 (Bug 2056186), so Release users get it too. You can still turn it off with `browser.nova.enabled` set to `false` up to Firefox 161; the theme supports both. Firefox 162, now in Beta, locks Nova on (Bug 2082898), and `userChrome.ui-pre-nova-look` and `userChrome.ui-material-findbar` bring back parts of the older look there.
 
 Firefox 156 onwards continue Nova rather than redesign it again. Firefox 157 also rebuilt the address bar (the results list is now its own popover below the input).
 
